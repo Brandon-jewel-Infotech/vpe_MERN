@@ -1,0 +1,1038 @@
+{
+	"info": {
+		"_postman_id": "85c1e18a-a96c-419b-a05e-f943aebbd35e",
+		"name": "API documentation",
+		"description": "# 📄 Get started here\n\nThis template contains a boilerplate for documentation that you can quickly customize and reuse.\n\n## 🔖 How to use this template\n\n- Replace the content given brackets (()) with your API's details.\n- Tips are formatted in `codespan` - feel free to read and remove them.\n    \n\n---\n\n`Start with a brief overview of what your API offers.`\n\nThe ((product name)) provides many API products, tools, and resources that enable you to ((add product value here)).\n\n`You can also list the APIs you offer, link to the relevant pages, or do both in this section.`\n\n## **Getting started guide**\n\n`List the steps or points required to start using your APIs. Make sure to cover everything required to reach success with your API as quickly as possible.`\n\nTo start using the ((add APIs here)), you need to -\n\n`The points given below are from The Postman API's documentation. You can reference it to write your own getting started guide.`\n\n- You must use a valid API Key to send requests to the API endpoints. You can get your API key from Postman's [integrations dashboard](https://go.postman.co/settings/me/api-keys).\n- The API has [rate and usage limits](https://postman.postman.co/workspace/Collection-Templates~6311738d-2e70-441f-ae12-78caf078c5b7/collection/22517504-e9c28f47-1253-44af-a2f3-20dce4da1f18?ctx=documentation#rate-and-usage-limits).\n- The API only responds to HTTPS-secured communications. Any requests sent via HTTP return an HTTP 301 redirect to the corresponding HTTPS resources.\n- The API returns request responses in JSON format. When an API request returns an error, it is sent in the JSON response as an error key.\n    \n\n## Authentication\n\n`Add details on the authorization keys/tokens required, steps that cover how to get them, and the relevant error codes.`\n\nThe ((product name)) API uses ((add your API's authorization type)) for authentication.\n\n`The details given below are from the Postman API's documentation. You can reference it to write your own authentication section.`\n\nPostman uses API keys for authentication. You can generate a Postman API key in the [API keys](https://postman.postman.co/settings/me/api-keys) section of your Postman account settings.\n\nYou must include an API key in each request to the Postman API with the X-Api-Key request header.\n\n### Authentication error response\n\nIf an API key is missing, malformed, or invalid, you will receive an HTTP 401 Unauthorized response code.\n\n## Rate and usage limits\n\n`Use this section to cover your APIs' terms of use. Include API limits, constraints, and relevant error codes, so consumers understand the permitted API usage and practices.`\n\n`The example given below is from The Postman API's documentation. Use it as a reference to write your APIs' terms of use.`\n\nAPI access rate limits apply at a per-API key basis in unit time. The limit is 300 requests per minute. Also, depending on your plan, you may have usage limits. If you exceed either limit, your request will return an HTTP 429 Too Many Requests status code.\n\nEach API response returns the following set of headers to help you identify your use status:\n\n| Header | Description |\n| --- | --- |\n| `X-RateLimit-Limit` | The maximum number of requests that the consumer is permitted to make per minute. |\n| `X-RateLimit-Remaining` | The number of requests remaining in the current rate limit window. |\n| `X-RateLimit-Reset` | The time at which the current rate limit window resets in UTC epoch seconds. |\n\n### 503 response\n\nAn HTTP `503` response from our servers indicates there is an unexpected spike in API access traffic. The server is usually operational within the next five minutes. If the outage persists or you receive any other form of an HTTP `5XX` error, [contact support](https://support.postman.com/hc/en-us/requests/new/).\n\n### **Need some help?**\n\n`Add links that customers can refer to whenever they need help.`\n\nIn case you have questions, go through our tutorials ((link to your video or help documentation here)). Or visit our FAQ page ((link to the relevant page)).\n\nOr you can check out our community forum, there’s a good chance our community has an answer for you. Visit our developer forum ((link to developer forum)) to review topics, ask questions, and learn from others.\n\n`You can also document or add links to libraries, code examples, and other resources needed to make a request.`",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "13045950"
+	},
+	"item": [
+		{
+			"name": "Seller",
+			"item": [
+				{
+					"name": "Cart",
+					"item": [
+						{
+							"name": "Get Cart",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/seller/cart"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Cart",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"product_id\":\"32\",\r\n    \"qty\":\"2\",\r\n    \"total\":\"100\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/seller/cart"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Products",
+					"item": [
+						{
+							"name": "Get Products",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/seller/getproducts"
+							},
+							"response": [
+								{
+									"name": "Get Products",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+												"type": "text"
+											}
+										],
+										"url": "http://localhost:5500/seller/getproducts"
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1613"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"64d-xp4wB0Tv0vQ5mHwYockwh3/qUrE\""
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 20 Mar 2024 10:26:41 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 32,\n        \"name\": \"WD 2TB Elements Portable External Hard Drive - USB 3.0\",\n        \"image\": \"public\\\\uploads\\\\1686828626291-61IBBVJvSDL._AC_SY879_.jpg,\",\n        \"price_b2b\": 5000,\n        \"price_b2c\": 6000,\n        \"availability\": 150,\n        \"reward_id\": 23,\n        \"description\": \"<p>USB 3.0 and USB 2.0 Compatibility Fast data transfers Improve PC Performance High Capacity; Compatibility Formatted NTFS for Windows 10, Windows 8.1, Windows 7; Reformatting may be required for other operating systems; Compatibility may vary depending on user’s hardware configuration and operating system</p>\",\n        \"instock\": 0,\n        \"category\": {\n            \"id\": 1,\n            \"name\": \"electronics\"\n        },\n        \"subcategory\": {\n            \"id\": 5,\n            \"name\": \"Refrigerator\"\n        },\n        \"reward\": {\n            \"id\": 23,\n            \"name\": \"Scheme 1\"\n        },\n        \"company\": {\n            \"id\": 1,\n            \"name\": \"Samsung\"\n        },\n        \"user\": {\n            \"id\": 50\n        }\n    },\n    {\n        \"id\": 39,\n        \"name\": \"Smart Watches\",\n        \"image\": \"public\\\\uploads\\\\1700331550086-nature.jpeg,\",\n        \"price_b2b\": 1300,\n        \"price_b2c\": 1400,\n        \"availability\": 100,\n        \"reward_id\": 27,\n        \"description\": \"<p>Product description</p><p>This is a smart watch</p>\",\n        \"instock\": 0,\n        \"category\": {\n            \"id\": 1,\n            \"name\": \"electronics\"\n        },\n        \"subcategory\": {\n            \"id\": 1,\n            \"name\": \"LED\"\n        },\n        \"reward\": {\n            \"id\": 27,\n            \"name\": \"Scheme 5\"\n        },\n        \"company\": {\n            \"id\": 1,\n            \"name\": \"Samsung\"\n        },\n        \"user\": {\n            \"id\": 50\n        }\n    },\n    {\n        \"id\": 40,\n        \"name\": \"Refrigerator \",\n        \"image\": \"public\\\\uploads\\\\1700480041627-nature.jpeg,public\\\\uploads\\\\1700480041628-nature1.jpeg,\",\n        \"price_b2b\": 15000,\n        \"price_b2c\": 18000,\n        \"availability\": 120,\n        \"reward_id\": 23,\n        \"description\": \"<p>Product description</p><p>This is a refrigerator of Haier company.</p>\",\n        \"instock\": 0,\n        \"category\": {\n            \"id\": 1,\n            \"name\": \"electronics\"\n        },\n        \"subcategory\": {\n            \"id\": 5,\n            \"name\": \"Refrigerator\"\n        },\n        \"reward\": {\n            \"id\": 23,\n            \"name\": \"Scheme 1\"\n        },\n        \"company\": {\n            \"id\": 2,\n            \"name\": \"Haier\"\n        },\n        \"user\": {\n            \"id\": 50\n        }\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "Edit Product",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Rewards",
+					"item": [
+						{
+							"name": "Get Rewards",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/seller/rewards"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Reward",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"Scheme 10\",\r\n    \"coins\":\"5,10,14\",\r\n    \"stage\":\"1\",\r\n    \"status\":\"3\",\r\n    \"conditions\":\"10,25,35\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/seller/rewards/create"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Reward",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"29\",\r\n    \"name\":\"Scheme 11\",\r\n    \"coins\":\"10,10,10\",\r\n    \"stage\":\"1\",\r\n    \"status\":\"3\",\r\n    \"condition\":\"25,23,23\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/seller/rewards/update"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Reward",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Request",
+					"item": [
+						{
+							"name": "Fetch Requests",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/seller/requests"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Request",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"description\":\"dummy description\",\r\n    \"receiver\":\"0\",\r\n    \"role\":\"2\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/seller/requests/create"
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch request by id",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"54\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/seller/requests/id"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Request",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"\",\r\n    \"status\":\"\",\r\n    \"user_id\":\"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/requests/edit"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete by id",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Connections",
+					"item": [
+						{
+							"name": "Edit connections",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "Get Connections",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"code\":\"64D1D6\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/connections"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Order",
+					"item": [
+						{
+							"name": "Get all order list",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUwLCJlbWFpbCI6InNlbGxlckBnbWFpbC5jb20iLCJyb2xlIjoyLCJjYXRlZ29yeSI6IjEiLCJpYXQiOjE3MTA0ODIwNzR9.dMt6UwlVBY9HTye0iYi_GZivbBCtbLwynr_YCBzMo1o",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/seller/order_requests/myorders"
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Router",
+			"item": [
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "Get authenticated user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "https://api.getpostman.com/me",
+								"description": "Gets information about the authenticated user."
+							},
+							"response": [
+								{
+									"name": "Successful Response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": "https://api.getpostman.com/me"
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json",
+											"name": "Content-Type",
+											"description": {
+												"content": "",
+												"type": "text/plain"
+											}
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"user\": {\n        \"id\": 12345678,\n        \"username\": \"taylor-lee\",\n        \"email\": \"taylor.lee@example.com\",\n        \"fullName\": \"Taylor Lee\",\n        \"avatar\": \"https://example.com/user/r5u9qpvmujfjf6lbqmga.jpg\",\n        \"isPublic\": true\n    },\n    \"operations\": [\n        {\n            \"name\": \"mock_usage\",\n            \"limit\": 1000000,\n            \"usage\": 110276,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"monitor_request_runs\",\n            \"limit\": 10000000,\n            \"usage\": 1141750,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"api_usage\",\n            \"limit\": 1000000,\n            \"usage\": 16240,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"custom_domains\",\n            \"limit\": 25,\n            \"usage\": 25,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"serverless_requests\",\n            \"limit\": 10000,\n            \"usage\": 0,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"integrations\",\n            \"limit\": 5000,\n            \"usage\": 1018,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"cloud_agent_requests\",\n            \"limit\": 1000000,\n            \"usage\": 1615,\n            \"overage\": 0\n        }\n    ]\n}"
+								},
+								{
+									"name": "Rate Limit Exceeded",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": "https://api.getpostman.com/me"
+									},
+									"status": "Too Many Requests",
+									"code": 429,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json",
+											"description": {
+												"content": "",
+												"type": "text/plain"
+											}
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"error\": \"rateLimited\",\n    \"message\": \"Rate limit exceeded. Please retry after 1669048687\"\n}"
+								}
+							]
+						},
+						{
+							"name": "SIgnup",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Anuraag",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "anuraagchetia77@gmail.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "Password",
+											"type": "text"
+										},
+										{
+											"key": "contact",
+											"value": "9365631300",
+											"type": "text"
+										},
+										{
+											"key": "gstin",
+											"value": "GST12",
+											"type": "text"
+										},
+										{
+											"key": "addressline1",
+											"value": "Na-Ali",
+											"type": "text"
+										},
+										{
+											"key": "addressline2",
+											"value": "Gar-Ali",
+											"type": "text"
+										},
+										{
+											"key": "city",
+											"value": "Jorhat",
+											"type": "text"
+										},
+										{
+											"key": "state",
+											"value": "Assam",
+											"type": "text"
+										},
+										{
+											"key": "zip",
+											"value": "7855001",
+											"type": "text"
+										},
+										{
+											"key": "gmaplink",
+											"value": "gpamlink",
+											"type": "text"
+										},
+										{
+											"key": "upi",
+											"value": "abc@upi",
+											"type": "text"
+										},
+										{
+											"key": "category",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "holdername",
+											"value": "anuraag",
+											"type": "text"
+										},
+										{
+											"key": "accountNumber",
+											"value": "87482992",
+											"type": "text"
+										},
+										{
+											"key": "bankAddress",
+											"value": "abc",
+											"type": "text"
+										},
+										{
+											"key": "bankName",
+											"value": "SBI",
+											"type": "text"
+										},
+										{
+											"key": "ifsc",
+											"value": "Abcs",
+											"type": "text"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/Anuraag/Pictures/Screenshots/bot.png"
+										}
+									]
+								},
+								"url": "http://localhost:5500/users"
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"seller@gmail.com\",\r\n    \"password\": \"Password\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/login"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Employee",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": {}
+								},
+								"method": "POST",
+								"header": [
+									{
+										"warning": "This is a duplicate header and will be overridden by the Authorization header generated by Postman.",
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoiYW51cmFhZ2NoZXRpYTc3QGdtYWlsLmNvbSIsInJvbGUiOjIsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcwOTM3MjE4MX0.xJ-Qs-K21Btlbi-yjKRPVAHZ6qLDwBXZF1tm6v4iIU8",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Tester\",\r\n    \"email\": \"tester@tester.com\",\r\n    \"password\": \"Password\",\r\n    \"contact\": \"9999999999\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/user/employees/add"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Employees",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/employees"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Employee",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/employees/delete/6"
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Users",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/users/fetch"
+							},
+							"response": []
+						},
+						{
+							"name": "Search By Code",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/users/79"
+							},
+							"response": []
+						},
+						{
+							"name": "Update by id",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"code\":\"0B2FD9\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/users/"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete by id",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/users/80"
+							},
+							"response": []
+						}
+					],
+					"description": "The `/me` endpoints let you manage information about the authenticated user."
+				},
+				{
+					"name": "Company",
+					"item": [
+						{
+							"name": "Fetch Company",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/company"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Company",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"Onida\",\r\n    \"contact\":\"8763728192\",\r\n    \"whatsapp\":\"8767281921\",\r\n    \"email\":\"onida@gmail.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/company/create"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Company",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/company/delete/5"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Company",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Adidas\",\r\n    \"contact\": \"8765261829\",\r\n    \"whatsapp\": \"7765555667\",\r\n    \"email\": \"adidas@gmail.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/company/update/5"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Notifications",
+					"item": [
+						{
+							"name": "Create Notification",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"content\":\"Simple notification\",\r\n    \"sender\":\"50\",\r\n    \"reciever\":\"79\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/notifications"
+							},
+							"response": []
+						},
+						{
+							"name": "Get notification",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Category",
+					"item": [
+						{
+							"name": "Fetch Categories",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/categories"
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch only categories",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/category"
+							},
+							"response": []
+						},
+						{
+							"name": "Create category",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"Petrol\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/categories/create"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete category",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/categories/delete/13"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Category",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"name\":\"Petrol\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/categories/update/12"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Sub-category",
+					"item": [
+						{
+							"name": "Create sub-category",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Diesel\",\r\n    \"cat_id\": \"12\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:5500/subcategories/create"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete sub-category",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:5500/subcategories/delete/13"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get Connections",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOjEsImNhdGVnb3J5IjoiMSIsImlhdCI6MTcxMDQ4MjU3OH0.lqyq_euAwpOMeg84YJURryloYzw5MDMNk9wnJsf8Av0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"code\":\"64D1D6\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:5500/connections"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": {
+			"key": "X-API-Key",
+			"value": "{{token}}"
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://farming-simulator.pstmn.io"
+		}
+	]
+}

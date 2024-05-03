@@ -1,0 +1,71 @@
+const Sequelize = require("sequelize");
+const sequelize = require("../utils/database");
+
+const UserModel = require("./userModel");
+const ProductsModel = require("./productsModel");
+const VariantsModel = require("./variantsModel");
+
+const OrderListModel = sequelize.define("order_list", {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
+  },
+  createdBy: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: UserModel,
+      key: "id",
+    },
+  },
+  receiver: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: UserModel,
+      key: "id",
+    },
+  },
+  prod_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: ProductsModel,
+      key: "id",
+    },
+  },
+  stage: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  qty: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  variant_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: VariantsModel,
+      key: "id",
+    },
+  },
+  prices: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  order_group: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+});
+
+//Associations
+OrderListModel.belongsTo(UserModel, { foreignKey: "createdBy" });
+OrderListModel.belongsTo(UserModel, { foreignKey: "receiver" });
+OrderListModel.belongsTo(ProductsModel, { foreignKey: "prod_id" });
+OrderListModel.belongsTo(VariantsModel, { foreignKey: "variant_id" });
+
+module.exports = OrderListModel;
