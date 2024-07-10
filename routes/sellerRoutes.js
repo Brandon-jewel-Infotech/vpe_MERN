@@ -12,12 +12,23 @@ const rewardsController = require("../controllers/rewardsControllers");
 const sellerCategoryController = require("../controllers/sellerCategoryControllers");
 const sellerOrderController = require("../controllers/sellerOrderControllers");
 const userController = require("../controllers/userControllers");
+const upload = require("../middleware/multerMiddleware");
 
 //Routes
 
 //Cart routes
 router.post("/cart", roleAuthentication(2), cartController.createCart); //tested
 router.get("/cart", roleAuthentication(2), cartController.getCart); //tested
+router.put(
+  "/cart/:id",
+  roleAuthentication(2),
+  cartController.updateCartItemQuantity
+); //tested
+router.delete(
+  "/cart/:id",
+  roleAuthentication(2),
+  cartController.deleteCartItem
+); //tested
 
 //seller category routes
 router.post(
@@ -25,8 +36,23 @@ router.post(
   roleAuthentication(2),
   sellerCategoryController.fetchSellerCategories
 );
+
 router.post(
-  "/products/outofstock",
+  "/products",
+  roleAuthentication(2),
+  upload.array("images"),
+  sellerCategoryController.addProduct
+);
+
+router.post(
+  "/products/:prodId/variants",
+  roleAuthentication(2),
+  upload.array("images"),
+  sellerCategoryController.addVariant
+);
+
+router.patch(
+  "/products/:prodId/outofstock",
   roleAuthentication(2),
   sellerCategoryController.markOutOfStock
 );
@@ -44,20 +70,40 @@ router.post(
   roleAuthentication(2),
   sellerCategoryController.editProduct
 );
-router.post(
+router.put(
   "/products/update/:id",
   roleAuthentication(2),
   sellerCategoryController.updateProduct
 );
-router.post(
+
+router.delete(
   "/products/delete/:id",
   roleAuthentication(2),
   sellerCategoryController.deleteSellerProducts
 );
-router.post(
+router.delete(
   "/variants/delete/:id",
   roleAuthentication(2),
   sellerCategoryController.deleteSellerVariants
+);
+
+router.put(
+  "/variants/update/:id",
+  roleAuthentication(2),
+  sellerCategoryController.updateSellerVariants
+);
+
+//Images routes
+router.put(
+  "/images",
+  roleAuthentication(2),
+  upload.array("images"),
+  sellerCategoryController.addImages
+);
+router.delete(
+  "/images/:id",
+  roleAuthentication(2),
+  sellerCategoryController.deleteImage
 );
 
 //order routes
@@ -101,10 +147,15 @@ router.post(
   userAuthentication,
   sellerOrderController.createOrderslist
 );
-router.post(
-  "/order_requests/update",
+router.put(
+  "/order_requests/:id",
   userAuthentication,
   sellerOrderController.updateOrderslists
+);
+router.patch(
+  "/order_requests/:id",
+  userAuthentication,
+  sellerOrderController.updateCreatedOrderslists
 );
 
 //reward router (ALL TESTED AND WORKING)

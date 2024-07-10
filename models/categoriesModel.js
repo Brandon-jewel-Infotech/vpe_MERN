@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../utils/database");
 
-const CategoriesModel = sequelize.define("categories", {
+const CategoriesModel = sequelize.define("category", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -10,6 +10,7 @@ const CategoriesModel = sequelize.define("categories", {
   },
   name: {
     type: Sequelize.STRING,
+    allowNull: false,
   },
 });
 

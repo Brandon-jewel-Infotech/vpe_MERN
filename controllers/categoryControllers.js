@@ -1,5 +1,7 @@
 const connection = require("../utils/dbcon");
 const Category = require("../models/categoriesModel");
+const SubCategory = require("../models/subCategoriesModel");
+const sequelize = require("../utils/database");
 
 // to get all  the category (seller's controller) )
 // exports.fetchCategories = (req, res) => {
@@ -18,6 +20,7 @@ const Category = require("../models/categoriesModel");
 //     res.json(result);
 //   });
 // };
+
 exports.fetchCategories = async (req, res) => {
   try {
     const { id } = req.body;
@@ -37,7 +40,6 @@ exports.fetchCategories = async (req, res) => {
         },
       ],
       attributes: ["id", "name"],
-      raw: true,
     });
 
     res.json(categories);
@@ -75,7 +77,7 @@ exports.createCategory = async (req, res) => {
 
     await Category.create({ name });
 
-    res.json({ message: "Successfully Added" });
+    res.status(201).json({ message: "Successfully Added" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -83,16 +85,37 @@ exports.createCategory = async (req, res) => {
 };
 
 // to get   the category (seller's controller) (sequelized and tested)
+
 exports.deleteCategory = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
-    const { id } = req?.params;
+    const { id } = req.params;
+
+    const category = await Category.findByPk(id);
+    if (!category) {
+      await transaction.rollback();
+      return res.status(404).json({ error: "Category not found" });
+    }
+
+    await SubCategory.destroy({
+      where: { cat_id: id },
+      transaction,
+    });
 
     const result = await Category.destroy({
       where: { id },
+      transaction,
     });
 
-    res.json(result);
+    await transaction.commit();
+
+    res.json({
+      message: `Category with ID ${id} and its subcategories deleted`,
+      deletedCount: result,
+    });
   } catch (error) {
+    await transaction.rollback();
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }

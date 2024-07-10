@@ -11,6 +11,7 @@ const SubCategoriesModel = sequelize.define("subcategory", {
   },
   name: {
     type: Sequelize.STRING,
+    allowNull: false,
   },
   cat_id: {
     type: Sequelize.INTEGER,
@@ -18,10 +19,15 @@ const SubCategoriesModel = sequelize.define("subcategory", {
       model: CategoriesModel,
       key: "id",
     },
+    allowNull: false,
   },
 });
 
-//Associations
+// Define associations
+CategoriesModel.hasMany(SubCategoriesModel, {
+  foreignKey: "cat_id",
+  as: "subcategories",
+});
 SubCategoriesModel.belongsTo(CategoriesModel, { foreignKey: "cat_id" });
 
 module.exports = SubCategoriesModel;

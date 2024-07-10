@@ -29,6 +29,7 @@ const CartModel = sequelize.define("cart", {
   },
   variant_id: {
     type: Sequelize.INTEGER,
+    allowNull: true,
     references: {
       model: VariantsModel,
       key: "id",

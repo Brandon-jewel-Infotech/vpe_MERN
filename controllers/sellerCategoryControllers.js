@@ -1,4 +1,4 @@
-const fs = require("fs").promises;
+const fs = require("fs");
 const sequelize = require("../utils/database");
 //models
 const Category = require("../models/categoriesModel");
@@ -8,20 +8,137 @@ const Product = require("../models/productsModel");
 const Reward = require("../models/rewardsModel");
 const User = require("../models/userModel");
 const Variant = require("../models/variantsModel");
+const ProductModel = require("../models/productsModel");
+const ImageModel = require("../models/imageModel");
+const path = require("path");
+const VariantsModel = require("../models/variantsModel");
+const { deleteProductImages } = require("../utils/imageCleanup");
 
 //sequelized
 exports.fetchSellerCategories = async (req, res) => {
   try {
-    const categories = await Category.findAll();
+    const category = await Category.findByPk(req.user.category);
+
     const subcategories = await Subcategory.findAll({
       where: { cat_id: req.user.category },
     });
     const companies = await Company.findAll();
 
-    res.json({ categories, subcategories, companies });
+    res.json({ category, subcategories, companies });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.addProduct = async (req, res) => {
+  const {
+    name,
+    price_b2b,
+    price_b2c,
+    subCategory,
+    company,
+    availability,
+    description,
+    reward,
+  } = req.body;
+
+  const files = req.files;
+
+  try {
+    if (
+      !name.length ||
+      !description.length ||
+      !+price_b2b ||
+      !+price_b2c ||
+      !+subCategory ||
+      !+company
+    ) {
+      if (files && files.length > 0) {
+        files.forEach((file) => fs.unlinkSync(file.path));
+      }
+      return res
+        .status(400)
+        .json({ error: "Please fill all required fields for product" });
+    }
+
+    const newProduct = await ProductModel.create({
+      name,
+      description,
+      price_b2b: +price_b2b,
+      price_b2c: +price_b2c,
+      subCategory_id: +subCategory,
+      company_id: +company,
+      availability: +availability,
+      reward_id: +reward || null,
+      category_id: req.user.category,
+      created_by: req.user.userId,
+      instock: +availability ? 1 : 0,
+    });
+
+    // Save image paths
+    const imageRecords = files.map((file) => ({
+      url: `/public/products/${path.basename(file.path)}`,
+      product_id: newProduct.id,
+    }));
+
+    await ImageModel.bulkCreate(imageRecords);
+
+    res.status(201).json({
+      message: "Product created successfully",
+      product: newProduct,
+      images: imageRecords,
+    });
+  } catch (error) {
+    console.error("Error creating product:", error);
+    res.status(500).json({
+      error: "Error creating product",
+    });
+  }
+};
+
+exports.addVariant = async (req, res) => {
+  const { name, price_b2b, price_b2c, description, quantity } = req.body;
+
+  const { prodId } = req.params;
+
+  const files = req.files;
+
+  try {
+    if (!name.length || !description.length || !+price_b2b || !+price_b2c) {
+      if (files && files.length > 0) {
+        files.forEach((file) => fs.unlinkSync(file.path));
+      }
+      return res.status(400).json({ error: "Please fill all required fields" });
+    }
+
+    const newVariant = await VariantsModel.create({
+      name,
+      description,
+      price_b2b: +price_b2b,
+      price_b2c: +price_b2c,
+      qty: +quantity,
+      product_id: prodId,
+    });
+
+    // Save image paths
+    const imageRecords = files.map((file) => ({
+      url: `/public/products/${path.basename(file.path)}`,
+      variant_id: newVariant.id,
+    }));
+
+    await ImageModel.bulkCreate(imageRecords);
+
+    res.status(201).json({
+      message: "Product created successfully",
+      variant: newVariant,
+      images: imageRecords,
+    });
+  } catch (error) {
+    console.error("Error creating Variant:", error);
+    res.status(500).json({
+      error: "Error creating Variant",
+    });
   }
 };
 
@@ -34,7 +151,6 @@ exports.getSellerProducts = async (req, res) => {
       attributes: [
         "id",
         "name",
-        "image",
         "price_b2b",
         "price_b2c",
         "availability",
@@ -48,6 +164,7 @@ exports.getSellerProducts = async (req, res) => {
         { model: Reward, attributes: ["id", "name"] },
         { model: Company, attributes: ["id", "name"] },
         { model: User, as: "user", attributes: ["id"] },
+        { model: ImageModel, attributes: ["id", "url"], as: "images" },
       ],
       where: {
         created_by: req.user.userId,
@@ -63,35 +180,35 @@ exports.getSellerProducts = async (req, res) => {
 };
 
 //sequelized and tested
-exports.getAllProducts = async (req, res) => {
-  try {
-    const products = await Product.findAll({
-      attributes: [
-        "id",
-        "name",
-        "image",
-        "price_b2b",
-        "price_b2c",
-        "availability",
-        "reward_id",
-        "description",
-        "instock",
-      ],
-      include: [
-        { model: Category, attributes: ["id", "name"] },
-        { model: Subcategory, attributes: ["id", "name"] },
-        { model: Reward, attributes: ["id", "name"] },
-        { model: Company, attributes: ["id", "name"] },
-        { model: User, as: "user", attributes: ["id"] },
-      ],
-    });
+// exports.getAllProducts = async (req, res) => {
+//   try {
+//     const products = await Product.findAll({
+//       attributes: [
+//         "id",
+//         "name",
+//         "price_b2b",
+//         "price_b2c",
+//         "availability",
+//         "reward_id",
+//         "description",
+//         "instock",
+//       ],
+//       include: [
+//         { model: Category, attributes: ["id", "name"] },
+//         { model: Subcategory, attributes: ["id", "name"] },
+//         { model: Reward, attributes: ["id", "name"] },
+//         { model: Company, attributes: ["id", "name"] },
+//         { model: User, as: "user", attributes: ["id"] },
+//         { model: Image, attributes: ["id", "url"], as: "images" },
+//       ],
+//     });
 
-    res.json(products);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+//     res.json(products);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
 //sequelized
 exports.getSellerVariants = async (req, res) => {
@@ -106,7 +223,6 @@ exports.getSellerVariants = async (req, res) => {
           attributes: [
             "id",
             "name",
-            "image",
             "price_b2b",
             "price_b2c",
             "availability",
@@ -114,11 +230,14 @@ exports.getSellerVariants = async (req, res) => {
             "description",
             "instock",
           ],
-          include: [{ model: User, as: "createdBy", attributes: ["id"] }],
+          include: [
+            { model: User, as: "user", attributes: ["id"] },
+            { model: Image, attributes: ["id", "url"], as: "images" },
+          ],
         },
       ],
       where: {
-        [id ? "id" : "$createdBy.id$"]: id || req.user.userId,
+        [id ? "id" : "$product.user.id$"]: id || req.user.userId,
       },
     });
 
@@ -132,15 +251,15 @@ exports.getSellerVariants = async (req, res) => {
 //sequelized
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, price, price_b2b, quantity, description } = req.body;
+    const { name, price_b2c, price_b2b, availability, description } = req.body;
     const { id } = req.params;
 
     const updatedProduct = await Product.update(
       {
         name,
-        price_b2c: price,
+        price_b2c,
         price_b2b,
-        availability: quantity,
+        availability,
         description,
       },
       { where: { id } }
@@ -187,17 +306,13 @@ exports.getAllProducts = async (req, res) => {
     if (req?.body?.id) {
       whereClause.id = req.body.id;
     } else {
-      whereClause["$category.id$"] = req.user.category;
+      // whereClause["$category.id$"] = req.user.category;
     }
 
     const products = await Product.findAll({
       attributes: [
         "id",
         "name",
-        [
-          sequelize.fn("SUBSTRING_INDEX", sequelize.col("image"), ",", 1),
-          "images",
-        ],
         "price_b2b",
         "price_b2c",
         "availability",
@@ -207,44 +322,77 @@ exports.getAllProducts = async (req, res) => {
         [sequelize.col("reward.coins"), "coins"],
         [sequelize.col("reward.conditions"), "conditions"],
         [sequelize.col("reward.status"), "status"],
-        [sequelize.col("category.name"), "category"],
-        [sequelize.col("subcategory.name"), "subcategory"],
-        [sequelize.col("company.name"), "company"],
         [sequelize.col("user.id"), "seller_id"],
         [sequelize.col("user.code"), "seller_code"],
+        [sequelize.col("user.name"), "seller_name"],
       ],
       include: [
         {
           model: Category,
           as: "category",
-          attributes: [],
+          attributes: ["id", "name"],
         },
         {
           model: Reward,
           as: "reward",
-          attributes: ["coins", "conditions", "status"],
+          attributes: ["id", "coins", "conditions", "status"],
           required: false,
         },
         {
           model: Subcategory,
           as: "subcategory",
-          attributes: [],
+          attributes: ["id", "name"],
         },
         {
           model: Company,
           as: "company",
-          attributes: [],
+          attributes: ["id", "name"],
         },
         {
           model: User,
           as: "user",
           attributes: [],
         },
+        {
+          model: ImageModel,
+          as: "images",
+          attributes: ["id", "url"],
+        },
       ],
       where: whereClause,
     });
 
-    res.json(products);
+    if (req?.body?.id) {
+      const product = products[0];
+      const variants = await Variant.findAll({
+        attributes: [
+          "id",
+          "name",
+          "price_b2b",
+          "price_b2c",
+          "product_id",
+          "description",
+          "qty",
+        ],
+        include: [
+          {
+            model: ImageModel,
+            as: "images",
+            attributes: ["id", "url"],
+          },
+        ],
+        where: { product_id: req.body.id },
+      });
+
+      const productWithVariants = {
+        ...product.get({ plain: true }),
+        variants: variants,
+      };
+
+      res.json(productWithVariants);
+    } else {
+      res.json(products);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -253,27 +401,33 @@ exports.getAllProducts = async (req, res) => {
 
 //sequelized
 exports.deleteSellerProducts = async (req, res) => {
-  const { id } = req?.params;
-  const urls = req.body;
+  const { id } = req.params;
+
+  const transaction = await sequelize.transaction();
 
   try {
-    await Promise.all([
-      Product.destroy({ where: { id } }),
-      Variant.destroy({ where: { product_id: id } }),
-    ]);
+    await deleteProductImages(id, transaction, "product");
 
-    // Delete associated images
-    if (urls?.length > 0) {
-      await Promise.all(
-        urls.map(async (url) => {
-          await fs.unlink(url);
-        })
-      );
-      s;
+    const variants = await VariantsModel.findAll({
+      where: { product_id: id },
+      transaction,
+    });
+
+    for (const variant of variants) {
+      await deleteProductImages(variant.id, transaction, "variant");
     }
 
-    res.json({ message: "Product Deleted" });
+    await Variant.destroy({ where: { product_id: id }, transaction });
+
+    await Product.destroy({ where: { id }, transaction });
+
+    await transaction.commit();
+
+    res.status(200).json({
+      message: "Product and associated variants deleted successfully",
+    });
   } catch (error) {
+    await transaction.rollback();
     console.error(error);
     res.status(500).json({ message: "Internal server error", error });
   }
@@ -281,25 +435,129 @@ exports.deleteSellerProducts = async (req, res) => {
 
 //sequelized
 exports.deleteSellerVariants = async (req, res) => {
-  const { id } = req?.params;
-  const urls = req.body;
+  const { id } = req.params;
 
   try {
-    await Variant.destroy({ where: { id } });
+    await deleteProductImages(id, null, "variant");
 
-    // Delete associated images
-    if (urls?.length > 0) {
-      await Promise.all(
-        urls.map(async (url) => {
-          await fs.unlink(url);
-        })
-      );
-    }
+    await Variant.destroy({ where: { id } });
 
     res.json({ message: "Variant Deleted" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.updateSellerVariants = async (req, res) => {
+  const { id } = req.params;
+  const { name, price_b2b, price_b2c, description, qty } = req.body;
+  const userId = req.user.userId;
+
+  try {
+    const variant = await VariantsModel.findByPk(id, {
+      include: {
+        model: ProductModel,
+        attributes: ["created_by"],
+      },
+    });
+
+    if (!variant) {
+      return res.status(404).json({ error: "Variant not found" });
+    }
+
+    if (variant.product.created_by != userId) {
+      return res
+        .status(403)
+        .json({ error: "You are not authorized to update this variant" });
+    }
+
+    variant.name = name || variant.name;
+    variant.price_b2b = price_b2b || variant.price_b2b;
+    variant.price_b2c = price_b2c || variant.price_b2c;
+    variant.description = description || variant.description;
+    variant.qty = qty || variant.qty;
+
+    await variant.save();
+
+    res.status(200).json({ message: "Variant updated successfully" });
+  } catch (error) {
+    console.error("Error updating variant:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.addImages = async (req, res) => {
+  try {
+    const { product_id, variant_id } = req.body;
+    const files = req.files;
+
+    if (!product_id && !variant_id) {
+      if (files && files.length > 0) {
+        files.forEach((file) => fs.unlinkSync(file.path));
+      }
+    }
+
+    if (product_id) {
+      const product = await ProductModel.findByPk(product_id);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+    }
+
+    if (variant_id) {
+      const variant = await VariantsModel.findByPk(variant_id);
+      if (!variant) {
+        return res.status(404).json({ message: "Variant not found" });
+      }
+    }
+
+    if (files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded" });
+    }
+
+    const imageRecords = files.map((file) => ({
+      url: `/public/products/${path.basename(file.path)}`,
+      product_id: +product_id || null,
+      variant_id: +variant_id || null,
+    }));
+
+    await ImageModel.bulkCreate(imageRecords);
+
+    const insertedImages = await ImageModel.findAll({
+      where: {
+        url: imageRecords.map((record) => record.url),
+      },
+    });
+
+    res
+      .status(201)
+      .json({ message: "Images added successfully", images: insertedImages });
+  } catch (error) {
+    console.error("Error adding images:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.deleteImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const image = await ImageModel.findByPk(id);
+
+    if (!image) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    const url = path.join(__dirname, "../", image.url);
+
+    if (fs.existsSync(url)) {
+      fs.unlinkSync(url);
+    }
+    await image.destroy();
+    res.status(200).json({ message: "Image deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting image:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -350,12 +608,12 @@ exports.fetchSellerRequests = async (req, res) => {
 //sequelized
 exports.markOutOfStock = async (req, res) => {
   try {
-    const { prod_id } = req.body;
+    const { prodId } = req.params;
     let instock = req?.body?.instock === 0 ? 1 : 0;
 
-    await Product.update({ instock }, { where: { id: prod_id } });
+    await Product.update({ instock }, { where: { id: prodId } });
 
-    res.json({ message: "Updated" });
+    res.json({ message: "Updated", instock });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error", error });

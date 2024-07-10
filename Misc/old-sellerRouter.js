@@ -1,17 +1,17 @@
 // const { uploadProduct } = require("./controllers/seller/productsController");
 const router = require("express").Router();
-const { createCart, getCart } = require("./controllers/cartController");
+const { createCart, getCart } = require("../controllers/cartController");
 const {
   fetchrequests,
   fetchrequestsById,
   createRequest,
-} = require("./controllers/requestController");
+} = require("../controllers/requestController");
 const {
   getReward,
   createReward,
   updateReward,
   deleteReward,
-} = require("./controllers/rewardsControllers");
+} = require("../controllers/rewardsControllers");
 const {
   fetchSellerCategories,
   getSellerProducts,
@@ -22,7 +22,7 @@ const {
   editProduct,
   markOutOfStock,
   updateProduct,
-} = require("./controllers/sellerCategoryControllers");
+} = require("../controllers/sellerCategoryControllers");
 const {
   getSellerOrders,
   createSellerOrders,
@@ -34,14 +34,14 @@ const {
   updateOrderslists,
   cancelOrderslists,
   cancelOrder,
-} = require("./controllers/sellerOrderControllers");
+} = require("../controllers/sellerOrderControllers");
 const {
   getConnections,
   editConnections,
-} = require("./controllers/userControllers");
-const auth = require("./utils/auth");
-const authAll = require("./utils/authAll");
-const connection = require("./utils/dbcon");
+} = require("../controllers/userControllers");
+const auth = require("../utils/auth");
+const authAll = require("../utils/authAll");
+const connection = require("../utils/dbcon");
 
 const multer = require("multer");
 const storage = multer.diskStorage({

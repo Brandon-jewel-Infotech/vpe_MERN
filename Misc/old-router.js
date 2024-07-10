@@ -5,22 +5,22 @@ const {
   updateCategory,
   deleteCategory,
   fetchOnlyCategories,
-} = require("./controllers/categoryControllers");
+} = require("../controllers/categoryControllers");
 const {
   fetchCompany,
   createCompany,
   deleteCompany,
   updateCompany,
-} = require("./controllers/companyControllers");
+} = require("../controllers/companyControllers");
 const {
   updateRequest,
   fetchrequests,
   fetchrequestsById,
-} = require("./controllers/requestController");
+} = require("../controllers/requestController");
 const {
   createSubCategory,
   deleteSubCategory,
-} = require("./controllers/subCategoryControllers");
+} = require("../controllers/subCategoryControllers");
 const {
   createUser,
   fetchUsers,
@@ -33,15 +33,15 @@ const {
   createEmployee,
   deleteEmployee,
   getEmployee,
-} = require("./controllers/userControllers");
-const auth = require("./utils/auth");
-const authAll = require("./utils/authAll");
+} = require("../controllers/userControllers");
+const auth = require("../utils/auth");
+const authAll = require("../utils/authAll");
 const {
   createNotification,
   getNotification,
-} = require("./controllers/notificationController");
+} = require("../controllers/notificationController");
 
-const multerUpload = require("./middleware/aadharSaver");
+const multerUpload = require("../middleware/aadharSaver");
 
 //1: Admin , 2 : business , 3 : Mod , 4 : employee
 

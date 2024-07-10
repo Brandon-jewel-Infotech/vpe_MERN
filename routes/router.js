@@ -4,7 +4,7 @@ const router = express.Router();
 //Middlewares
 const userAuthentication = require("../middleware/auth");
 const roleAuthentication = require("../middleware/authRole");
-const aadharSaver = require("../middleware/aadharSaver");
+const aadharSaver = require("../middleware/multerMiddleware");
 
 //Controller
 const categoryController = require("../controllers/categoryControllers");
@@ -20,7 +20,7 @@ const notificationController = require("../controllers/notificationController");
 router.get("/", (req, res) => {
   res.send("Working");
 });
-router.post("/users", aadharSaver.single("file"), userController.signup); //test  ed
+router.post("/users", aadharSaver.single("file"), userController.signup); //tested
 router.delete(
   //tested
   "/employees/delete/:id",
@@ -28,6 +28,11 @@ router.delete(
   userController.deleteEmployee
 );
 router.post("/employees", userAuthentication, userController.getEmployee); //tested
+router.post(
+  "/employees/create",
+  userAuthentication,
+  userController.createEmployee
+); //tested
 router.post("/users/fetch", roleAuthentication(1), userController.fetchUsers); //tested
 router.get("/users/:id", roleAuthentication(1), userController.searchByCode); //tested
 router.put("/users/", roleAuthentication(1), userController.updateById); //to update status of user //tested
@@ -35,9 +40,9 @@ router.delete("/users/:id", roleAuthentication(1), userController.deleteById); /
 
 router.post("/login", userController.login); //tested
 
-router.post(
+router.put(
   //tested
-  "/requests/edit",
+  "/requests/update/:id",
   roleAuthentication(1),
   requestController.updateRequest
 );
@@ -124,7 +129,20 @@ router.put(
 );
 
 //notifications routes (all tested)
-router.post("/notifications", notificationController.createNotification); // tested
-router.post("/notification", notificationController.getNotification); //teseted
+router.post(
+  "/notification",
+  userAuthentication,
+  notificationController.createNotification
+); // tested
+router.get(
+  "/notification",
+  userAuthentication,
+  notificationController.getNotification
+); //teseted
+router.delete(
+  "/notification/:id",
+  userAuthentication,
+  notificationController.deleteNotification
+); //teseted
 
 module.exports = router;

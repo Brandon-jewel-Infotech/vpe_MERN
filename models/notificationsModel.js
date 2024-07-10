@@ -13,14 +13,14 @@ const NotificationsModel = sequelize.define("notifications", {
     type: Sequelize.INTEGER,
     references: {
       model: UserModel,
-      key: "id", // The column in UserModel that sender references
+      key: "id",
     },
   },
   reciever: {
     type: Sequelize.INTEGER,
     references: {
       model: UserModel,
-      key: "id", // The column in UserModel that receiver references
+      key: "id",
     },
   },
   content: {

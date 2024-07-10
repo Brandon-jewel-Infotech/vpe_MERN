@@ -18,7 +18,7 @@ exports.createCompany = async (req, res) => {
 
     await Company.create({ name, contact, whatsapp, email });
 
-    res.json({ message: "Successfully Added" });
+    res.status(201).json({ message: "Successfully Added" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -51,7 +51,9 @@ exports.updateCompany = async (req, res) => {
       { where: { id } }
     );
 
-    res.json({ message: "Company updated successfully", updatedCompany });
+    res
+      .status(200)
+      .json({ message: "Company updated successfully", updatedCompany });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

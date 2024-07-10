@@ -8,56 +8,9 @@ const Product = require("../models/productsModel");
 const User = require("../models/userModel");
 const Notification = require("../models/notificationsModel");
 const OrderList = require("../models/orderListModel");
-
-//sequelized
-exports.getSellerOrders = async (req, res) => {
-  try {
-    const sellerOrders = await Order.findAll({
-      attributes: ["id", "createdAt", "updatedAt", "reciever"],
-      include: [
-        {
-          model: Product,
-          as: "product",
-          attributes: ["name", "image"],
-        },
-        {
-          model: User,
-          as: "customer",
-          attributes: ["name", "email", "contact"],
-        },
-      ],
-      where: {
-        reciever: req.user.userId,
-      },
-      order: [["createdAt", "DESC"]],
-    });
-
-    const createdByOrders = await Order.findAll({
-      attributes: ["id", "createdAt", "updatedAt", "reciever"],
-      include: [
-        {
-          model: Product,
-          as: "product",
-          attributes: ["name", "image"],
-        },
-        {
-          model: User,
-          as: "customer",
-          attributes: ["name", "email", "contact"],
-        },
-      ],
-      where: {
-        createdBy: req.user.userId,
-      },
-      order: [["createdAt", "DESC"]],
-    });
-
-    res.json([...sellerOrders, ...createdByOrders]);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+const NotificationsModel = require("../models/notificationsModel");
+const CartModel = require("../models/cartModel");
+const VariantsModel = require("../models/variantsModel");
 
 //sequelized
 exports.createSellerOrders = async (req, res) => {
@@ -187,37 +140,95 @@ exports.updateSellerOrders = async (req, res) => {
   // connection.end();
 };
 
-const randomNumber = () => {
-  return Math.ceil(Math.random() * 999999) + 1000;
+const getLastOrderGroupAndIncrement = async () => {
+  const lastOrder = await OrderList.findOne({
+    order: [["order_group", "DESC"]],
+  });
+
+  return lastOrder ? lastOrder.order_group + 1 : 1;
 };
 
 //sequelized
 exports.createOrderslist = async (req, res) => {
-  const { reciever, prod_id, qty, prices } = req?.body;
-  let stage = 1;
-  if (req?.body?.stage) stage = req.body.stage;
-  let variant_id = 0;
-  if (req?.body?.variant_id) variant_id = req.body.variant_id;
-  const order_group = randomNumber();
-
-  let data = [];
-  for (let i = 0; i < prod_id.split(",").length; i++) {
-    data.push({
-      createdBy: req.user.userId,
-      reciever: reciever.split(",")[i],
-      stage: stage.split(",")[i],
-      prod_id: prod_id.split(",")[i],
-      qty: qty.split(",")[i],
-      variant_id: variant_id.split(",")[i],
-      prices: prices.split(",")[i],
-      order_group: order_group,
-    });
-  }
+  const t = await sequelize.transaction();
 
   try {
-    const result = await OrderList.bulkCreate(data);
-    res.status(200).json({ message: "Successfully requested order", result });
+    const userId = req.user.id;
+
+    const cartItems = await CartModel.findAll({
+      where: { createdBy: userId },
+      include: [
+        {
+          model: Product,
+          as: "product",
+          attributes: ["id", "name", "availability", "instock", "created_by"],
+        },
+        {
+          model: VariantsModel,
+          as: "variant",
+          attributes: ["id", "name", "qty"],
+        },
+      ],
+      transaction: t,
+    });
+
+    if (cartItems.length === 0) {
+      return res.status(400).json({ message: "No items in the cart" });
+    }
+
+    const order_group = await getLastOrderGroupAndIncrement();
+    const data = [];
+
+    for (const cartItem of cartItems) {
+      const { qty, product_id, variant_id, product, variant } = cartItem;
+
+      if (variant_id) {
+        if (variant.qty < qty) {
+          return res.status(400).json({
+            message: `Not enough quantity of variant ${variant.name}`,
+          });
+        }
+
+        await VariantsModel.decrement("qty", {
+          by: qty,
+          where: { id: variant_id },
+          transaction: t,
+        });
+      } else {
+        if (product.availability < qty || product.instock !== 1) {
+          return res.status(400).json({
+            message: `Not enough quantity of product ${product.name}`,
+          });
+        }
+
+        await Product.decrement(
+          { availability: qty, instock: 1 },
+          { where: { id: product_id }, transaction: t }
+        );
+      }
+
+      data.push({
+        createdBy: userId,
+        receiver: product.created_by,
+        stage: req.body.stage || 1,
+        prod_id: product_id,
+        qty,
+        variant_id,
+        prices: cartItem.total,
+        order_group,
+      });
+    }
+
+    const result = await OrderList.bulkCreate(data, { transaction: t });
+
+    await CartModel.destroy({ where: { createdBy: userId }, transaction: t });
+
+    await t.commit();
+
+    res.status(201).json({ message: "Successfully requested order", result });
   } catch (error) {
+    await t.rollback();
+
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -228,7 +239,6 @@ exports.getOrderlists = async (req, res) => {
   const { id } = req.body;
 
   try {
-    // Fetching product IDs for the given order group
     const { prod_id } = await OrderList.findOne({
       attributes: [
         [sequelize.fn("GROUP_CONCAT", sequelize.col("prod_id")), "prod_id"],
@@ -237,7 +247,6 @@ exports.getOrderlists = async (req, res) => {
       raw: true,
     });
 
-    // Fetching orders along with associated product and user details
     const orders = await OrderList.findAll({
       attributes: ["qty", "prices", "variant_id", "prod_id", "createdAt"],
       where: { order_group: id },
@@ -255,7 +264,6 @@ exports.getOrderlists = async (req, res) => {
       raw: true,
     });
 
-    // Mapping the output as required
     const output = orders.map((order) => ({
       qty: parseInt(order.qty),
       prices: parseInt(order.prices),
@@ -267,7 +275,7 @@ exports.getOrderlists = async (req, res) => {
       customer_contact: order["User.contact"],
       prod_name: order["Product.name"],
       createdBy: order.createdBy,
-      prod_image: order["Product.image"].split(",")[0], // Assuming image is comma-separated list
+      prod_image: order["Product.image"].split(",")[0],
       stage: parseInt(order.stage),
       createdAt: order.createdAt,
     }));
@@ -301,48 +309,104 @@ exports.getAllOrderlists = (req, res) => {
   });
 };
 
+//sequelized
+exports.getSellerOrders = async (req, res) => {
+  try {
+    const createdByOrders = await Order.findAll({
+      attributes: ["id", "createdAt", "updatedAt", "reciever"],
+      include: [
+        {
+          model: Product,
+          as: "product",
+          attributes: ["name", "image"],
+        },
+        {
+          model: User,
+          as: "customer",
+          attributes: ["name", "email", "contact"],
+        },
+      ],
+      where: {
+        reciever: req.user.userId,
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json(sellerOrders);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // to get the sellers customer's list of orders seller controller (sequelized)
 exports.getMyAllOrderlists = async (req, res) => {
   try {
+    const { type } = req.body;
+    const userId = req.user.id;
+
     const orders = await OrderList.findAll({
-      attributes: [
-        [
-          sequelize.fn("DISTINCT", sequelize.col("order_list.createdBy")),
-          "createdBy",
-        ],
-        [
-          sequelize.fn("GROUP_CONCAT", sequelize.col("order_list.receiver")),
-          "receiver",
-        ],
-        [
-          sequelize.fn("GROUP_CONCAT", sequelize.col("order_list.prod_id")),
-          "prod_id",
-        ],
-        [
-          sequelize.fn("GROUP_CONCAT", sequelize.col("order_list.stage")),
-          "stage",
-        ],
-        [sequelize.fn("GROUP_CONCAT", sequelize.col("order_list.qty")), "qty"],
-        [
-          sequelize.fn("GROUP_CONCAT", sequelize.col("order_list.variant_id")),
-          "variant_id",
-        ],
-        ["order_group", "order_id"],
-        [sequelize.literal("MAX(`order_list`.`createdAt`)"), "createdAt"], // Specify the createdAt column from order_lists table
-        [sequelize.literal("MAX(`order_list`.`prices`)"), "prices"], // Aggregate prices separately
-      ],
+      where: { [type === "created" ? "createdBy" : "receiver"]: userId },
       include: [
         {
           model: User,
-          attributes: ["name", "email"],
+          as: "user",
+          attributes: ["id", "name", "role"],
+        },
+        {
+          model: Product,
+          as: "product",
+          attributes: ["id", "name"],
+        },
+        {
+          model: VariantsModel,
+          as: "variant",
+          attributes: ["id", "name"],
         },
       ],
-      where: { createdBy: req.user.id },
-      group: ["order_group", "order_list.createdBy"],
       raw: true,
     });
 
-    res.json(orders);
+    const orderMap = {};
+    orders?.forEach((order) => {
+      const orderId = order.order_group;
+
+      if (!orderMap[orderId]) {
+        orderMap[orderId] = {
+          createdBy: {
+            id: order["user.id"],
+            name: order["user.name"],
+            role:
+              order["user.role"] === 1
+                ? "Admin"
+                : order["user.role"] === 2
+                ? "Business"
+                : order["user.role"] === 3
+                ? "Moderator"
+                : "Accepted",
+          },
+          id: orderId,
+          createdAt: order.createdAt,
+          orderItems: [],
+        };
+      }
+
+      orderMap[orderId].orderItems.push({
+        id: order.id,
+        receiver: order.receiver,
+        prod_id: order.prod_id,
+        stage: order.stage,
+        qty: order.qty,
+        variant_id: order.variant_id,
+        price: order.prices,
+        product: order["product.name"],
+        variant: order["variant.name"],
+      });
+    });
+
+    const formattedOrders = Object.values(orderMap);
+
+    res.json(formattedOrders);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -351,46 +415,61 @@ exports.getMyAllOrderlists = async (req, res) => {
 
 // to  change the status of the order by the seller (sequelized)
 exports.updateOrderslists = async (req, res) => {
-  const { reciever, prod_id, qty, prices } = req?.body;
-  const { id } = req?.body;
+  const { qty, stage = 1 } = req?.body;
 
-  let stage = 1;
-  if (req?.body?.stage) stage = req.body.stage;
-  let variant_id = 0;
+  const { id } = req?.params;
+
   let content = "";
-  if (req?.body?.variant_id) variant_id = req.body.variant_id;
-
-  if (stage === 2) {
-    content = "Your order request has been processed successfully";
-  } else if (stage === 3) {
-    content =
-      "Your order request has been processed and the seller can accept it partially";
-  } else if (stage === 4) {
-    content = "Your order request has been denied by the seller";
-  } else {
-    content = "The seller has replied to your requested order list";
-  }
 
   try {
-    // Start a transaction
+    const orderlist = await OrderList.findOne({
+      include: [
+        {
+          model: VariantsModel,
+          attributes: ["name"],
+          as: "variant",
+        },
+        {
+          model: Product,
+          attributes: ["name"],
+          as: "product",
+        },
+      ],
+      where: { id, receiver: req.user.id },
+    });
+
+    if (stage === 2) {
+      content = "processed successfully";
+    } else if (stage === 3) {
+      orderlist.prices = (orderlist.prices / +orderlist.qty) * +qty;
+      orderlist.qty = qty;
+      content = "processed but partially accepted";
+    } else if (stage === 4) {
+      content = "rejected";
+    } else {
+      content = "replied";
+    }
+
+    content = `Order request for ${orderlist?.product?.name} ${
+      (orderlist?.variant?.name && " - " + orderlist?.variant?.name) || ""
+    } ${content} by ${req.user.name}`;
+
     await sequelize.transaction(async (t) => {
-      // Update order_list
-      await OrderList.update(
-        { qty, stage },
-        { where: { id } },
+      orderlist.stage = stage;
+
+      orderlist.save();
+
+      await NotificationsModel.create(
+        { content, sender: req.user.userId, reciever: orderlist?.createdBy },
         { transaction: t }
       );
 
-      // Insert into notifications
-      await Notifications.create(
-        { content, sender: req.user.userId, reciever },
-        { transaction: t }
-      );
-
-      // Commit the transaction
-      await t.commit();
-
-      res.status(200).json({ message: "Successfully updated order list" });
+      res.status(200).json({
+        message: "Successfully updated order list",
+        qty: orderlist.qty,
+        prices: orderlist.prices,
+        stage: orderlist.stage,
+      });
     });
   } catch (error) {
     console.error(error);
@@ -399,27 +478,57 @@ exports.updateOrderslists = async (req, res) => {
 };
 
 //seller can change the order request and cancel the order (sequelized)
-exports.cancelOrderslists = async (req, res) => {
-  const { reciever, id } = req?.body;
+exports.updateCreatedOrderslists = async (req, res) => {
+  const { id } = req?.params;
+  const { stage } = req?.body;
 
   try {
-    const content = "The seller has declined to your requested order list";
+    const orderlist = await OrderList.findOne({
+      include: [
+        {
+          model: VariantsModel,
+          attributes: ["name"],
+          as: "variant",
+        },
+        {
+          model: Product,
+          attributes: ["name"],
+          as: "product",
+        },
+      ],
+      where: { id, createdBy: req.user.id },
+    });
 
-    // Start a transaction
     await sequelize.transaction(async (t) => {
-      // Delete from order_list
-      await OrderList.destroy({ where: { id } }, { transaction: t });
+      if (stage !== 2 && stage !== 5) {
+        return res.status(400).json({ error: "Bad request" });
+      }
 
-      // Insert into notifications
-      await Notifications.create(
-        { content, sender: req.user.userId, reciever },
+      orderlist.stage = stage === 2 && orderlist.stage === 3 ? 2 : 5;
+
+      await orderlist.save();
+
+      let content;
+
+      if (stage === 2) {
+        content = `Partial Order request of ${orderlist?.product?.name} ${
+          (orderlist?.variant?.name && " - " + orderlist?.variant?.name) || ""
+        } accepted by ${req.user.name}`;
+      } else {
+        content = `Order of ${orderlist?.product?.name} ${
+          (orderlist?.variant?.name && " - " + orderlist?.variant?.name) || ""
+        } cancelled by ${req.user.name}`;
+      }
+      await Notification.create(
+        { content, sender: req.user.id, reciever: orderlist?.receiver },
         { transaction: t }
       );
 
-      // Commit the transaction
-      await t.commit();
+      // await t.commit();
 
-      res.status(200).json({ message: "Order Declined" });
+      res
+        .status(200)
+        .json({ message: "Order Cancelled", stage: orderlist.stage });
     });
   } catch (error) {
     console.error(error);

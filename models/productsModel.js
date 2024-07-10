@@ -18,10 +18,6 @@ const ProductModel = sequelize.define("products", {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  image: {
-    type: Sequelize.TEXT,
-    allowNull: false,
-  },
   price_b2b: {
     type: Sequelize.INTEGER,
     allowNull: false,
@@ -34,7 +30,7 @@ const ProductModel = sequelize.define("products", {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
-      Model: CategoryModel,
+      model: "categories",
       key: "id",
     },
   },
@@ -42,7 +38,7 @@ const ProductModel = sequelize.define("products", {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
-      Model: SubCategoryModel,
+      model: "subCategories",
       key: "id",
     },
   },
@@ -50,7 +46,7 @@ const ProductModel = sequelize.define("products", {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
-      Model: CompanyModel,
+      model: "companies",
       key: "id",
     },
   },
@@ -70,14 +66,14 @@ const ProductModel = sequelize.define("products", {
   created_by: {
     type: Sequelize.INTEGER,
     references: {
-      Model: UserModel,
+      model: "users",
       key: "id",
     },
   },
   reward_id: {
     type: Sequelize.INTEGER,
     references: {
-      Model: RewardsModel,
+      model: "rewards",
       key: "id",
     },
   },

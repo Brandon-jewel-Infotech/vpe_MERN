@@ -12,10 +12,10 @@ function authAll() {
       const decoded = jwt.verify(token, process.env.SECRET_KEY);
       req.user = decoded;
       // console.log(decoded);
-      next(); 
+      next();
     } catch (ex) {
       // console.log(ex);
-      res.status(503).json({ message: "Session expired" });
+      res.status(401).json({ message: "Session expired" });
     }
   };
 }

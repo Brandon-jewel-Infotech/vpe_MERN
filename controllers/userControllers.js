@@ -11,8 +11,21 @@ const BankDetail = require("../models/bankDetailsModel");
 const Request = require("../models/requestModel");
 const Employee = require("../models/employeesModel");
 
-function generateUniqueCode() {
-  return uuid.v4().substr(0, 6).toUpperCase();
+async function generateUniqueCode() {
+  let code;
+  let isUnique = false;
+
+  while (!isUnique) {
+    code = uuid.v4().substr(0, 6).toUpperCase();
+
+    const existingUser = await User.findOne({ where: { code: code } });
+
+    if (!existingUser) {
+      isUnique = true;
+    }
+  }
+
+  return code;
 }
 
 const encrypt = async (password) => {
@@ -45,10 +58,9 @@ exports.signup = async (req, res) => {
   } = req.body;
 
   try {
-    console.log(req.body);
     const hashed = await encrypt(password);
     // console.log("hashed" + hashed);
-    const code = generateUniqueCode();
+    const code = await generateUniqueCode();
     const role = req.body.role ? req.body.role : 2;
     const status = req.body.status ? req.body.status : 1;
 
@@ -104,22 +116,36 @@ exports.signup = async (req, res) => {
     //   }
     // );
 
-    return res.status(200).json({ message: "Applicaiton Successful" });
+    return res.status(200).json({ message: "Application Successful" });
   } catch (error) {
-    console.error("Error:", error);
-    return res.status(400).json({ message: "Error encountered", error });
+    if (
+      error?.errors?.length > 0 &&
+      error?.errors?.some((e) => e.type.includes("unique violation"))
+    )
+      return res
+        .status(400)
+        .json({ message: "Email address already register." });
+    return res.status(400).json({ message: "Error encountered." });
   }
 };
 
 // to add new employee under the seller (sequelized and tested)
 exports.createEmployee = async (req, res) => {
   try {
-    console.log("hi");
     const { name, email, password, contact } = req?.body;
+    if (
+      !name?.length ||
+      !email?.length ||
+      contact?.length !== 10 ||
+      password?.length < 8
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Please fill all required details" });
+    }
+
     const hashed = await encrypt(password);
-    console.log(req.user);
     const role = req.user.role === 1 ? 3 : 4;
-    console.log(role);
     await Employee.create({
       name: name,
       email: email,
@@ -128,7 +154,7 @@ exports.createEmployee = async (req, res) => {
       employer: req.user.id,
       role: role,
     });
-    return res.status(200).json({ message: "Registration successful" });
+    return res.status(201).json({ message: "Registration successful" });
   } catch (error) {
     console.error("Error:", error);
     return res.status(400).json({ message: "User already exists", error });
@@ -183,7 +209,6 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    console.log(req.body);
     const user = await User.findOne({ where: { email: email } });
 
     if (!user) {
@@ -214,13 +239,14 @@ exports.login = async (req, res) => {
       return res.status(200).json({ message: "Account request Declined" });
     }
 
+    console.log(user);
     // Create token
     const token = jwt.sign(
       {
         userId: user.id,
         email: user.email,
         role: user.role,
-        category: user.category,
+        category: user.categoryId,
       },
       process.env.SECRET_KEY
       // ,{ expiresIn: "5h" }
@@ -349,7 +375,7 @@ exports.fetchUsers = async (req, res) => {
     return res.status(200).json(users);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Session expired" });
+    return res.status(500).json({ error: "Failed to fetch Users" });
   }
 };
 
@@ -404,7 +430,7 @@ exports.updateById = async (req, res) => {
     res.json({ message: "Successful" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Session expired", error });
+    res.status(500).json({ error: "Failed to fetch User Details" });
   }
 };
 

@@ -9,7 +9,7 @@ exports.createSubCategory = async (req, res) => {
     // Create a new subcategory
     await SubCategory.create({ name, cat_id });
 
-    res.json({ message: "Successfully Added" });
+    res.status(201).json({ message: "Successfully Added" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -23,7 +23,7 @@ exports.deleteSubCategory = async (req, res) => {
     // Delete the subcategory
     await SubCategory.destroy({ where: { id } });
 
-    res.json({ message: "Successfully Deleted" });
+    res.status(200).json({ message: "Successfully Deleted" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

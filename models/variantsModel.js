@@ -21,10 +21,6 @@ const VariantsModel = sequelize.define("variants", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
-  image: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
   product_id: {
     type: Sequelize.INTEGER,
     references: {

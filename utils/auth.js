@@ -10,13 +10,13 @@ function auth(role) {
       const decoded = jwt.verify(token, process.env.SECRET_KEY);
       // console.log(decoded);
       if (decoded.role !== role) {
-        return res.status(403).send("Forbidden."); 
+        return res.status(403).send("Forbidden.");
       }
       req.user = decoded;
       next();
     } catch (ex) {
       console.log(ex);
-      res.status(503).json({ message: "Session expired" });
+      res.status(401).json({ message: "Session expired" });
     }
   };
 }

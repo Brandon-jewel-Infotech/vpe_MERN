@@ -46,7 +46,6 @@ const OrderListModel = sequelize.define("order_list", {
   },
   variant_id: {
     type: Sequelize.INTEGER,
-    allowNull: false,
     references: {
       model: VariantsModel,
       key: "id",

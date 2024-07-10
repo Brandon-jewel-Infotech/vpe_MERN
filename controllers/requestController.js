@@ -40,7 +40,14 @@ exports.fetchRequests = async (req, res) => {
     if (req.user.role === 1) {
       // If user role is 1 (assuming 1 is an admin role)
       requests = await Request.findAll({
-        attributes: ["id", "description", "status", "role", "response"],
+        attributes: [
+          "id",
+          "description",
+          "status",
+          "role",
+          "response",
+          "createdBy",
+        ],
         include: {
           model: User,
           attributes: ["name"],
@@ -48,17 +55,24 @@ exports.fetchRequests = async (req, res) => {
             id: sequelize.literal("`requests`.`createdBy` = `user`.`id`"),
           },
         },
-        where: {
-          role: {
-            [sequelize.literal("NOT")]: 1, // Exclude requests with role 1
-          },
-        },
+        // where: {
+        //   role: {
+        //     [sequelize.literal("NOT")]: 1, // Exclude requests with role 1
+        //   },
+        // },
         order: [["status"]],
       });
     } else {
       // If user role is not 1
       requests = await Request.findAll({
-        attributes: ["id", "description", "status", "role", "response"],
+        attributes: [
+          "id",
+          "description",
+          "status",
+          "role",
+          "response",
+          "createdBy",
+        ],
         include: {
           model: User,
           attributes: ["name"],
@@ -175,9 +189,8 @@ exports.searchByCode = async (req, res) => {
 
 //sequelized and tested
 exports.updateRequest = async (req, res) => {
-  const { id, status, user_id } = req?.body;
-  let message = "";
-  if (req?.body?.response) message = req.body.response;
+  const { id } = req?.params;
+  const { status, user_id, response } = req?.body;
 
   if (req?.body?.aadhar_pic) {
     try {
@@ -194,7 +207,7 @@ exports.updateRequest = async (req, res) => {
     await sequelize.transaction(async (t) => {
       // Update requests table
       await Request.update(
-        { status, response: message },
+        { status, response },
         {
           where: {
             id,
@@ -237,7 +250,7 @@ exports.updateRequest = async (req, res) => {
 exports.updateConnection = (req, res) => {
   const { status, name } = req.body;
 
-  const request = `UPDATE requests set ststua = ? requests WHERE id = ?`;
+  const request = `UPDATE requests set status = ? requests WHERE id = ?`;
   const sql = `UPDATE users set supplier  requests WHERE id = ?`;
   connection.query(sql, [id], (err, result) => {
     if (err) throw err;
