@@ -417,7 +417,7 @@ const ProductDetails = () => {
                 <button
                   className="primary-btn disabled:text-white disabled:bg-neutral/80"
                   disabled={
-                    // product?.seller_code === code ||
+                    product?.seller_code === code ||
                     selectedVariant?.qty !== undefined
                       ? !selectedVariant?.qty
                       : product?.availability <= 0 || product?.instock !== 1
