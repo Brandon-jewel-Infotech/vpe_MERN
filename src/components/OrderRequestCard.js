@@ -9,12 +9,10 @@ const OrderRequestCard = ({
 }) => {
   var date = new Date(createdAt);
 
-  // Extract day, month, and year
   var day = date.getUTCDate();
-  var month = date.getUTCMonth() + 1; // Months are zero-based, so add 1
+  var month = date.getUTCMonth() + 1;
   var year = date.getUTCFullYear();
 
-  // Format the date in dd/mm/yyyy
   var formattedDate = `${day}/${month}/${year}`;
   return (
     <div
@@ -53,8 +51,8 @@ const OrderRequestCard = ({
           <p className="flex-none lg:h-full">${prices}</p>
         </div>
         <div className="flex justify-between items-center w-full px-4 border-t pt-2">
-          <button className="btn btn-error text-white">Cancel</button>
-          <button className="btn bg-success text-white">Accept</button>
+          <button className="btn btn-info text-white">Cancel</button>
+          <button className="btn bg-neutral text-white">Accept</button>
         </div>
       </div>
     </div>

@@ -4,8 +4,9 @@ const initialState = {
   auth: false,
   role: "",
   email: "",
- tok:'',
- code:''
+  tok: "",
+  code: "",
+  sidebarExpanded: true,
 };
 
 export const userSlice = createSlice({
@@ -14,7 +15,7 @@ export const userSlice = createSlice({
   reducers: {
     login: (state, action) => {
       console.log("state issued");
-      
+
       state.auth = true;
       state.tok = action.payload.token;
       state.id = action.payload.id;
@@ -30,11 +31,13 @@ export const userSlice = createSlice({
       state.email = "";
       state.code = "";
     },
+    toggleSidebar: (state, action) => {
+      state.sidebarExpanded = !state.sidebarExpanded;
+    },
   },
 });
 
-
 // Action creators are generated for each case reducer function
-export const { login, logout } = userSlice.actions;
+export const { login, logout, toggleSidebar } = userSlice.actions;
 
 export default userSlice.reducer;

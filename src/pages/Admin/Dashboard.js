@@ -1,4 +1,4 @@
-import PrimaryLayout from "../Layout/PrimaryLayout";
+import PrimaryLayout from "../../Layout/PrimaryLayout";
 import { BsLayoutTextSidebarReverse } from "react-icons/bs";
 import React, { PureComponent } from "react";
 import {
@@ -146,8 +146,8 @@ const Dashboard = () => {
     <PrimaryLayout>
       <div className="flex flex-col gap-10">
         <div className="flex flex-wrap justify-center items-center gap-4 flex-col lg:flex-row">
-          {dashboardData.map((item) => (
-            <DashboardCard {...item} />
+          {dashboardData.map((item, i) => (
+            <DashboardCard key={i} {...item} />
           ))}
         </div>
         <div className="lg:h-96 flex border gap-5 bg-white p-5 shadow-2xl rounded-xl flex-col lg:flex-row">

@@ -39,80 +39,94 @@
 // import MyorderRequest from "./sellers/seller_components/MyorderRequest";
 // import AddRewards from "./pages/AddRewards";
 // import Redeem from "./sellers/pages/Redeem";
-import { Navigate } from "react-router-dom";
-import Cart from "./pages/Cart";
-import Dashboard from "./pages/Dashboard";
+import Cart from "./pages/Seller/Cart";
+import Dashboard from "./pages/Admin/Dashboard";
 import Login from "./pages/Login";
-import OrderRequests from "./pages/OrderRequests";
-import AddProduct from "./pages/Products/AddProduct";
-import ProductList from "./pages/Products/ProductList";
+import OrderRequests from "./pages/Seller/OrderRequests";
+import AddProduct from "./pages/Seller/Products/AddProduct";
+import ProductList from "./pages/Seller/Products/ProductList";
+import ProductDetails from "./pages/Seller/Products/ProductDetails";
+import Categories from "./pages/Admin/Categories";
+import Companies from "./pages/Admin/Companies";
+import Users from "./pages/Admin/Users";
+import Requests from "./pages/Admin/Requests";
+import Connections from "./pages/Admin/Connections";
+import AddVariant from "./pages/Seller/Products/AddVariant";
+import EditProduct from "./pages/Seller/Products/EditProduct";
+import MarketPlace from "./pages/Seller/MarketPlace";
+import EmployeeList from "./pages/Seller/Employee/EmployeeList";
+import AddEmployee from "./pages/Seller/Employee/AddEmployee";
+import MyOrders from "./pages/Seller/MyOrders";
+import MyOrderRequests from "./pages/Seller/MyOrderRequests";
 
 export const getRoutesByRole = (auth, role, code, navigate) => {
   // Admin Routes
   const adminRoutes = [
     { path: "/", component: <Dashboard /> },
     { path: "/login", component: <Login /> },
-    { path: "*", component: <Navigate to="/logout" replace /> },
-    { path: "/users", component: <Dashboard /> },
-    //   { path: "/orders", component: <Orders  /> },
-      { path: "/products", component: <ProductList /> },
+    { path: "/users", component: <Users /> },
+    { path: "/requests", component: <Requests /> },
+    { path: "/connections", component: <Connections /> },
+    { path: "/categories", component: <Categories /> },
+    { path: "/companies", component: <Companies /> },
+    // { path: "/orders", component: <Orders  /> },
     //   { path: "/users/edit/:id", component: <EditUsers /> },
-    { path: "/products/edit/:id", component: <AddProduct /> },
-
     // { path: "/users/add", component: <AddUsers /> },
     //   { path: "/users/business", component: <AddAssociates /> },
-    { path: "/products/add", component: <AddProduct /> },
-    //   { path: "/requests", component: <Requests /> },
     //   { path: "/requests/:id", component: <RequestView /> },
-    //   { path: "/requests/q/:id", component: <QueryRequestView /> },
+    // { path: "/requests/q/:id", component: <QueryReq@@@uestView /> },
     //   { path: "/requests/c/:id", component: <CompanyRequestView /> },
 
-    //   { path: "/connections/:code", component: <ConnectionsView /> },
     //   { path: "/analytics", component: <Analytics /> },
-    //   { path: "/categories", component: <Categories /> },
     //   { path: "/requests/c/:id", component: <CompanyRequestView /> },
+    // { path: "*", component: <Navigate to="/logout" replace /> },
     // ...other admin routes
   ];
 
   // Business Routes
   const businessRoutes = [
     { path: "/", component: <Dashboard /> },
-    { path: "*", component: <Navigate to="/logout" replace /> },
-    //   { path: "/seller/home", component: <SellerHome /> },
-    //   { path: "/seller/products", component: <SellerProducts /> },
-    //   { path: "/seller/products/rewards", component: <AddRewards/> },
-    { path: "/seller/products/cart", component: <Cart /> },
-    //   { path: "/seller/request", component: <SellerRequest /> },
-    // { path: "/seller/myorders", component: <MyOrder /> }, //my orders
-    //   { path: "/seller/redeem", component: <Redeem/> },
+    { path: "/add-product", component: <AddProduct /> },
+    { path: "/products", component: <ProductList /> },
+    { path: "/products/edit/:id", component: <EditProduct /> },
+    { path: "/products/variant/:id", component: <AddVariant /> },
+    { path: "/products/cart", component: <Cart /> },
+    { path: "/seller/shop", component: <MarketPlace /> },
+    { path: "/product/:id", component: <ProductDetails /> },
+    { path: "/employee-list", component: <EmployeeList /> },
+    { path: "/add-employee", component: <AddEmployee /> },
+    { path: "/my-order-requests", component: <MyOrderRequests /> }, //my  order requests
+    { path: "/my-orders", component: <MyOrders /> }, //my orders
+    { path: "/order-requests", component: <OrderRequests /> }, //my orders
+    { path: "/cart", component: <Cart /> },
+    // { path: "*", component: <Navigate to="/logout" replace /> },
+    //   { path: "/products", component: <SellerProducts /> },
+    //   { path: "/products/rewards", component: <AddRewards/> },
+    //   { path: "/request", component: <SellerRequest /> },
+    //   { path: "/redeem", component: <Redeem/> },
 
-    //   { path: "/seller/requests/q/:id", component: <SellerQueryRequestView /> },
+    //   { path: "/requests/q/:id", component: <SellerQueryRequestView /> },
 
-    //   { path: "/seller/analytics", component: <SellerAnalytics /> },
-    // { path: "/seller/orders", component: <SellerOrders /> }, //manage orders
-    { path: "/seller/myorder_requests", component: <OrderRequests /> }, //my  order requests
-    //   { path: "/seller/orders/requests/:id", component: <OrderRequest/> },
-    //   { path: "/seller/myorders/requests/:id", component: <MyorderRequest/> },
-    //   { path: "/seller/shop", component: <SellerCategories /> },
-    //   { path: "/seller/add/employee", component: <AddUsers /> },
-    // { path: "/seller/connections", component: <SellerConnectionsView /> },
+    //   { path: "/analytics", component: <SellerAnalytics /> },
+    // { path: "/orders", component: <SellerOrders /> }, //manage orders
+    //   { path: "/orders/requests/:id", component: <OrderRequest/> },
+    //   { path: "/myorders/requests/:id", component: <MyorderRequest/> },
+    // { path: "/connections", component: <SellerConnectionsView /> },
 
-    //   { path: "/seller/products/new", component: <AddProducts /> },
-    //   { path: "/seller/products/:id", component: <SellerProductView /> },
-    //   { path: "/seller/products/:id/:variantid", component: <SellerVariantView /> },
-    //   { path: "/seller/products/edit/:id", component: <EditProducts /> },
-    //   { path: "/seller/products/variant/:id", component: <AddVariant /> },
-    //   { path: `/seller/connections`, component: <SellerConnectionsView /> },
-    // {path:"/seller/shop",component: <SellerCategories/> },
-    // {path:"/seller/shop",component: <SellerCategories/> },
-    // {path:"/seller/shop",component: <SellerCategories/> },
+    //   { path: "/products/new", component: <AddProducts /> },
+    //   { path: "/products/:id", component: <SellerProductView /> },
+    //   { path: "/products/:id/:variantid", component: <SellerVariantView /> },
+    //   { path: "/products/edit/:id", component: <EditProducts /> },
+    //   { path: `/connections`, component: <SellerConnectionsView /> },
+    // {path:"/shop",component: <SellerCategories/> },
+    // {path:"/shop",component: <SellerCategories/> },
+    // {path:"/shop",component: <SellerCategories/> },
 
     // ...other business routes
   ];
 
   // console.log(`Auth : ${auth} ; Role : ${role}`);
   if (role === "admin") {
-    
     return adminRoutes;
   } else if (role === "business") {
     return businessRoutes;

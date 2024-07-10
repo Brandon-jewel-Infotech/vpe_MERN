@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import PrimaryLayout from "../Layout/PrimaryLayout";
+import PrimaryLayout from "../../Layout/PrimaryLayout";
 import { AiFillDelete } from "react-icons/ai";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { logout } from "../redux/slice";
-import OrderRequestCard from "../components/OrderRequestCard";
+import { logout } from "../../redux/slice";
+import OrderRequestCard from "../../components/OrderRequestCard";
 const MyOrders = () => {
   const { tok, id } = useSelector((state) => state.user);
   const [usData, setusData] = useState([]);
@@ -33,7 +33,7 @@ const MyOrders = () => {
     // console.log(props);
     setloading(true);
     axios
-      .delete(`${process.env.REACT_APP_BACKEND_URL}orders/${props}`, {
+      .delete(`${process.env.REACT_APP_BACKEND_URL}/orders/${props}`, {
         headers: {
           Authorization: `${tok}`,
         },
@@ -55,7 +55,7 @@ const MyOrders = () => {
     setloading(true);
     axios
       .post(
-        `${process.env.REACT_APP_BACKEND_URL}seller/orders`,
+        `${process.env.REACT_APP_BACKEND_URL}/seller/orders`,
         {},
         {
           headers: {
@@ -94,7 +94,7 @@ const MyOrders = () => {
   const handleProductQty = (qty, pid) => {
     axios
       .post(
-        `${process.env.REACT_APP_BACKEND_URL}seller/products/edit`,
+        `${process.env.REACT_APP_BACKEND_URL}/seller/products/edit`,
         {
           qty: qty,
           prod_id: pid,
@@ -138,7 +138,7 @@ const MyOrders = () => {
     if (cont) {
       axios
         .post(
-          `${process.env.REACT_APP_BACKEND_URL}seller/orders/accept`,
+          `${process.env.REACT_APP_BACKEND_URL}/seller/orders/accept`,
           {
             stage: stage,
             order_id: pid,
@@ -171,7 +171,7 @@ const MyOrders = () => {
     console.log(row);
     axios
       .post(
-        `${process.env.REACT_APP_BACKEND_URL}seller/connections/update`,
+        `${process.env.REACT_APP_BACKEND_URL}/seller/connections/update`,
         {
           createdBy: row.createdBy,
           receiver: row.receiver,
@@ -255,8 +255,8 @@ const MyOrders = () => {
             </div>
           </div>
           <div className="flex flex-wrap justify-evenly gap-10">
-            {usData.map((order) => (
-              <OrderRequestCard {...order} />
+            {usData.map((order, ind) => (
+              <OrderRequestCard key={ind} {...order} />
             ))}
           </div>
         </div>

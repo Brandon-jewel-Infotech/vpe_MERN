@@ -4,111 +4,138 @@ import { MdSpaceDashboard } from "react-icons/md";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../redux/slice";
+import { logout, toggleSidebar } from "../redux/slice";
 import { IoMdCart } from "react-icons/io";
 import { IoBagCheckOutline } from "react-icons/io5";
 import { CiLogin } from "react-icons/ci";
 import { RxDashboard } from "react-icons/rx";
 import { PiUsersThree } from "react-icons/pi";
-import { GrUserNew } from "react-icons/gr";
 import { MdOutlineRequestPage } from "react-icons/md";
-import { LiaProductHunt } from "react-icons/lia";
 import { IoBagAdd } from "react-icons/io5";
 
-const Sidebar = ({ expanded, setExpanded }) => {
-  const { auth, id } = useSelector((state) => state.user);
+const Sidebar = () => {
+  const { auth, role, id, sidebarExpanded } = useSelector(
+    (state) => state.user
+  );
 
-  const sidebarItems = [
-    { icon: RxDashboard, title: "Dashboard", url: "/" },
-    {
-      icon: FaUserCircle,
-      title: "Product Management",
-      links: [
-        { icon: MdSpaceDashboard, title: "Add Product", url: "/add-product" },
-        { icon: MdSpaceDashboard, title: "Product List", url: "/product-list" },
-      ],
-    },
-    {
-      icon: PiUsersThree,
-      title: "Employee Management",
-      links: [
-        {
-          icon: MdSpaceDashboard,
-          title: "Employee List",
-          url: "/employee-list",
-        },
-      ],
-    },
-    {
-      icon: MdOutlineRequestPage,
-      title: "Order Requests",
-      url: "/order-requests",
-    },
-    { icon: IoMdCart, title: "Cart", url: "/cart" },
-    { icon: IoBagCheckOutline, title: "Checkout", url: "/checkout" },
-    { icon: IoBagAdd, title: "Marketplace", url: "/seller/shop" },
-    {
-      icon: LiaProductHunt,
-      title: "Product Details",
-      url: "/seller/products/33",
-    },
-    {
-      icon: MdOutlineRequestPage,
-      title: "My Order Requests",
-      url: "/my-order-requests",
-    },
-    {
-      icon: MdOutlineRequestPage,
-      title: "My Orders",
-      url: "/my-orders",
-    },
-    { icon: CiLogin, title: "Login", url: "/login" },
-    { icon: GrUserNew, title: "Register", url: "/register" },
-  ];
+  const sidebarItems =
+    (role === "admin" && [
+      { icon: RxDashboard, title: "Dashboard", url: "/" },
+      { icon: IoMdCart, title: "Requests", url: "/requests" },
+      { icon: IoMdCart, title: "Categories", url: "/categories" },
+      { icon: IoMdCart, title: "Users", url: "/users" },
+      { icon: IoMdCart, title: "Companies", url: "/companies" },
+      { icon: IoMdCart, title: "Connections", url: "/connections" },
+      { icon: CiLogin, title: "Login", url: "/login" },
+    ]) ||
+    (role === "business" && [
+      {
+        icon: FaUserCircle,
+        title: "Product Management",
+        links: [
+          {
+            icon: MdSpaceDashboard,
+            title: "Add Product",
+            url: "/add-product",
+          },
+          {
+            icon: MdSpaceDashboard,
+            title: "Product List",
+            url: "/products",
+          },
+        ],
+      },
+      {
+        icon: PiUsersThree,
+        title: "Employee Management",
+        links: [
+          {
+            icon: MdSpaceDashboard,
+            title: "Add Employee",
+            url: "/add-employee",
+          },
+          {
+            icon: MdSpaceDashboard,
+            title: "Employee List",
+            url: "/employee-list",
+          },
+        ],
+      },
+      {
+        icon: MdOutlineRequestPage,
+        title: "Order Management",
+        links: [
+          {
+            icon: MdOutlineRequestPage,
+            title: "My Order Requests",
+            url: "/my-order-requests",
+          },
+          {
+            icon: MdOutlineRequestPage,
+            title: "Order Requests",
+            url: "/order-requests",
+          },
+        ],
+      },
+      { icon: IoBagAdd, title: "Marketplace", url: "/seller/shop" },
+      { icon: IoMdCart, title: "Cart", url: "/cart" },
+    ]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   return (
     <ul
-      className={`hidden md:block menu min-h-[91.4vh] self-start bg-base-200 sticky top-[4.9rem] z-50 shadow-xl `}
+      className={`hidden md:flex menu h-[88vh] self-start bg-base-200 sticky top-[12vh] z-50 shadow-xl`}
     >
-      {sidebarItems.map((item) => {
+      {sidebarItems.map((item, i) => {
         if (item.title === "Login" && auth) return;
         return (
           <SidebarItem
+            key={i}
             dataObj={item}
-            sidebarExpanded={expanded}
-            setExpanded={setExpanded}
+            sidebarExpanded={sidebarExpanded}
           />
         );
       })}
       <button
-        className="secondary-btn mt-2 w-full"
+        className="secondary-btn w-full self-end mt-auto"
         onClick={() => {
           dispatch(logout());
           navigate("/login");
         }}
       >
-        <FiLogOut /> {expanded && "Logout"}
+        <FiLogOut /> {sidebarExpanded && "Logout"}
       </button>
     </ul>
   );
 };
 
-const SidebarItem = ({ dataObj, sidebarExpanded, setExpanded }) => {
+const SidebarItem = ({ dataObj, sidebarExpanded }) => {
   const location = useLocation();
+  const dispatch = useDispatch();
   return (
     <li>
       {sidebarExpanded ? (
         dataObj?.links?.length ? (
-          <details>
+          <details
+            open={
+              dataObj?.links?.findIndex((link) => {
+                return location.pathname == link.url;
+              }) !== -1
+            }
+            className="transition-all duration-300"
+          >
             <summary>
               <dataObj.icon size={20} />
               {dataObj.title}
             </summary>
             <ul>
-              {dataObj.links.map((obj) => (
-                <SidebarItem dataObj={obj} sidebarExpanded={sidebarExpanded} />
+              {dataObj.links.map((obj, i) => (
+                <SidebarItem
+                  key={i}
+                  dataObj={obj}
+                  sidebarExpanded={sidebarExpanded}
+                />
               ))}
             </ul>
           </details>
@@ -116,6 +143,9 @@ const SidebarItem = ({ dataObj, sidebarExpanded, setExpanded }) => {
           <Link
             to={dataObj.url}
             className={` ${location.pathname == dataObj.url && "active"}`}
+            onClick={() => {
+              if (location.pathname === dataObj.url) dispatch(toggleSidebar());
+            }}
           >
             <dataObj.icon size={20} />
             {dataObj?.title}
@@ -128,7 +158,8 @@ const SidebarItem = ({ dataObj, sidebarExpanded, setExpanded }) => {
           }`}
           to={dataObj?.url}
           onClick={() => {
-            dataObj.links?.length && setExpanded(true);
+            if (location.pathname === dataObj.url) dispatch(toggleSidebar());
+            else dataObj.links?.length && dispatch(toggleSidebar());
           }}
           data-tip={dataObj.title}
         >

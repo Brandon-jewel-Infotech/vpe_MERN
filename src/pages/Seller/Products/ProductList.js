@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import PrimaryLayout from "../../Layout/PrimaryLayout";
+import PrimaryLayout from "../../../Layout/PrimaryLayout";
 import { GoPlus } from "react-icons/go";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../redux/slice";
-import ProductListMenu from "../../components/ProductListMenu";
+import { logout } from "../../../redux/slice";
+import ProductListMenu from "../../../components/ProductListMenu";
+import { toast } from "react-toastify";
 
 const ProductList = () => {
   const { tok } = useSelector((state) => state.user);
 
   const [products, setProducts] = useState([]);
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   //  Get all products from the database.
@@ -20,7 +20,7 @@ const ProductList = () => {
     try {
       // setloading(true);
       const { data } = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}seller/getproducts`,
+        `${process.env.REACT_APP_BACKEND_URL}/seller/getproducts`,
         {},
         {
           headers: {
@@ -29,14 +29,13 @@ const ProductList = () => {
         }
       );
 
-      if (data?.message === "Session expired") {
-        dispatch(logout());
-      }
-      console.log(data);
       setProducts(data);
     } catch (error) {
-      console.log(error);
-      // navigate("/logout");
+      if (error?.response?.status === 401) {
+        toast.dismiss();
+        toast.error("Session Expired");
+        dispatch(logout());
+      }
     }
   };
 
@@ -47,31 +46,32 @@ const ProductList = () => {
   return (
     <PrimaryLayout>
       <div className="card bg-white max-w-full">
-        <div className="card-body p-0 max-w-fit 2xl:mx-auto">
+        <div className="card-body p-0 2xl:mx-auto">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-bold text-start">Product List</h2>
-              <p className="text-sm">Products {">"} Product List</p>
+              <h2 className="text-xl font-bold text-start">Product List</h2>
+              <p className="text-md">Products &gt; Product List</p>
             </div>
-            <button
+            <Link
               className="primary-btn font-semibold"
-              onClick={() => {
-                navigate("/add-product");
-              }}
+              // onClick={() => {
+              //   navigate("/add-product");
+              // }}
+              to={"/add-product"}
             >
               <GoPlus size={20} /> Add New
-            </button>
+            </Link>
           </div>
           {/* table starts here */}
-          <div className="mt-3 overflow-x-auto">
-            <table className="table table-zebra table-auto w-fit">
+          <div className="mt-3 overflow-x-auto min-h-64">
+            <table className="table table-zebra table-auto ">
               <thead className="bg-neutral text-white">
                 <tr>
                   <th>Product Id</th>
                   <th>Name</th>
                   <th>Image</th>
-                  <th>Business</th>
-                  <th>Customer Price</th>
+                  <th>B2B Price</th>
+                  <th>B2C Price</th>
                   <th>Description</th>
                   <th>Category</th>
                   <th>Subcategory</th>
@@ -89,9 +89,9 @@ const ProductList = () => {
                     <td>
                       <img
                         className="w-[200px] rounded object-contain"
-                        src={`${
-                          process.env.REACT_APP_BACKEND_URL
-                        }${item.image.slice(0, -1)}`}
+                        src={`${process.env.REACT_APP_BACKEND_URL}${
+                          item.images?.length && item?.images[0]?.url
+                        }`}
                         alt="product image"
                       />
                     </td>
@@ -103,10 +103,14 @@ const ProductList = () => {
                     <td>{item.category.name}</td>
                     <td>{item.subcategory.name}</td>
                     <td>{item.company.name}</td>
-                    <td>{item.instock ? "Yes" : "No"}</td>
+                    <td>{!item.instock ? "Yes" : "No"}</td>
                     <td>{item.availability}</td>
                     <td>
-                      <ProductListMenu productId={item.id} />
+                      <ProductListMenu
+                        productId={item.id}
+                        instock={item.instock}
+                        setProducts={setProducts}
+                      />
                     </td>
                   </tr>
                 ))}

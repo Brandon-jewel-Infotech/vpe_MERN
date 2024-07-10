@@ -7,7 +7,9 @@ const FormField = ({
   placeholder,
   inputHandler,
   errorMsg,
+  value,
   name,
+  className,
 }) => {
   return (
     <label className="form-control w-full ">
@@ -21,8 +23,9 @@ const FormField = ({
         required={required ? true : false}
         type={type}
         name={name}
+        value={value}
         placeholder={placeholder}
-        className="input input-bordered w-full bg-white"
+        className={"input input-bordered w-full bg-white " + className}
         onChange={inputHandler}
       />
       <div className="label"></div>

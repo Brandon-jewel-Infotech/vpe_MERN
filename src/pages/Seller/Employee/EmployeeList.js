@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import PrimaryLayout from "../../Layout/PrimaryLayout";
+import PrimaryLayout from "../../../Layout/PrimaryLayout";
 import { GoPlus } from "react-icons/go";
 import { AiFillDelete } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../redux/slice";
+import { logout } from "../../../redux/slice";
+import { toast } from "react-toastify";
 
 const EmployeeList = () => {
   const { tok } = useSelector((state) => state.user);
@@ -14,42 +15,63 @@ const EmployeeList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const removeEmployee = async (id) => {
+  const removeEmployee = async (employeeId) => {
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_BACKEND_URL}employees/delete/${id}`,
+      const res = await toast.promise(
+        axios.delete(
+          `${process.env.REACT_APP_BACKEND_URL}/employees/delete/${employeeId}`,
+          {
+            headers: {
+              Authorization: tok,
+            },
+          }
+        ),
         {
-          headers: {
-            Authorization: `${tok}`,
+          pending: "Deleting Employee...",
+          success: "Employee deleted Successfully!",
+          error: {
+            render({ data }) {
+              if (data?.response?.status === 401) {
+                dispatch(logout());
+                return "Session Expired";
+              } else {
+                return (
+                  data?.response?.data?.error || "Failed to delete Employee."
+                );
+              }
+            },
           },
         }
       );
-      getEmployees();
-    } catch (error) {
-      console.error(error);
-      // navigate("/logout");
-    }
+
+      if (res?.status === 200) {
+        setEmployeeData((currEmployees) =>
+          currEmployees.filter((employee) => employee.id !== employeeId)
+        );
+      }
+    } catch (e) {}
   };
 
   //fetch the employees
   const getEmployees = async () => {
     try {
       const { data } = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}employees`,
+        `${process.env.REACT_APP_BACKEND_URL}/employees`,
         {},
         {
           headers: {
-            Authorization: `${tok}`,
+            Authorization: tok,
           },
         }
       );
-      if (data?.message === "Session expired") {
-        dispatch(logout());
-      }
+
       setEmployeeData(data);
     } catch (error) {
-      console.warn(error);
-      // navigate("/logout");
+      if (error?.response?.status === 401) {
+        toast.dismiss();
+        toast.error("Session Expired");
+        dispatch(logout());
+      }
     }
   };
 
@@ -60,11 +82,11 @@ const EmployeeList = () => {
   return (
     <PrimaryLayout>
       <div className="card bg-white">
-        <div className="card-body">
+        <div className="card-body p-0">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-bold text-start">Employee List</h2>
-              <p className="text-sm">Employees {">"} Employee List</p>
+              <h2 className="text-xl font-bold text-start">Employee List</h2>
+              <p className="text-md">Employees {">"} Employee List</p>
             </div>
 
             <button

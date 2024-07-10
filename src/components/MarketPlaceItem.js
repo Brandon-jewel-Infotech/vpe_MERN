@@ -1,40 +1,64 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { Autoplay, Navigation, Thumbs } from "swiper/modules";
+import { SwiperSlide, Swiper } from "swiper/react";
 
 const MarketPlaceItem = ({ product }) => {
   return (
-    <div className="card w-96 bg-base-100 shadow-xl">
-      <figure>
-        <img
-          src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-          alt="Shoes"
-        />
-      </figure>
+    <div className="card w-[31%] bg-base-100 shadow-md max-lg:w-[47%] max-sm:w-full">
+      <div className="p-4 rounded-md overflow-hidden h-56">
+        <Swiper
+          autoplay={{ delay: (product.id % 4) * 1000 + 2000 }}
+          modules={[Thumbs, Autoplay]}
+          className="h-full "
+        >
+          {product?.images?.map((image) => (
+            <SwiperSlide key={image?.id}>
+              <div
+                className="h-full bg-no-repeat bg-base-100 w-full bg-center bg-contain"
+                style={{
+                  backgroundImage: `url(${process.env.REACT_APP_BACKEND_URL}${image?.url})`,
+                }}
+              ></div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
       <div className="card-body">
-        <h2 className="card-title">
-          {product?.name}
+        <div className="flex justify-between items-center">
+          <h2 className="card-title">{product?.name}</h2>
           <div
             className={`badge ${
-              product.availability ? "badge-secondary" : "badge-error"
+              product?.availability && product?.instock
+                ? "badge-secondary"
+                : "badge-error text-white"
             }`}
           >
-            {product?.availability ? "Available" : "Out of stock"}
+            {product?.availability && product?.instock
+              ? "Available"
+              : "Out of stock"}
           </div>
-        </h2>
-        <div className="flex items-center">
+        </div>
+        {/* <div className="flex items-center">
           {Array.from({ length: product?.ratings }, (_, index) => (
             <Star key={index} fillColor="#EACA4E" />
-          ))}
-          {Array.from(
-            { length: 5 - Math.floor(product?.ratings) },
-            (_, index) => (
-              <Star key={index} fillColor="#e2e8f0" />
-            )
-          )}
-          ({product?.views} views)
-        </div>
-        <div className="card-actions items-center justify-between">
-          <div className="text-xl">₹{product?.price}</div>
-          <button className="primary-btn justify-end">Buy now</button>
+            ))}
+            {Array.from(
+              { length: 5 - Math.floor(product?.ratings) },
+              (_, index) => (
+                <Star key={index} fillColor="#e2e8f0" />
+                )
+                )}
+                </div> */}
+        <p className="text-start">{product?.description}</p>
+        <div className="card-actions items-end justify-between">
+          <div className="text-xl">₹{product?.price_b2b}</div>
+          <Link
+            className="btn btn-info text-white justify-end"
+            to={`/product/${product?.id}`}
+          >
+            View
+          </Link>
         </div>
       </div>
     </div>

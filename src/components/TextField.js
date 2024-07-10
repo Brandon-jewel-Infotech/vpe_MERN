@@ -1,13 +1,20 @@
 import React from "react";
 
-const TextField = ({ type, title, placeholder, inputHandler, errorMsg ,name }) => {
+const TextField = ({
+  type,
+  title,
+  placeholder,
+  inputHandler,
+  errorMsg,
+  name,
+}) => {
   return (
     <label className="form-control w-full ">
       <div className="label">
         <span className="label-text font-semibold">{title}</span>
         <span className="label-text-alt text-error">{errorMsg}</span>
       </div>
-      <textarea 
+      <textarea
         type={type}
         name={name}
         placeholder={placeholder}

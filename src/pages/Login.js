@@ -6,6 +6,7 @@ import axios from "axios";
 import { login } from "../redux/slice";
 import { addToCart } from "../redux/cartSlice";
 import FormField from "../components/FormField";
+import validateEmail from "../utils/validateEmail";
 
 const Login = () => {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -22,18 +23,18 @@ const Login = () => {
   const [error, setError] = useState(null);
   const { tok } = useSelector((state) => state.user);
   const { cart } = useSelector((state) => state.cart);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("Something went wrong!");
 
   const { auth, id } = useSelector((state) => state.user);
-  console.log(auth)
 
   useEffect(() => {
     if (auth) navigate("/");
   }, []);
 
   const getCart = (token) => {
-    // console.log("Hello")
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}seller/cart`, {
+      .get(`${process.env.REACT_APP_BACKEND_URL}/seller/cart`, {
         headers: {
           Authorization: `${token}`,
         },
@@ -79,18 +80,23 @@ const Login = () => {
     const data = new FormData(event.currentTarget);
     let email = data.get("email");
     let password = data.get("password");
+
+    if (!validateEmail(email)) {
+      setShowAlert(true);
+      setAlertMessage("Please enter a valid email");
+      return;
+    }
     // console.log(email, password);
 
     if (email.length >= 8 && password.length >= 8) {
       axios
-        .post(`${process.env.REACT_APP_BACKEND_URL}login`, {
+        .post(`${process.env.REACT_APP_BACKEND_URL}/login`, {
           email: data.get("email").toLowerCase(),
           password: data.get("password"),
         })
         .then((res) => {
           console.log(res);
           if (res?.data?.token) {
-            
             //role => 1: Admin , 2 : business , 3 : Mod , 4 : employee
             const user_role =
               res.data.role === 1
@@ -110,11 +116,11 @@ const Login = () => {
                 email: data.get("email").toLowerCase(),
               })
             );
-            
+
             // socket.emit('login', res.data.userId)
             // socket.on("newUserResponse",console.log(data));
             user_role === "admin"
-              ? navigate("/dashboard")
+              ? navigate("/")
               : user_role === "business"
               ? navigate("/")
               : navigate("/login");
@@ -136,8 +142,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-[100vh] justify-center items-center">
-      <div className="card lg:card-side bg-base-100 shadow-2xl my-auto md:my-10 md:mx-auto max-sm:m-5 overflow-hidden md:max-w-[50%] mx-10 h-fit ">
+    <div className="flex justify-center items-center">
+      <div className="card lg:card-side bg-base-100 shadow-2xl my-auto md:my-10 md:mx-auto max-sm:m-5 overflow-hidden md:max-w-[70%] mx-10 max-h-[88vh]">
         {/* <figure className=" max-h-[87vh] "> */}
         <img
           width="50%"
@@ -153,6 +159,47 @@ const Login = () => {
             onSubmit={handleSubmit}
           >
             <h1 className="text-3xl text-primary300 font-semibold">Login</h1>
+            <div
+              role="alert"
+              className={`alert alert-error transition-all duration-500 ${
+                !showAlert ? "hidden invisible " : "flex visible"
+              } bg-red-300 justify-between`}
+            >
+              <div className="flex gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="stroke-current shrink-0 w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                <span>{alertMessage}</span>
+              </div>
+
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="stroke-current shrink-0 h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                cursor="pointer"
+                onClick={() => {
+                  setShowAlert(false);
+                }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
             <div>
               <FormField
                 title="Email"

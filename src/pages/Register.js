@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import FormField from "../components/FormField";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import validateEmail from "../utils/validateEmail";
+import { toast } from "react-toastify";
 
 const Register = () => {
   //user token
+  const navigate = useNavigate();
   const { tok } = useSelector((state) => state.user);
 
   //stepper state
@@ -43,7 +46,7 @@ const Register = () => {
 
   const getCategories = () => {
     axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}category`, {
+      .post(`${process.env.REACT_APP_BACKEND_URL}/category`, {
         headers: {
           Authorization: `${tok}`,
         },
@@ -104,11 +107,7 @@ const Register = () => {
           setAlertMessage("Please enter a valid contact number");
           return;
         }
-        if (
-          email.length < 8 ||
-          !email.includes("@") ||
-          !email.includes(".com")
-        ) {
+        if (!validateEmail(email)) {
           setShowAlert(true);
           setAlertMessage("Please enter a valid email");
           return;
@@ -255,11 +254,11 @@ const Register = () => {
         bankAddress,
         ifsc: ifscCode,
         file: aadharCard,
-        upi:upiId
+        upi: upiId,
       };
 
-      const { data } = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}users`,
+      const res = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/users`,
         payload,
         {
           headers: {
@@ -267,14 +266,18 @@ const Register = () => {
           },
         }
       );
-      console.log(data);
+
+      if (res.status === 200) {
+        navigate("/login");
+        toast.success("Account Requested Successfully");
+      }
     } catch (error) {
-      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   };
   return (
-    <div className="flex h-[100vh]  justify-center items-center">
-      <div className="card lg:card-side bg-base-100 shadow-2xl my-auto md:my-10 md:mx-auto max-sm:m-5 overflow-hidden md:max-w-[50%] mx-10">
+    <div className="flex  justify-center items-center">
+      <div className="card lg:card-side bg-base-100 shadow-2xl my-auto md:my-10 md:mx-auto max-sm:m-5 overflow-hidden md:max-w-[70%] mx-10 md:h-fit">
         <img
           width="50%"
           src="./assets/images/Login_Signup.png"
@@ -284,17 +287,17 @@ const Register = () => {
         <div className="card-body bg-white">
           {/* Personal Details Form */}
           <form
-            className={`flex flex-col gap-4 ${
+            className={`flex flex-col my-auto gap-4 ${
               stepperIndex === 1 ? "" : "hidden"
             }`}
             onSubmit={(e) => {
               e.preventDefault();
             }}
           >
-            <h1 className="text-3xl text-primary300 font-semibold text-center">
+            <h1 className="text-2xl text-primary300 font-semibold text-center">
               Register
             </h1>
-            <ul className="steps">
+            <ul className="steps text-sm">
               <li className="step step-neutral">Personal Details</li>
               <li className={`step ${stepperIndex > 1 ? "step-neutral" : ""}`}>
                 Address Details
@@ -304,53 +307,53 @@ const Register = () => {
               </li>
             </ul>
             <div>
-              <div
-                role="alert"
-                className={`alert alert-error ${
-                  !showAlert ? "hidden" : "flex"
-                } bg-red-300 justify-between`}
-              >
-                <div className="flex gap-1">
+              {showAlert && (
+                <div
+                  role="alert"
+                  className={`alert alert-error flex bg-red-300 justify-between alert-sm`}
+                >
+                  <div className="flex gap-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      className="stroke-current shrink-0 w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                    <span>{alertMessage}</span>
+                  </div>
+
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
+                    className="stroke-current shrink-0 h-6 w-6"
                     fill="none"
                     viewBox="0 0 24 24"
-                    className="stroke-current shrink-0 w-6 h-6"
+                    cursor="pointer"
+                    onClick={() => {
+                      setShowAlert(false);
+                    }}
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    ></path>
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
-                  <span>{alertMessage}</span>
                 </div>
-
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="stroke-current shrink-0 h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  cursor="pointer"
-                  onClick={() => {
-                    setShowAlert(false);
-                  }}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
+              )}
               <label className="form-control w-full ">
                 <div className="label">
-                  <span className="label-text">Category </span>
+                  <span className="label-text font-semibold">Category </span>
                 </div>
                 <select
-                  className="select select-bordered"
+                  className="select select-bordered bg-transparent"
                   onChange={(e) => {
                     setCategory(e.target.value);
                   }}
@@ -365,35 +368,39 @@ const Register = () => {
                   ))}
                 </select>
               </label>
-              <FormField
-                required={true}
-                title="Name"
-                inputHandler={(e) => {
-                  setName(e.target.value);
-                }}
-              />
-              <FormField
-                required={true}
-                title="Contact"
-                inputHandler={(e) => {
-                  setContact(e.target.value);
-                }}
-              />
-              <FormField
-                required={true}
-                title="Email Address"
-                inputHandler={(e) => {
-                  setEmail(e.target.value);
-                }}
-              />
-              <FormField
-                required={true}
-                title="Password"
-                type="password"
-                inputHandler={(e) => {
-                  setPassword(e.target.value);
-                }}
-              />
+              <div className="flex sm:gap-5 max-sm:flex-wrap">
+                <FormField
+                  required={true}
+                  title="Name"
+                  inputHandler={(e) => {
+                    setName(e.target.value);
+                  }}
+                />
+                <FormField
+                  required={true}
+                  title="Contact"
+                  inputHandler={(e) => {
+                    setContact(e.target.value);
+                  }}
+                />
+              </div>
+              <div className="flex sm:gap-5 max-sm:flex-wrap">
+                <FormField
+                  required={true}
+                  title="Email Address"
+                  inputHandler={(e) => {
+                    setEmail(e.target.value);
+                  }}
+                />
+                <FormField
+                  required={true}
+                  title="Password"
+                  type="password"
+                  inputHandler={(e) => {
+                    setPassword(e.target.value);
+                  }}
+                />
+              </div>
             </div>
           </form>
           {/* Address Details Form */}
@@ -405,7 +412,7 @@ const Register = () => {
               e.preventDefault();
             }}
           >
-            <h1 className="text-3xl text-primary300 font-semibold text-center">
+            <h1 className="text-2xl text-primary300 font-semibold text-center">
               Register
             </h1>
             <ul className="steps">
@@ -459,59 +466,69 @@ const Register = () => {
                   />
                 </svg>
               </div>
-              <label className="form-control w-full">
-                <div className="label">
-                  <span className="label-text">Aadhar Card</span>
-                </div>
-                <input
-                  onChange={(e) => setAadharCard(e.target.files[0])}
-                  type="file"
-                  className="file-input file-input-bordered w-full "
+              <div className="flex sm:gap-5 max-sm:flex-wrap">
+                <FormField
+                  title="Address Line 1"
+                  required={true}
+                  inputHandler={(e) => {
+                    setAddressLine1(e.target.value);
+                  }}
                 />
-              </label>
-              <FormField
-                title="Address Line 1"
-                required={true}
-                inputHandler={(e) => {
-                  setAddressLine1(e.target.value);
-                }}
-              />
-              <FormField
-                title="Address Line 2"
-                inputHandler={(e) => {
-                  setAddressLine2(e.target.value);
-                }}
-              />
-              <FormField
-                title="City"
-                inputHandler={(e) => {
-                  setCity(e.target.value);
-                }}
-              />
-              <FormField
-                title="State"
-                inputHandler={(e) => {
-                  setState(e.target.value);
-                }}
-              />
-              <FormField
-                title="Country"
-                inputHandler={(e) => {
-                  setCountry(e.target.value);
-                }}
-              />
-              <FormField
-                title="Pincode"
-                inputHandler={(e) => {
-                  setPincode(e.target.value);
-                }}
-              />
-              <FormField
-                title="Google maps link"
-                inputHandler={(e) => {
-                  setGoogleMapLink(e.target.value);
-                }}
-              />
+                <FormField
+                  title="Address Line 2"
+                  inputHandler={(e) => {
+                    setAddressLine2(e.target.value);
+                  }}
+                />
+              </div>
+              <div className="flex sm:gap-5 max-sm:flex-wrap">
+                <FormField
+                  title="City"
+                  inputHandler={(e) => {
+                    setCity(e.target.value);
+                  }}
+                />
+                <FormField
+                  title="State"
+                  inputHandler={(e) => {
+                    setState(e.target.value);
+                  }}
+                />
+              </div>
+              <div className="flex sm:gap-5 max-sm:flex-wrap">
+                <FormField
+                  title="Country"
+                  inputHandler={(e) => {
+                    setCountry(e.target.value);
+                  }}
+                />
+                <FormField
+                  title="Pincode"
+                  inputHandler={(e) => {
+                    setPincode(e.target.value);
+                  }}
+                />
+              </div>
+              <div className="flex sm:gap-5 max-sm:flex-wrap">
+                <label className="form-control w-full">
+                  <div className="label">
+                    <span className="label-text font-semibold">
+                      Aadhar Card
+                    </span>
+                  </div>
+                  <input
+                    onChange={(e) => setAadharCard(e.target.files[0])}
+                    type="file"
+                    className="file-input file-input-bordered w-full "
+                  />
+                </label>
+                <FormField
+                  title="Google maps link"
+                  inputHandler={(e) => {
+                    setGoogleMapLink(e.target.value);
+                  }}
+                />
+              </div>
             </div>
           </form>
           {/* Financial Details Form */}
@@ -524,7 +541,7 @@ const Register = () => {
               e.preventDefault();
             }}
           >
-            <h1 className="text-3xl text-primary300 font-semibold text-center">
+            <h1 className="text-2xl text-primary300 font-semibold text-center">
               Register
             </h1>
             <ul className="steps">

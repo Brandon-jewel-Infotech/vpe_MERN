@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { FaBell, FaUserCircle } from "react-icons/fa";
 import { AiOutlineClose } from "react-icons/ai";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { toggleSidebar } from "../redux/slice";
 
-const Navbar = ({ toggleExpanded }) => {
-  const { id, tok } = useSelector((state) => state.user);
+const Navbar = () => {
+  const { tok } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   // console.log(id);
   const [notifications, setNotifications] = useState([]);
   // const [notifications, setNotifications] = useState([
@@ -16,35 +18,56 @@ const Navbar = ({ toggleExpanded }) => {
   useEffect(() => {
     notify();
   }, []);
+
   const notify = async () => {
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}notification`,
-        { reciever: id },
+      const res = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/notification`,
         {
           headers: {
-            Authorization: `${tok}`,
+            Authorization: tok,
           },
         }
       );
       setLoading(true);
       setNotifications(res.data);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
-  const removeNotification = (indexToRemove) => {
-    setNotifications((prevNotifications) => {
-      const updatedNotifications = [...prevNotifications];
-      updatedNotifications.splice(indexToRemove, 1);
-      return updatedNotifications;
-    });
+  const removeNotification = async (notificationId) => {
+    try {
+      const res = await axios.delete(
+        `${process.env.REACT_APP_BACKEND_URL}/notification/${notificationId}`,
+        {
+          headers: {
+            Authorization: tok,
+          },
+        }
+      );
+
+      if (res?.status === 200) {
+        setNotifications((currNotifications) => {
+          console.log(
+            currNotifications.filter(
+              (notification) => notification.id !== notificationId
+            )
+          );
+          return currNotifications.filter(
+            (notification) => notification.id !== notificationId
+          );
+        });
+      }
+    } catch (e) {}
   };
 
   return (
-    <div className="w-full navbar bg-base-200 shadow-sm sticky top-0 z-50 ">
-      <div className="flex-none hidden md:block" onClick={toggleExpanded}>
+    <div className="w-full h-[12vh] navbar bg-base-200 shadow-sm sticky top-0 z-50 ">
+      <div
+        className="flex-none hidden md:block"
+        onClick={() => {
+          dispatch(toggleSidebar());
+        }}
+      >
         <label className="btn btn-square btn-ghost">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +93,10 @@ const Navbar = ({ toggleExpanded }) => {
       <div className="flex-none hidden lg:block">
         <ul className="menu menu-horizontal">
           <li className="dropdown dropdown-hover dropdown-end ">
-            <div tabIndex={0} role="button" className="">
+            <div tabIndex={0} role="button" className="indicator">
+              <span className="indicator-item badge badge-neutral top-2 right-4">
+                {notifications?.length <= 99 ? notifications?.length : "99+"}
+              </span>
               <FaBell size={30} />
             </div>
             <ul
@@ -78,16 +104,16 @@ const Navbar = ({ toggleExpanded }) => {
               className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-80 h-96 overflow-y-scroll  list-item"
             >
               {notifications?.length ? (
-                notifications?.map((notification, i) => (
+                notifications?.map((notification) => (
                   <li
-                    key={i}
+                    key={notification.id}
                     className="flex flex-row flex-nowrap whitespace-normal justify-between w-full"
                   >
-                    <p className="flex-1">
+                    <p className="flex-1 ">
                       {notification.content}
                       <button
                         onClick={() => {
-                          removeNotification(i);
+                          removeNotification(notification.id);
                         }}
                         className="flex justify-center items-center flex-none"
                       >

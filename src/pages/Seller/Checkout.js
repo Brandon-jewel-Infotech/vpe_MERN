@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import PrimaryLayout from "../Layout/PrimaryLayout";
+import PrimaryLayout from "../../Layout/PrimaryLayout";
 import { GoPlus } from "react-icons/go";
 import { IoMdCash } from "react-icons/io";
 import { useSelector } from "react-redux";
@@ -198,7 +198,7 @@ const Checkout = () => {
                           <div className="avatar">
                             <div className="mask mask-squircle w-12 h-12">
                               <img
-                                src={`${process.env.REACT_APP_BACKEND_URL}${item.images}`}
+                                src={`${process.env.REACT_APP_BACKEND_URL}/${item.images}`}
                                 alt={`${item.name} image`}
                               />
                             </div>
