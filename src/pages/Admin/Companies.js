@@ -8,6 +8,9 @@ import { logout } from "../../redux/slice";
 import { toast } from "react-toastify";
 import FormField from "../../components/FormField";
 import validateEmail from "../../utils/validateEmail";
+import FallbackText from "../../components/FallbackText";
+import { FaPeopleRoof } from "react-icons/fa6";
+import Loading from "../../components/Loading";
 
 const Companies = () => {
   const dispatch = useDispatch();
@@ -15,9 +18,11 @@ const Companies = () => {
 
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState({});
+  const [loadingData, setLoadingData] = useState(false);
 
   //  Get all products from the database.
   const getCompanies = async () => {
+    setLoadingData(true);
     try {
       const { data } = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/company`,
@@ -37,6 +42,7 @@ const Companies = () => {
         dispatch(logout());
       }
     }
+    setLoadingData(false);
   };
 
   const deleteCompanyHandler = async (id) => {
@@ -107,50 +113,63 @@ const Companies = () => {
               </Link>
             </div>
             {/* table starts here */}
-            <div className="mt-3 overflow-x-auto">
-              <table className="table table-zebra table-auto w-full">
-                <thead className="bg-neutral text-white">
-                  <tr>
-                    <th>Company Name</th>
-                    <th>Email</th>
-                    <th>Contact</th>
-                    <th>WhatsApp</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {companies?.map((company) => (
-                    <tr key={company?.id}>
-                      <td>{company?.name}</td>
-                      <td>{company?.email}</td>
-                      <td>{company?.contact}</td>
-                      <td>{company?.whatsapp}</td>
-                      <td>
-                        <div className=" flex items-center justify-around gap-5">
-                          <button
-                            className="btn btn-error text-white"
-                            onClick={() => deleteCompanyHandler(company.id)}
-                          >
-                            Delete
-                          </button>
-                          <Link
-                            className="btn btn-success text-white"
-                            onClick={() => {
-                              setSelectedCompany(company);
-                              document
-                                .getElementById("update_company")
-                                .showModal();
-                            }}
-                          >
-                            Update
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {loadingData && (
+              <div className="w-40 h-40 m-auto">
+                <Loading />
+              </div>
+            )}
+            {!loadingData &&
+              (companies?.length ? (
+                <div className="mt-3 overflow-x-auto">
+                  <table className="table table-zebra table-auto w-full">
+                    <thead className="bg-neutral text-center text-white">
+                      <tr>
+                        <th>Company Name</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>WhatsApp</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {companies?.map((company) => (
+                        <tr key={company?.id}>
+                          <td>{company?.name}</td>
+                          <td>{company?.email}</td>
+                          <td>{company?.contact}</td>
+                          <td>{company?.whatsapp}</td>
+                          <td>
+                            <div className=" flex items-center justify-around gap-5">
+                              <button
+                                className="secondary-btn"
+                                onClick={() => deleteCompanyHandler(company.id)}
+                              >
+                                Delete
+                              </button>
+                              <Link
+                                className="primary-btn"
+                                onClick={() => {
+                                  setSelectedCompany(company);
+                                  document
+                                    .getElementById("update_company")
+                                    .showModal();
+                                }}
+                              >
+                                Update
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <FallbackText
+                  IconRef={FaPeopleRoof}
+                  message={"No Companies found"}
+                />
+              ))}
           </div>
         </div>
       </PrimaryLayout>

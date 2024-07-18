@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import PrimaryLayout from "../../Layout/PrimaryLayout";
-import { GoPlus } from "react-icons/go";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice";
 import FormField from "../../components/FormField";
-import { FaCheck, FaSearch } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import FallbackText from "../../components/FallbackText";
+import { PiPlugsConnected } from "react-icons/pi";
+import Loading from "../../components/Loading";
 
 const Connections = () => {
   const navigate = useNavigate();
@@ -17,8 +19,10 @@ const Connections = () => {
   const [connections, setConnections] = useState([]);
   const [selectedConnection, setSelectedConnection] = useState({});
   const [searchCode, setSearchCode] = useState(searchParams.get("code") || "");
+  const [loadingData, setLoadingData] = useState(false);
 
   const getConnections = async (sCode) => {
+    setLoadingData(true);
     try {
       const { data } = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/connections`,
@@ -41,6 +45,7 @@ const Connections = () => {
       console.log(error);
       // navigate("/logout");
     }
+    setLoadingData(false);
   };
 
   const search = (sCode) => {
@@ -108,96 +113,119 @@ const Connections = () => {
               </form>
             </div>
             <div className="flex gap-10 max-lg:flex-col">
-              {connections?.suppliers?.length > 0 && (
-                <div
-                  className={`bg-base-100 card w-[98%] rounded-md shadow-xl ${
-                    connections?.customers?.length > 0 ? "lg:w-[50%]" : ""
-                  }`}
-                >
-                  <div className="card-body">
-                    <h3 className="text-xl text-start max-sm:text-center font-semibold">
-                      Suppliers
-                    </h3>
-                    <div className="mt-3 overflow-x-auto">
-                      <table className="table table-zebra table-auto w-full">
-                        <thead className="bg-neutral text-white">
-                          <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {connections?.suppliers?.map((connection) => (
-                            <tr key={connection?.id}>
-                              <td>{connection?.name}</td>
-                              <td>{connection?.email}</td>
-                              <td>
-                                <div className=" flex items-center justify-around gap-5">
-                                  <button
-                                    className="btn btn-success text-white"
-                                    onClick={() => {
-                                      setSearchCode(connection.code);
-                                      search(connection.code);
-                                    }}
-                                  >
-                                    Connections
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+              <div
+                className={`bg-base-100 card w-[98%] rounded-md shadow-xl ${
+                  connections?.customers?.length > 0 ? "lg:w-[50%]" : ""
+                }`}
+              >
+                <div className="card-body">
+                  <h3 className="text-xl text-start max-sm:text-center font-semibold">
+                    Suppliers
+                  </h3>
+                  {loadingData && (
+                    <div className="w-40 h-40 mx-auto">
+                      <Loading />
                     </div>
-                  </div>
-                </div>
-              )}
-              {connections?.customers?.length > 0 && (
-                <div
-                  className={`bg-base-100 card w-[98%] rounded-md shadow-xl ${
-                    connections?.suppliers?.length > 0 ? "lg:w-[50%]" : ""
-                  }`}
-                >
-                  <div className="card-body">
-                    <h3 className="text-xl text-start max-sm:text-center font-semibold">
-                      Customers
-                    </h3>
-                    <div className="mt-3 overflow-x-auto">
-                      <table className="table table-zebra table-auto w-full">
-                        <thead className="bg-neutral text-white">
-                          <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {connections?.customers?.map((connection) => (
-                            <tr key={connection?.id}>
-                              <td>{connection?.name}</td>
-                              <td>{connection?.email}</td>
-                              <td>
-                                <div className=" flex items-center justify-around gap-5">
-                                  <button
-                                    className="btn btn-success text-white"
-                                    onClick={() => {
-                                      setSearchCode(connection.code);
-                                      search(connection.code);
-                                    }}
-                                  >
-                                    Connections
-                                  </button>
-                                </div>
-                              </td>
+                  )}
+                  {!loadingData &&
+                    (connections?.suppliers?.length ? (
+                      <div className="mt-3 overflow-x-auto">
+                        <table className="table table-zebra table-auto w-full">
+                          <thead className="bg-neutral text-center text-white">
+                            <tr>
+                              <th>Name</th>
+                              <th>Email</th>
+                              <th>Action</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                          </thead>
+                          <tbody>
+                            {connections?.suppliers?.map((connection) => (
+                              <tr key={connection?.id}>
+                                <td>{connection?.name}</td>
+                                <td>{connection?.email}</td>
+                                <td>
+                                  <div className=" flex items-center justify-around gap-5">
+                                    <button
+                                      className="btn btn-success text-white"
+                                      onClick={() => {
+                                        setSearchCode(connection.code);
+                                        search(connection.code);
+                                      }}
+                                    >
+                                      Connections
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <FallbackText
+                        IconRef={PiPlugsConnected}
+                        message={"No Connection with Suppliers"}
+                      />
+                    ))}
                 </div>
-              )}
+              </div>
+
+              <div
+                className={`bg-base-100 card w-[98%] rounded-md shadow-xl ${
+                  connections?.suppliers?.length > 0 ? "lg:w-[50%]" : ""
+                }`}
+              >
+                <div className="card-body">
+                  <h3 className="text-xl text-start max-sm:text-center font-semibold">
+                    Customers
+                  </h3>
+                  {loadingData && (
+                    <div className="w-40 h-40 mx-auto">
+                      <Loading />
+                    </div>
+                  )}
+                  {!loadingData &&
+                    (connections?.customers?.length ? (
+                      <div className="mt-3 overflow-x-auto">
+                        <table className="table table-zebra table-auto w-full">
+                          <thead className="bg-neutral text-center text-white ">
+                            <tr>
+                              <th>Name</th>
+                              <th>Email</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {connections?.customers?.map((connection) => (
+                              <tr key={connection?.id}>
+                                <td>{connection?.name}</td>
+                                <td>{connection?.email}</td>
+                                <td>
+                                  <div className=" flex items-center justify-around gap-5">
+                                    <button
+                                      className="btn btn-success text-white"
+                                      onClick={() => {
+                                        setSearchCode(connection.code);
+                                        search(connection.code);
+                                      }}
+                                    >
+                                      Connections
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <FallbackText
+                        IconRef={PiPlugsConnected}
+                        message={"No Connection with Customers"}
+                      />
+                    ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -259,12 +287,9 @@ const AddConnection = ({ getConnections }) => {
         />
         <div className="modal-action flex justify-between items-center">
           <form method="dialog">
-            <button className="btn btn-error text-white">Close</button>
+            <button className="secondary-btn">Close</button>
           </form>
-          <button
-            className="btn text-white btn-success"
-            onClick={submitHandler}
-          >
+          <button className="primary-btn" onClick={submitHandler}>
             Add
           </button>
         </div>
@@ -330,12 +355,9 @@ const AddSubConnection = ({ connection, getConnections }) => {
         />
         <div className="modal-action flex justify-between items-center">
           <form method="dialog">
-            <button className="btn btn-error text-white ">Close</button>
+            <button className="secondary-btn ">Close</button>
           </form>
-          <button
-            className="btn text-white btn-success"
-            onClick={submitHandler}
-          >
+          <button className="primary-btn" onClick={submitHandler}>
             Add
           </button>
         </div>

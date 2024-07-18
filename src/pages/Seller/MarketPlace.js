@@ -1,87 +1,17 @@
 import React, { useEffect, useState } from "react";
 import PrimaryLayout from "../../Layout/PrimaryLayout";
 import MarketPlaceItem from "../../components/MarketPlaceItem";
-import { IoIosArrowDown } from "react-icons/io";
 import axios from "axios";
-// const products = [
-//   {
-//     availability: true,
-//     name: "Product 1",
-//     ratings: 4.5,
-//     views: 100,
-//     image: "https://dummyimage.com/300x200/000/fff&text=Product+1",
-//     price: 29.99,
-//   },
-//   {
-//     availability: false,
-//     name: "Product 2",
-//     ratings: 3.8,
-//     views: 80,
-//     image: "https://dummyimage.com/300x200/000/fff&text=Product+2",
-//     price: 39.99,
-//   },
-//   {
-//     availability: true,
-//     name: "Product 3",
-//     ratings: 4.2,
-//     views: 120,
-//     image: "https://dummyimage.com/300x200/000/fff&text=Product+3",
-//     price: 49.99,
-//   },
-//   {
-//     availability: true,
-//     name: "Product 4",
-//     ratings: 4.0,
-//     views: 150,
-//     image: "https://dummyimage.com/300x200/000/fff&text=Product+4",
-//     price: 19.99,
-//   },
-//   {
-//     availability: false,
-//     name: "Product 5",
-//     ratings: 4.7,
-//     views: 90,
-//     image: "https://dummyimage.com/300x200/000/fff&text=Product+5",
-//     price: 59.99,
-//   },
-// ];
-
-// const colors = [
-//   "bg-red-500", // Red
-//   "bg-green-500", // Green
-//   "bg-blue-700", // Blue
-//   "bg-yellow-300", // Yellow
-//   "bg-violet-600", // Magenta
-//   "bg-teal-300", // Teal
-//   "bg-white", // White
-//   "bg-black", // Black
-// ];
-
-// const productCategories = [
-//   { name: "Electronics", count: 120 },
-//   { name: "Clothing", count: 300 },
-//   { name: "Books", count: 200 },
-//   { name: "Home & Kitchen", count: 250 },
-//   { name: "Sports & Outdoors", count: 150 },
-// ];
-
-// const genders = ["Male", "Female", "Kids", "Others"];
-
-// const productBrands = [
-//   "Nike",
-//   "Apple",
-//   "Samsung",
-//   "Adidas",
-//   "Sony",
-//   "Amazon Basics",
-//   "Microsoft",
-//   "LG",
-//   "Google",
-// ];
+import FallbackText from "../../components/FallbackText";
+import Loading from "../../components/Loading";
+import { IoBagHandleOutline } from "react-icons/io5";
 
 const MarketPlace = () => {
   const [products, setProducts] = useState([]);
+  const [loadingData, setLoadingData] = useState(false);
+
   const getProducts = async () => {
+    setLoadingData(true);
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/seller/get-all-products`
@@ -90,6 +20,7 @@ const MarketPlace = () => {
     } catch (error) {
       console.log(error);
     }
+    setLoadingData(false);
   };
 
   useEffect(() => {
@@ -221,11 +152,24 @@ const MarketPlace = () => {
             </div>
             <button className="p-2 primary-btn">Add Product</button>
           </div> */}
-          <div className="flex flex-wrap gap-6 mt-4 justify-center lg:justify-start">
-            {products?.map((product, ind) => (
-              <MarketPlaceItem key={product.id} product={product} />
+          {loadingData && (
+            <div className="w-40 h-40 mx-auto">
+              <Loading />
+            </div>
+          )}
+          {!loadingData &&
+            (products?.length ? (
+              <div className="flex flex-wrap gap-6 mt-4 justify-center lg:justify-start">
+                {products?.map((product, ind) => (
+                  <MarketPlaceItem key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <FallbackText
+                IconRef={IoBagHandleOutline}
+                message={"No Products Available in MarketPlace."}
+              />
             ))}
-          </div>
         </div>
       </div>
     </PrimaryLayout>

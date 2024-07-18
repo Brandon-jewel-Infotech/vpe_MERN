@@ -25,7 +25,7 @@ const FormField = ({
         name={name}
         value={value}
         placeholder={placeholder}
-        className={"input input-bordered w-full bg-white " + className}
+        className={"input input-bordered w-full bg-white " + (className || "")}
         onChange={inputHandler}
       />
       <div className="label"></div>

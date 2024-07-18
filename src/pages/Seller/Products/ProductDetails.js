@@ -11,7 +11,6 @@ import "swiper/css/autoplay";
 import { Navigation, Thumbs, Autoplay } from "swiper/modules";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import FormField from "../../../components/FormField";
 import { toast } from "react-toastify";
 import { logout } from "../../../redux/slice";
 import { addToCart } from "../../../redux/cartSlice";
@@ -25,6 +24,8 @@ const ProductDetails = () => {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [images, setImages] = useState([]);
   const [quantity, setQuantity] = useState(1);
+  const [rewardConditions, setRewardConditions] = useState([]);
+  const [rewardCoins, setRewardCoins] = useState([]);
 
   const getData = async () => {
     try {
@@ -37,6 +38,9 @@ const ProductDetails = () => {
           },
         }
       );
+
+      setRewardCoins(data.reward.coins.split(","));
+      setRewardConditions(data.reward.conditions.split(","));
 
       setProduct(data);
     } catch (error) {
@@ -334,43 +338,48 @@ const ProductDetails = () => {
             </div> */}
           </div>
           <div className="flex flex-col flex-none max-w-[350px] gap-5">
-            {/* <div className="card bg-secondary text-secondary-content text-start p-4">
-              {status == 1 ? (
+            <div className="card bg-secondary text-secondary-content text-start p-4">
+              {product?.reward?.status == 1 ? (
                 <h3 className="font-semibold">
-                  Get ₹200 off on using 40 reward coins
+                  Get {rewardCoins[0]} coins per item.
                 </h3>
-              ) : status == 2 ? (
+              ) : product?.reward?.status == 2 ? (
                 <h3 className="font-semibold">
-                  Get 20% off on using 40 reward coins
+                  Get {rewardCoins[0]}% coins per item.
                 </h3>
               ) : (
-                conditions?.map((item, index) => (
-                  <div key={index}>
-                    {index == 0 ? (
-                      <h3 className="font-semibold">
-                        Get ₹{+conditions[index]} Off for {coins[index]} reward
-                        coins
-                      </h3>
-                    ) : index == 1 ? (
-                      <h3 className="font-semibold">
-                        Get ₹{+conditions[1] - +conditions[0]} Off for{" "}
-                        {coins[1]} reward coins
-                      </h3>
-                    ) : (
-                      <h3 className="font-semibold">
-                        Get ₹{+conditions[2] - +conditions[1]} Off for{" "}
-                        {coins[2]} reward coins
-                      </h3>
-                    )}
+                product?.reward?.status == 3 &&
+                rewardConditions?.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold">Reward Coin Conditions:</h3>
+                    <ul>
+                      {rewardConditions?.map((item, index) => {
+                        const previousCondition =
+                          index === 0
+                            ? 1
+                            : Number(rewardConditions[index - 1]) + 1;
+                        const currentCondition = Number(item);
+                        return (
+                          <li
+                            key={index}
+                            className="list-outside list-disc ms-5"
+                          >
+                            For {previousCondition}-{currentCondition} Product
+                            Items {rewardCoins[index]} coins per item will be
+                            rewarded.
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
-                ))
+                )
               )}
-            </div> */}
+            </div>
             <div className="card h-fit sticky top-[6rem] shadow-md bg-base-100">
               <div className="card-body">
                 <div className="overflow-x-auto mt-3">
                   <table className="table ">
-                    <thead className="bg-neutral text-white">
+                    <thead className="bg-neutral text-center text-white">
                       <tr>
                         <th>Set Order</th>
                         <th></th>
@@ -417,7 +426,7 @@ const ProductDetails = () => {
                 <button
                   className="primary-btn disabled:text-white disabled:bg-neutral/80"
                   disabled={
-                    product?.seller_code === code ||
+                    // product?.seller_code === code ||
                     selectedVariant?.qty !== undefined
                       ? !selectedVariant?.qty
                       : product?.availability <= 0 || product?.instock !== 1

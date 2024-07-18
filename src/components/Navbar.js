@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { FaBell, FaUserCircle } from "react-icons/fa";
+import { FaBell, FaWallet } from "react-icons/fa";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toggleSidebar } from "../redux/slice";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
-  const { tok } = useSelector((state) => state.user);
+  const { tok, role } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   // console.log(id);
   const [notifications, setNotifications] = useState([]);
+  const [wallet, setWallet] = useState(0);
   // const [notifications, setNotifications] = useState([
   //   "This is first notification",
   //   "It's second",
   // ]);
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    notify();
-  }, []);
 
-  const notify = async () => {
+  const getNotificationAndWallet = async () => {
     try {
       const res = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/notification`,
@@ -29,7 +27,17 @@ const Navbar = () => {
           },
         }
       );
-      setLoading(true);
+
+      const resWallet = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/users/wallet`,
+        {
+          headers: {
+            Authorization: tok,
+          },
+        }
+      );
+
+      setWallet(resWallet.data);
       setNotifications(res.data);
     } catch (error) {}
   };
@@ -59,6 +67,10 @@ const Navbar = () => {
       }
     } catch (e) {}
   };
+
+  useEffect(() => {
+    getNotificationAndWallet();
+  }, []);
 
   return (
     <div className="w-full h-[12vh] navbar bg-base-200 shadow-sm sticky top-0 z-50 ">
@@ -129,22 +141,24 @@ const Navbar = () => {
               )}
             </ul>
           </li>
-          <li className="dropdown dropdown-hover dropdown-end">
-            <div tabIndex={0} role="button" className="">
-              <FaUserCircle size={30} />
-            </div>
-            <ul
-              tabIndex={0}
-              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
-            >
-              <li>
-                <a>Item 1</a>
-              </li>
-              <li>
-                <a>Item 2</a>
-              </li>
-            </ul>
-          </li>
+          {role === "business" && (
+            <li className="dropdown dropdown-hover dropdown-end">
+              <div tabIndex={0} role="button" className="indicator">
+                <span className="indicator-item badge badge-neutral top-2 right-4">
+                  {wallet}
+                </span>
+                <FaWallet size={30} />
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+              >
+                <li>
+                  <Link to={"/redeem-wallet"}>Redeem wallet</Link>
+                </li>
+              </ul>
+            </li>
+          )}
         </ul>
       </div>
     </div>

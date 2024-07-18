@@ -8,6 +8,8 @@ import { toast } from "react-toastify";
 import { logout } from "../../../redux/slice";
 import validateEmail from "../../../utils/validateEmail";
 import FileUploader from "../../../components/FileUploader";
+import RequestNewCompanyModal from "../../../modals/RequestNewCompanyModal";
+import RequestNewSubCategoryModal from "../../../modals/RequestNewSubCategoryModal";
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -76,6 +78,7 @@ const AddProduct = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
     try {
       if (
         !productDetails?.name?.length ||
@@ -299,9 +302,8 @@ const AddProduct = () => {
                     ))}
                   </select>
                 </label>
-                {/* <RequestNewRewardsSchema /> */}
                 <Link
-                  to={"/"}
+                  to={"/reward-list"}
                   className="text-start ml-2 mt-1 text-neutral hover:text-[#bc8ffc] w-fit"
                 >
                   Create a new reward schema?
@@ -320,221 +322,6 @@ const AddProduct = () => {
 };
 
 export default AddProduct;
-
-export const RequestNewSubCategoryModal = ({ category }) => {
-  const dispatch = useDispatch();
-  const [subCategoryName, setSubCategoryName] = useState();
-  const { tok } = useSelector((state) => state.user);
-
-  const requestNewCategory = async () => {
-    try {
-      let message = `I want to request a new sub category (${subCategoryName}) under category id (${category?.id}) named (${category?.name}) `;
-
-      const { data } = await toast.promise(
-        axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/seller/requests/create`,
-          {
-            description: message,
-            receiver: 0,
-            role: 2,
-          },
-          {
-            headers: {
-              Authorization: tok,
-            },
-          }
-        ),
-        {
-          pending: "Adding Sub Category request...",
-          success: "Sub Category request added Successfully!",
-          error: {
-            render({ data }) {
-              if (data?.response?.status === 401) {
-                dispatch(logout());
-                return "Session Expired";
-              } else {
-                return (
-                  data?.response?.data?.error ||
-                  "Failed to add Sub Category request."
-                );
-              }
-            },
-          },
-        }
-      );
-      document.getElementById("sub_category_modal").close();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  return (
-    <>
-      <button
-        className="text-start ml-2 mt-1 text-neutral hover:text-[#bc8ffc] w-fit"
-        onClick={() =>
-          document.getElementById("sub_category_modal").showModal()
-        }
-      >
-        Request a new sub-category?
-      </button>
-      <dialog id="sub_category_modal" className="modal">
-        <div className="modal-box">
-          <h2 className="font-semibold text-xl my-2">
-            Request new sub category in {category?.name}
-          </h2>
-          <FormField
-            title="Enter new Sub Category name"
-            value={subCategoryName}
-            inputHandler={(e) => {
-              setSubCategoryName(e.target.value);
-            }}
-          />
-          <div className="flex w-full justify-center gap-4">
-            {/* if there is a button in form, it will close the modal */}
-            <form method="dialog">
-              <button className=" btn secondary-btn">Cancel</button>
-            </form>
-            <button
-              className=" btn primary-btn"
-              onClick={() => {
-                requestNewCategory();
-              }}
-            >
-              Make request
-            </button>
-          </div>
-        </div>
-      </dialog>
-    </>
-  );
-};
-
-export const RequestNewCompanyModal = () => {
-  const dispatch = useDispatch();
-  const { tok } = useSelector((state) => state.user);
-  const [companyName, setCompanyName] = useState();
-  const [companyNumber, setCompanyNumber] = useState();
-  const [companyWhatsappNumber, setCompanyWhatsappNumber] = useState();
-  const [companyEmail, setCompanyEmail] = useState();
-
-  const requestNewCompany = async () => {
-    try {
-      if (!companyName?.length) {
-        toast.error("Please enter a valid company name");
-      } else if (companyNumber?.length !== 10) {
-        toast.error("Please enter a valid contact number");
-      } else if (companyWhatsappNumber?.length !== 10) {
-        toast.error("Please enter a valid whatsapp number");
-      } else if (validateEmail(companyEmail)) {
-        toast.error("Please enter a valid email address");
-      }
-      let message = `I want to request a new company  : 
-        \nCompany Name : ${companyName}
-        \nCompany Toll Free : ${companyNumber}
-        \nCompany Whatsapp Number : ${companyWhatsappNumber}
-        \nCompany Email : ${companyEmail}`;
-
-      const { data } = await toast.promise(
-        axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/seller/requests/create`,
-          {
-            description: message,
-            receiver: 0,
-            role: 2,
-          },
-          {
-            headers: {
-              Authorization: tok,
-            },
-          }
-        ),
-        {
-          pending: "Adding Company request...",
-          success: "Company request added Successfully!",
-          error: {
-            render({ data }) {
-              if (data?.response?.status === 401) {
-                dispatch(logout());
-                return "Session Expired";
-              } else {
-                return (
-                  data?.response?.data?.error ||
-                  "Failed to add Company request."
-                );
-              }
-            },
-          },
-        }
-      );
-      document.getElementById("company_modal").close();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  return (
-    <>
-      <button
-        className="text-start ml-2 mt-1 text-neutral hover:text-[#bc8ffc] w-fit"
-        onClick={() => document.getElementById("company_modal").showModal()}
-      >
-        Request a new company?
-      </button>
-      <dialog id="company_modal" className="modal">
-        <div className="modal-box">
-          <h2 className="font-semibold text-xl my-2">Request new company</h2>
-          <FormField
-            title="Enter new company name"
-            inputHandler={(e) => {
-              setCompanyName(e.target.value);
-            }}
-            value={companyName}
-            required={true}
-          />
-          <FormField
-            title="Enter company number"
-            value={companyNumber}
-            inputHandler={(e) => {
-              setCompanyNumber(e.target.value);
-            }}
-            required={true}
-          />
-          <FormField
-            title="Enter company whatsapp number"
-            value={companyWhatsappNumber}
-            inputHandler={(e) => {
-              setCompanyWhatsappNumber(e.target.value);
-            }}
-            required={true}
-          />
-          <FormField
-            title="Enter company email"
-            value={companyEmail}
-            inputHandler={(e) => {
-              setCompanyEmail(e.target.value);
-            }}
-            required={true}
-          />
-          <div className="flex w-full justify-center gap-4">
-            {/* if there is a button in form, it will close the modal */}
-            <form method="dialog">
-              <button className=" btn secondary-btn">Cancel</button>
-            </form>
-            <button
-              className=" btn primary-btn"
-              onClick={() => {
-                requestNewCompany();
-              }}
-            >
-              Make request
-            </button>
-          </div>
-        </div>
-      </dialog>
-    </>
-  );
-};
 
 // export const RequestNewRewardsSchema = () => {
 //   const [name, setName] = useState();

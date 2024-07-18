@@ -9,6 +9,9 @@ import { CiEdit } from "react-icons/ci";
 import { MdOutlineCancel } from "react-icons/md";
 import { FaCheck } from "react-icons/fa";
 import { toast } from "react-toastify";
+import Loading from "../../components/Loading";
+import FallbackText from "../../components/FallbackText";
+import { BiCategoryAlt } from "react-icons/bi";
 
 const Categories = () => {
   const dispatch = useDispatch();
@@ -16,10 +19,13 @@ const Categories = () => {
 
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState({});
+  const [selectedSubCategory, setSelectedSubCategory] = useState({});
   const [editModeId, setEditModeId] = useState("");
   const [updatedName, setUpdatedName] = useState("");
+  const [loadingData, setLoadingData] = useState(false);
 
   const getCategories = async () => {
+    setLoadingData(true);
     try {
       const { data } = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/categories`,
@@ -41,6 +47,7 @@ const Categories = () => {
       console.log(error);
       // navigate("/logout");
     }
+    setLoadingData(false);
   };
 
   const updateCategoryNameHandler = async (id) => {
@@ -85,51 +92,6 @@ const Categories = () => {
         });
         setUpdatedName("");
         setEditModeId("");
-      }
-    } catch (e) {}
-  };
-
-  const deleteSubCategoryHandler = async (id, categoryId) => {
-    try {
-      const res = await toast.promise(
-        axios.delete(
-          `${process.env.REACT_APP_BACKEND_URL}/subcategories/delete/${id}`,
-          {
-            headers: {
-              Authorization: tok,
-            },
-          }
-        ),
-        {
-          pending: "Deleting Sub Category...",
-          success: "Sub Category deleted Successfully!",
-          error: {
-            render({ data }) {
-              if (data?.response?.status === 401) {
-                dispatch(logout());
-                return "Session Expired";
-              } else {
-                return (
-                  data?.response?.data?.error ||
-                  "Failed to delete Sub Category."
-                );
-              }
-            },
-          },
-        }
-      );
-      if (res?.status === 200) {
-        setCategories((currCategories) => {
-          return currCategories.map((category) => {
-            if (category.id === categoryId) {
-              category.subcategories = category?.subcategories?.filter(
-                (subCat) => subCat.id !== id
-              );
-              return category;
-            }
-            return category;
-          });
-        });
       }
     } catch (e) {}
   };
@@ -181,6 +143,11 @@ const Categories = () => {
         category={selectedCategory}
         getCategories={getCategories}
       />
+      <SubCatDeleteConfirmation
+        selectedCategory={selectedCategory}
+        selectedSubCategory={selectedSubCategory}
+        setCategories={setCategories}
+      />
       <PrimaryLayout>
         <div className="card bg-white max-w-full">
           <div className="card-body p-0 2xl:mx-auto">
@@ -202,108 +169,126 @@ const Categories = () => {
               </button>
             </div>
             {/* table starts here */}
-            <div className="mt-3 overflow-x-auto">
-              <table className="table table-zebra table-auto w-full">
-                <thead className="bg-neutral text-white">
-                  <tr>
-                    <th>Category Name</th>
-                    <th>Sub Categories</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories?.map((category) => (
-                    <tr key={category?.id}>
-                      <td>
-                        {editModeId === category.id ? (
-                          <div className="flex justify-between items-center">
-                            <FormField
-                              value={updatedName}
-                              inputHandler={(e) => {
-                                setUpdatedName(e.target.value);
-                              }}
-                              placeholder={"Enter Category Name"}
-                            />
-                            <div className="flex items-center">
+            {loadingData && (
+              <div className="w-40 h-40 m-auto">
+                <Loading />
+              </div>
+            )}
+            {!loadingData &&
+              (categories?.length ? (
+                <div className="mt-3 overflow-x-auto">
+                  <table className="table table-zebra table-auto w-full">
+                    <thead className="bg-neutral text-center text-white">
+                      <tr>
+                        <th>Category Name</th>
+                        <th>Sub Categories</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categories?.map((category) => (
+                        <tr key={category?.id}>
+                          <td>
+                            {editModeId === category.id ? (
+                              <div className="flex justify-between items-center">
+                                <FormField
+                                  value={updatedName}
+                                  inputHandler={(e) => {
+                                    setUpdatedName(e.target.value);
+                                  }}
+                                  placeholder={"Enter Category Name"}
+                                />
+                                <div className="flex items-center">
+                                  <button
+                                    className="btn btn-ghost text-success"
+                                    onClick={() =>
+                                      updateCategoryNameHandler(category.id)
+                                    }
+                                  >
+                                    <FaCheck size={25} />
+                                  </button>
+                                  <button
+                                    className="btn btn-ghost text-error"
+                                    onClick={() => {
+                                      setUpdatedName("");
+                                      setEditModeId("");
+                                    }}
+                                  >
+                                    <MdOutlineCancel size={25} />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex justify-between items-center">
+                                {category?.name}{" "}
+                                <button
+                                  className="btn btn-ghost btn-sm"
+                                  onClick={() => {
+                                    setUpdatedName(category.name);
+                                    setEditModeId(category.id);
+                                  }}
+                                >
+                                  <CiEdit />
+                                </button>
+                              </div>
+                            )}
+                          </td>
+
+                          <td>
+                            <div className="flex gap-3 flex-wrap">
+                              {category?.subcategories?.map((subCat) => (
+                                <div
+                                  className="badge badge-outline badge-primary cursor-pointer hover:bg-error hover:text-white"
+                                  key={subCat?.id}
+                                  onClick={() => {
+                                    setSelectedSubCategory(subCat);
+                                    setSelectedCategory(category);
+                                    document
+                                      .getElementById(
+                                        "sub_cat_delete_confirmation"
+                                      )
+                                      .showModal();
+                                  }}
+                                >
+                                  {subCat?.name}
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                          <td>
+                            <div className=" flex items-center justify-around gap-5">
                               <button
-                                className="btn btn-ghost text-success"
+                                className="secondary-btn text-white"
                                 onClick={() =>
-                                  updateCategoryNameHandler(category.id)
+                                  deleteCategoryHandler(category.id)
                                 }
                               >
-                                <FaCheck size={25} />
+                                Delete
                               </button>
                               <button
-                                className="btn btn-ghost text-error"
+                                className="primary-btn text-white"
                                 onClick={() => {
-                                  setUpdatedName("");
-                                  setEditModeId("");
+                                  setSelectedCategory(category);
+                                  document
+                                    .getElementById("add_sub_category")
+                                    .showModal();
                                 }}
                               >
-                                <MdOutlineCancel size={25} />
+                                Add Sub-Category
                               </button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex justify-between items-center">
-                            {category?.name}{" "}
-                            <button
-                              className="btn btn-ghost btn-sm"
-                              onClick={() => {
-                                setUpdatedName(category.name);
-                                setEditModeId(category.id);
-                              }}
-                            >
-                              <CiEdit />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-
-                      <td>
-                        <div className="flex gap-3 flex-wrap">
-                          {category?.subcategories?.map((subCat) => (
-                            <div
-                              className="badge badge-outline badge-primary cursor-pointer hover:bg-error hover:text-white"
-                              key={subCat?.id}
-                              onClick={() => {
-                                deleteSubCategoryHandler(
-                                  subCat.id,
-                                  category.id
-                                );
-                              }}
-                            >
-                              {subCat?.name}
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                      <td>
-                        <div className=" flex items-center justify-around gap-5">
-                          <button
-                            className="secondary-btn text-white"
-                            onClick={() => deleteCategoryHandler(category.id)}
-                          >
-                            Delete
-                          </button>
-                          <button
-                            className="primary-btn text-white"
-                            onClick={() => {
-                              setSelectedCategory(category);
-                              document
-                                .getElementById("add_sub_category")
-                                .showModal();
-                            }}
-                          >
-                            Add Sub-Category
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <FallbackText
+                  IconRef={BiCategoryAlt}
+                  message={"No Categories Found"}
+                />
+              ))}
           </div>
         </div>
       </PrimaryLayout>
@@ -312,6 +297,92 @@ const Categories = () => {
 };
 
 export default Categories;
+
+const SubCatDeleteConfirmation = ({
+  selectedCategory,
+  selectedSubCategory,
+  setCategories,
+}) => {
+  const dispatch = useDispatch();
+  const { tok } = useSelector((state) => state.user);
+
+  const deleteSubCategoryHandler = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await toast.promise(
+        axios.delete(
+          `${process.env.REACT_APP_BACKEND_URL}/subcategories/delete/${selectedSubCategory.id}`,
+          {
+            headers: {
+              Authorization: tok,
+            },
+          }
+        ),
+        {
+          pending: "Deleting Sub Category...",
+          success: "Sub Category deleted Successfully!",
+          error: {
+            render({ data }) {
+              if (data?.response?.status === 401) {
+                dispatch(logout());
+                return "Session Expired";
+              } else {
+                return (
+                  data?.response?.data?.error ||
+                  "Failed to delete Sub Category."
+                );
+              }
+            },
+          },
+        }
+      );
+      if (res?.status === 200) {
+        setCategories((currCategories) => {
+          return currCategories.map((category) => {
+            if (category.id === selectedCategory.id) {
+              category.subcategories = category?.subcategories?.filter(
+                (subCat) => subCat.id !== selectedSubCategory.id
+              );
+              return category;
+            }
+            return category;
+          });
+        });
+      }
+    } catch (e) {}
+
+    document.getElementById("sub_cat_delete_confirmation").close();
+  };
+
+  return (
+    <dialog
+      id="sub_cat_delete_confirmation"
+      className="modal modal-bottom sm:modal-middle"
+    >
+      <div className="modal-box">
+        <h3 className="font-bold text-lg mb-2">Delete Sub Category</h3>
+        <p className="text-md mb-2">
+          Do you really wanna delete{" "}
+          <span className="italic font-semibold">
+            {selectedSubCategory?.name}
+          </span>{" "}
+          Sub Category from{" "}
+          <span className="italic font-semibold">{selectedCategory?.name}</span>{" "}
+          Category ?
+        </p>
+
+        <div className="modal-action flex justify-between items-center">
+          <form method="dialog">
+            <button className="secondary-btn">Cancel</button>
+          </form>
+          <button className="primary-btn" onClick={deleteSubCategoryHandler}>
+            Confirm
+          </button>
+        </div>
+      </div>
+    </dialog>
+  );
+};
 
 const AddCategory = ({ getCategories }) => {
   const dispatch = useDispatch();
@@ -363,12 +434,9 @@ const AddCategory = ({ getCategories }) => {
         />
         <div className="modal-action flex justify-between items-center">
           <form method="dialog">
-            <button className="btn btn-error text-white">Close</button>
+            <button className="secondary-btn">Close</button>
           </form>
-          <button
-            className="btn text-white btn-success"
-            onClick={submitHandler}
-          >
+          <button className="primary-btn" onClick={submitHandler}>
             Add
           </button>
         </div>
@@ -434,12 +502,9 @@ const AddSubCategory = ({ category, getCategories }) => {
         />
         <div className="modal-action flex justify-between items-center">
           <form method="dialog">
-            <button className="btn btn-error text-white ">Close</button>
+            <button className="secondary-btn ">Close</button>
           </form>
-          <button
-            className="btn text-white btn-success"
-            onClick={submitHandler}
-          >
+          <button className="primary-btn" onClick={submitHandler}>
             Add
           </button>
         </div>

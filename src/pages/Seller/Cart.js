@@ -13,17 +13,23 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { logout } from "../../redux/slice";
+import Loading from "../../components/Loading";
+import FallbackText from "../../components/FallbackText";
+import { IoCartOutline } from "react-icons/io5";
+import getRewardCoins from "../../utils/RewardCoins";
 
 const Cart = () => {
-  const cart = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const { tok } = useSelector((data) => data.user);
   const [cartData, setCartData] = useState([]);
   const [subTotal, setSubTotal] = useState(0);
   const [totalDiscount, setTotalDiscount] = useState(0);
   const [cartTotal, setCartTotal] = useState(0);
+  const [loadingData, setLoadingData] = useState(false);
+  const [totalRewardCoins, setTotalRewardCoins] = useState(0);
 
   const getCart = async () => {
+    setLoadingData(true);
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/seller/cart`,
@@ -43,6 +49,7 @@ const Cart = () => {
         dispatch(logout());
       }
     }
+    setLoadingData(false);
   };
 
   const updateItemQuantity = async (cartItem, newQuantity) => {
@@ -164,8 +171,10 @@ const Cart = () => {
     setSubTotal(calculatedSubTotal);
     const cartTotal = cartData?.reduce((acc, item) => acc + item?.total, 0);
     setCartTotal(cartTotal);
-    const totalDiscount = 100 - (cartTotal * 100) / calculatedSubTotal;
-    setTotalDiscount(totalDiscount.toFixed(2));
+    const calculatedTotalRewardCoins = cartData?.reduce((acc, item) => {
+      return acc + getRewardCoins(item?.product?.reward, item?.qty);
+    }, 0);
+    setTotalRewardCoins(calculatedTotalRewardCoins);
   }, [cartData]);
 
   return (
@@ -173,148 +182,170 @@ const Cart = () => {
       <div className="flex flex-col mb-6">
         <h2 className="text-xl font-bold text-start">Cart</h2>
       </div>
-      <div className="flex gap-10 max-lg:flex-col">
-        <div className="card bg-white flex-1 lg:w-[60%] xl:w-[70%]">
-          <div className="card-body p-0 py-2">
-            <div className="overflow-x-auto">
-              <table className="table ">
-                <thead className="bg-neutral text-white">
-                  <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Sub total</th>
-                    <th>Discount</th>
-                    <th>Total</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cartData?.map((cartItem, i) => {
-                    const itemPrice =
-                      (cartItem?.variant?.price_b2b !== undefined
-                        ? cartItem?.variant?.price_b2b
-                        : cartItem?.product?.price_b2b) * cartItem.qty;
-                    const totalItemDiscount = (
-                      100 -
-                      (cartItem.total * 100) / itemPrice
-                    ).toFixed(2);
-
-                    return (
-                      <tr key={i}>
-                        <td>
-                          <div className="flex items-center gap-3">
-                            <div className="avatar">
-                              <div className="mask mask-squircle w-12 h-12">
-                                <img
-                                  src={`${process.env.REACT_APP_BACKEND_URL}${
-                                    (cartItem?.variant?.images?.length &&
-                                      cartItem?.variant?.images[0]?.url) ||
-                                    (cartItem?.product?.images?.length &&
-                                      cartItem?.product?.images[0]?.url)
-                                  }`}
-                                  alt="Avatar Tailwind CSS Component"
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <div className="font-bold">
-                                {cartItem?.product?.name}
-                                {cartItem?.variant?.name &&
-                                  `- ${cartItem?.variant?.name}`}
-                              </div>
-                              <div className="text-sm opacity-50">
-                                {cartItem?.variants?.map((variant, i) => (
-                                  <p key={i}>
-                                    {variant.name}: {variant.value}
-                                  </p>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          ₹{" "}
-                          {cartItem?.variant?.price_b2b ||
-                            cartItem?.product?.price_b2b}
-                        </td>
-                        <td>₹ {itemPrice}</td>
-                        <td>{totalItemDiscount} %</td>
-                        <td>₹{cartItem.total}</td>
-                        <td className="flex justify-center">
-                          <div className="flex justify-center w-[50%]">
-                            <button
-                              className="p-2 border"
-                              onClick={() =>
-                                updateItemQuantity(cartItem, cartItem.qty - 10)
-                              }
-                            >
-                              -10
-                            </button>
-                            <button
-                              className="p-2 border"
-                              onClick={() =>
-                                updateItemQuantity(cartItem, cartItem.qty - 1)
-                              }
-                            >
-                              -
-                            </button>
-                            <p className="text-center pt-2 mx-4">
-                              {cartItem.qty}
-                            </p>
-                            <button
-                              className="p-2 border"
-                              onClick={() =>
-                                updateItemQuantity(cartItem, cartItem.qty + 1)
-                              }
-                            >
-                              +
-                            </button>
-                            <button
-                              className="p-2 border"
-                              onClick={() =>
-                                updateItemQuantity(cartItem, cartItem.qty + 10)
-                              }
-                            >
-                              +10
-                            </button>
-                            <button
-                              className="text-error ms-2"
-                              onClick={() => {
-                                deleteItem(cartItem.id);
-                              }}
-                            >
-                              <AiFillDelete size={20} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+      {loadingData && (
+        <div className="w-40 h-40 mx-auto">
+          <Loading />
         </div>
-        <div className="card bg-base-100 flex-none h-fit sticky top-[6rem] lg:w-[40%] xl:w-[30%]">
-          <div className="card-body">
-            <div className="overflow-x-auto mt-3">
-              <table className="table ">
-                <thead className="bg-neutral text-white">
-                  <tr>
-                    <th>Product Totals</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th>Sub Total</th>
-                    <td className="text-end">₹{subTotal}</td>
-                  </tr>
-                  <tr>
-                    <th>Discount</th>
-                    <td className="text-end">{totalDiscount}%</td>
-                  </tr>
-                  {/* <tr>
+      )}
+      {!loadingData &&
+        (cartData?.length ? (
+          <div className="flex gap-10 max-lg:flex-col">
+            <div className="card bg-white flex-1 lg:w-[60%] xl:w-[70%]">
+              <div className="card-body p-0 py-2">
+                <div className="overflow-x-auto">
+                  <table className="table ">
+                    <thead className="bg-neutral text-center text-white">
+                      <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Sub total</th>
+                        <th>Reward Coins</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cartData?.map((cartItem, i) => {
+                        const itemPrice =
+                          (cartItem?.variant?.price_b2b !== undefined
+                            ? cartItem?.variant?.price_b2b
+                            : cartItem?.product?.price_b2b) * cartItem.qty;
+
+                        const rewardedCoins = getRewardCoins(
+                          cartItem?.product?.reward,
+                          cartItem?.qty
+                        );
+
+                        return (
+                          <tr key={i}>
+                            <td>
+                              <div className="flex items-center gap-3">
+                                <div className="avatar">
+                                  <div className="mask mask-squircle w-12 h-12">
+                                    <img
+                                      src={`${
+                                        process.env.REACT_APP_BACKEND_URL
+                                      }${
+                                        (cartItem?.variant?.images?.length &&
+                                          cartItem?.variant?.images[0]?.url) ||
+                                        (cartItem?.product?.images?.length &&
+                                          cartItem?.product?.images[0]?.url)
+                                      }`}
+                                      alt="Avatar Tailwind CSS Component"
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="font-bold">
+                                    {cartItem?.product?.name}
+                                    {cartItem?.variant?.name &&
+                                      `- ${cartItem?.variant?.name}`}
+                                  </div>
+                                  <div className="text-sm opacity-50">
+                                    {cartItem?.variants?.map((variant, i) => (
+                                      <p key={i}>
+                                        {variant.name}: {variant.value}
+                                      </p>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              ₹{" "}
+                              {cartItem?.variant?.price_b2b ||
+                                cartItem?.product?.price_b2b}
+                            </td>
+                            <td>₹ {itemPrice}</td>
+                            <td>{rewardedCoins}</td>
+                            <td>₹{cartItem.total}</td>
+                            <td className="flex justify-center">
+                              <div className="flex justify-center w-[50%]">
+                                <button
+                                  className="p-2 border"
+                                  onClick={() =>
+                                    updateItemQuantity(
+                                      cartItem,
+                                      cartItem.qty - 10
+                                    )
+                                  }
+                                >
+                                  -10
+                                </button>
+                                <button
+                                  className="p-2 border"
+                                  onClick={() =>
+                                    updateItemQuantity(
+                                      cartItem,
+                                      cartItem.qty - 1
+                                    )
+                                  }
+                                >
+                                  -
+                                </button>
+                                <p className="text-center pt-2 mx-4">
+                                  {cartItem.qty}
+                                </p>
+                                <button
+                                  className="p-2 border"
+                                  onClick={() =>
+                                    updateItemQuantity(
+                                      cartItem,
+                                      cartItem.qty + 1
+                                    )
+                                  }
+                                >
+                                  +
+                                </button>
+                                <button
+                                  className="p-2 border"
+                                  onClick={() =>
+                                    updateItemQuantity(
+                                      cartItem,
+                                      cartItem.qty + 10
+                                    )
+                                  }
+                                >
+                                  +10
+                                </button>
+                                <button
+                                  className="text-error ms-2"
+                                  onClick={() => {
+                                    deleteItem(cartItem.id);
+                                  }}
+                                >
+                                  <AiFillDelete size={20} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div className="card bg-base-100 flex-none h-fit sticky top-[6rem] lg:w-[40%] xl:w-[30%]">
+              <div className="card-body">
+                <div className="overflow-x-auto mt-3">
+                  <table className="table ">
+                    <thead className="bg-neutral text-center text-white">
+                      <tr>
+                        <th>Product Totals</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>Sub Total</th>
+                        <td className="text-end">₹{subTotal}</td>
+                      </tr>
+                      <tr>
+                        <th>Total Reward Coins</th>
+                        <td className="text-end">{totalRewardCoins}</td>
+                      </tr>
+                      {/* <tr>
                     <th>Shipping</th>
                     <td className="text-end">{shipping}</td>
                   </tr>
@@ -322,22 +353,25 @@ const Cart = () => {
                     <th>GST</th>
                     <td className="text-end">{gst}</td>
                   </tr> */}
-                  <tr className="text-xl">
-                    <th>Total</th>
-                    <td className="text-end">₹{cartTotal}</td>
-                  </tr>
-                </tbody>
-              </table>
+                      <tr className="text-xl">
+                        <th>Total</th>
+                        <td className="text-end">₹{cartTotal}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <button className="primary-btn" onClick={placeOrderHandler}>
+                  Place Order
+                </button>
+                <Link className="btn btn-accent" to={"/seller/shop"}>
+                  Continue Shopping
+                </Link>
+              </div>
             </div>
-            <button className="primary-btn" onClick={placeOrderHandler}>
-              Place Order
-            </button>
-            <Link className="btn btn-accent" to={"/seller/shop"}>
-              Continue Shopping
-            </Link>
           </div>
-        </div>
-      </div>
+        ) : (
+          <FallbackText IconRef={IoCartOutline} message={"No Item in Cart"} />
+        ))}
     </PrimaryLayout>
   );
 };

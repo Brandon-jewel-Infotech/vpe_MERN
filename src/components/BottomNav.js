@@ -8,8 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/slice";
 import { IoMdCart } from "react-icons/io";
-import { IoBagCheckOutline } from "react-icons/io5";
-import { CiLogin } from "react-icons/ci";
+
 import { PiUsersThree } from "react-icons/pi";
 import { GrUserNew } from "react-icons/gr";
 import { MdOutlineRequestPage } from "react-icons/md";
@@ -109,16 +108,7 @@ const BottomNav = () => {
             <MdOutlineRequestPage />
             Orders
           </button>
-          <button
-            onClick={() => {
-              navigate("/checkout");
-              setIsVisible(false);
-            }}
-            className="flex flex-col justify-center items-center p-2 w-full hover:bg-gray-300"
-          >
-            <IoBagCheckOutline />
-            Checkout
-          </button>
+
           <button
             onClick={() => {
               dispatch(logout());

@@ -1,28 +1,32 @@
 import React, { useEffect, useState } from "react";
-import PrimaryLayout from "../../Layout/PrimaryLayout";
+import PrimaryLayout from "../../../Layout/PrimaryLayout";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { logout } from "../../redux/slice";
+import { logout } from "../../../redux/slice";
+import FallbackText from "../../../components/FallbackText";
+import { TiDocumentText } from "react-icons/ti";
+import Loading from "../../../components/Loading";
 
 const MyOrderRequests = () => {
   const dispatch = useDispatch();
   const { tok } = useSelector((state) => state.user);
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState({});
+  const [loadingData, setLoadingData] = useState(false);
 
   //fetch the orders
   const getMyOrderRequests = async () => {
     try {
-      //   setloading(true);
+      setLoadingData(true);
       const url = `${process.env.REACT_APP_BACKEND_URL}/seller/order_requests/myorders`;
 
       const { data } = await axios.post(
         url,
-        {},
+        { type: "created" },
         {
           headers: {
-            Authorization: `${tok}`,
+            Authorization: tok,
           },
         }
       );
@@ -35,6 +39,7 @@ const MyOrderRequests = () => {
         dispatch(logout());
       }
     }
+    setLoadingData(false);
   };
 
   useEffect(() => {
@@ -50,61 +55,74 @@ const MyOrderRequests = () => {
       <PrimaryLayout>
         <div className="text-start">
           <h2 className="text-lg font-bold ">My Order Requests</h2>
-          <p className="text-sm">Order {">"} My Order Requests</p>
+          <p className="text-sm">Requests {">"} My Order Requests</p>
         </div>
         <div className="card bg-white flex-1 w-full">
           <div className="card-body p-0 py-2">
-            <div className="overflow-x-auto">
-              <table className="table ">
-                <thead className="bg-neutral text-white">
-                  <tr>
-                    <th>Order Id</th>
-                    <th>Customer Name</th>
-                    <th>Customer Type</th>
-                    <th>Date</th>
-                    <th>Order Total</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders?.map((order, i) => {
-                    const date = new Date(order?.createdAt);
-
-                    const day = date.getUTCDate();
-                    const month = date.getUTCMonth() + 1;
-                    const year = date.getUTCFullYear();
-                    order.formattedDate = `${day}/${month}/${year}`;
-
-                    order.orderTotal = order?.orderItems?.reduce(
-                      (acc, item) => acc + item.price,
-                      0
-                    );
-                    return (
-                      <tr key={order.id}>
-                        <td>{order.id}</td>
-                        <td>{order?.createdBy?.name}</td>
-                        <td>{order?.createdBy?.role}</td>
-                        <td>{order.formattedDate}</td>
-                        <td>₹ {order?.orderTotal}</td>
-                        <td>
-                          <button
-                            className="primary-btn"
-                            onClick={() => {
-                              document
-                                .getElementById("order_detail_modal")
-                                .showModal();
-                              setSelectedOrder(order);
-                            }}
-                          >
-                            View Details
-                          </button>
-                        </td>
+            {loadingData && (
+              <div className="w-40 h-40 mx-auto">
+                <Loading />
+              </div>
+            )}
+            {!loadingData &&
+              (orders?.length ? (
+                <div className="overflow-x-auto">
+                  <table className="table ">
+                    <thead className="bg-neutral text-center text-white">
+                      <tr>
+                        <th>Order Id</th>
+                        <th>Customer Name</th>
+                        <th>Customer Type</th>
+                        <th>Date</th>
+                        <th>Order Total</th>
+                        <th>Actions</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                    </thead>
+                    <tbody>
+                      {orders?.map((order, i) => {
+                        const date = new Date(order?.createdAt);
+
+                        const day = date.getUTCDate();
+                        const month = date.getUTCMonth() + 1;
+                        const year = date.getUTCFullYear();
+                        order.formattedDate = `${day}/${month}/${year}`;
+
+                        order.orderTotal = order?.orderItems?.reduce(
+                          (acc, item) => acc + item.price,
+                          0
+                        );
+                        return (
+                          <tr key={order.id}>
+                            <td>{order.id}</td>
+                            <td>{order?.createdBy?.name}</td>
+                            <td>{order?.createdBy?.role}</td>
+                            <td>{order.formattedDate}</td>
+                            <td>₹ {order?.orderTotal}</td>
+                            <td>
+                              <button
+                                className="primary-btn"
+                                onClick={() => {
+                                  document
+                                    .getElementById("order_detail_modal")
+                                    .showModal();
+                                  setSelectedOrder(order);
+                                }}
+                              >
+                                View Details
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <FallbackText
+                  IconRef={TiDocumentText}
+                  message={"No Order Request found"}
+                />
+              ))}
           </div>
         </div>
       </PrimaryLayout>
@@ -200,11 +218,12 @@ export const OrderDetailModal = ({
             <h3 className="my-2 font-semibold">Order Items: </h3>
             <div className="overflow-x-auto max-h-50vh overflow-auto">
               <table className="table">
-                <thead className="bg-neutral text-white">
+                <thead className="bg-neutral text-center text-white">
                   <tr>
                     <th>Product Name</th>
                     <th>Quantity</th>
                     <th>Total Price</th>
+                    <th>Reward Coins</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -218,6 +237,7 @@ export const OrderDetailModal = ({
                         </td>
                         <td>{item?.qty}</td>
                         <td>₹ {item?.price}</td>
+                        <td>{item?.rewarded_coins}</td>
                         <td>
                           {item?.stage === 1
                             ? "Pending"
@@ -260,11 +280,22 @@ export const OrderDetailModal = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg my-2 font-semibold">
-            Order Total:{" "}
-            <span className="font-normal">₹ {orderDetails?.orderTotal}</span>
-          </h3>
+        <div className="flex items-end justify-between">
+          <div>
+            <h3 className="text-lg my-2 font-semibold">
+              Order Total:{" "}
+              <span className="font-normal">₹ {orderDetails?.orderTotal}</span>
+            </h3>
+            <h3 className="text-lg my-2 font-semibold">
+              Total Reward Coins:{" "}
+              <span className="font-normal">
+                {orderDetails?.orderItems?.reduce(
+                  (acc, item) => acc + item.rewarded_coins,
+                  0
+                )}
+              </span>
+            </h3>
+          </div>
 
           <div className="flex gap-4">
             <form method="dialog">

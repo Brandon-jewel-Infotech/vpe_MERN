@@ -1,17 +1,19 @@
 import React from "react";
-import { FaUserCircle } from "react-icons/fa";
-import { MdSpaceDashboard } from "react-icons/md";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, toggleSidebar } from "../redux/slice";
-import { IoMdCart } from "react-icons/io";
-import { IoBagCheckOutline } from "react-icons/io5";
 import { CiLogin } from "react-icons/ci";
 import { RxDashboard } from "react-icons/rx";
-import { PiUsersThree } from "react-icons/pi";
-import { MdOutlineRequestPage } from "react-icons/md";
-import { IoBagAdd } from "react-icons/io5";
+import { PiPlugsConnected, PiUsersThree } from "react-icons/pi";
+import { IoBagHandleOutline, IoCartOutline } from "react-icons/io5";
+import { TiDocumentText } from "react-icons/ti";
+import { BiCategoryAlt } from "react-icons/bi";
+import { LuUsers } from "react-icons/lu";
+import { FaPeopleRoof } from "react-icons/fa6";
+import { GiCardboardBox } from "react-icons/gi";
+import { AiOutlineUserAdd } from "react-icons/ai";
+import { RiMedalLine } from "react-icons/ri";
 
 const Sidebar = () => {
   const { auth, role, id, sidebarExpanded } = useSelector(
@@ -21,25 +23,26 @@ const Sidebar = () => {
   const sidebarItems =
     (role === "admin" && [
       { icon: RxDashboard, title: "Dashboard", url: "/" },
-      { icon: IoMdCart, title: "Requests", url: "/requests" },
-      { icon: IoMdCart, title: "Categories", url: "/categories" },
-      { icon: IoMdCart, title: "Users", url: "/users" },
-      { icon: IoMdCart, title: "Companies", url: "/companies" },
-      { icon: IoMdCart, title: "Connections", url: "/connections" },
+      { icon: TiDocumentText, title: "Requests", url: "/requests" },
+      { icon: BiCategoryAlt, title: "Categories", url: "/categories" },
+      { icon: LuUsers, title: "Users", url: "/users" },
+      { icon: FaPeopleRoof, title: "Companies", url: "/companies" },
+      { icon: PiPlugsConnected, title: "Connections", url: "/connections" },
       { icon: CiLogin, title: "Login", url: "/login" },
     ]) ||
     (role === "business" && [
+      { icon: RxDashboard, title: "Dashboard", url: "/" },
       {
-        icon: FaUserCircle,
-        title: "Product Management",
+        icon: GiCardboardBox,
+        title: "Products",
         links: [
           {
-            icon: MdSpaceDashboard,
+            icon: GiCardboardBox,
             title: "Add Product",
             url: "/add-product",
           },
           {
-            icon: MdSpaceDashboard,
+            icon: GiCardboardBox,
             title: "Product List",
             url: "/products",
           },
@@ -47,38 +50,48 @@ const Sidebar = () => {
       },
       {
         icon: PiUsersThree,
-        title: "Employee Management",
+        title: "Employees",
         links: [
           {
-            icon: MdSpaceDashboard,
+            icon: AiOutlineUserAdd,
             title: "Add Employee",
             url: "/add-employee",
           },
           {
-            icon: MdSpaceDashboard,
+            icon: PiUsersThree,
             title: "Employee List",
             url: "/employee-list",
           },
         ],
       },
       {
-        icon: MdOutlineRequestPage,
-        title: "Order Management",
+        icon: TiDocumentText,
+        title: "Requests",
         links: [
           {
-            icon: MdOutlineRequestPage,
-            title: "My Order Requests",
-            url: "/my-order-requests",
+            icon: TiDocumentText,
+            title: "Admin",
+            url: "/admin-requests",
           },
           {
-            icon: MdOutlineRequestPage,
-            title: "Order Requests",
+            icon: TiDocumentText,
+            title: "Order",
             url: "/order-requests",
+          },
+          {
+            icon: TiDocumentText,
+            title: "My Order",
+            url: "/my-order-requests",
           },
         ],
       },
-      { icon: IoBagAdd, title: "Marketplace", url: "/seller/shop" },
-      { icon: IoMdCart, title: "Cart", url: "/cart" },
+      {
+        icon: RiMedalLine,
+        title: "Rewards Scheme",
+        url: "/reward-list",
+      },
+      { icon: IoBagHandleOutline, title: "Marketplace", url: "/seller/shop" },
+      { icon: IoCartOutline, title: "Cart", url: "/cart" },
     ]);
   const dispatch = useDispatch();
   const navigate = useNavigate();

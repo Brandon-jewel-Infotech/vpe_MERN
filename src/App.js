@@ -7,7 +7,6 @@ import Register from "./pages/Register";
 // import ProductList from "./pages/Products/ProductList";
 // import EmployeeList from "./pages/Employee/EmployeeList";
 // import OrderRequests from "./pages/OrderRequests";
-// import Checkout from "./pages/Checkout";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "./redux/slice";
 import { emptyCart } from "./redux/cartSlice";

@@ -42,7 +42,7 @@
 import Cart from "./pages/Seller/Cart";
 import Dashboard from "./pages/Admin/Dashboard";
 import Login from "./pages/Login";
-import OrderRequests from "./pages/Seller/OrderRequests";
+import OrderRequests from "./pages/Seller/Requests/OrderRequests";
 import AddProduct from "./pages/Seller/Products/AddProduct";
 import ProductList from "./pages/Seller/Products/ProductList";
 import ProductDetails from "./pages/Seller/Products/ProductDetails";
@@ -56,8 +56,11 @@ import EditProduct from "./pages/Seller/Products/EditProduct";
 import MarketPlace from "./pages/Seller/MarketPlace";
 import EmployeeList from "./pages/Seller/Employee/EmployeeList";
 import AddEmployee from "./pages/Seller/Employee/AddEmployee";
-import MyOrders from "./pages/Seller/MyOrders";
-import MyOrderRequests from "./pages/Seller/MyOrderRequests";
+
+import MyOrderRequests from "./pages/Seller/Requests/MyOrderRequests";
+import RedeemWallet from "./pages/RedeemWallet";
+import AdminRequests from "./pages/Seller/Requests/AdminRequests";
+import Rewards from "./pages/Seller/Rewards/Rewards";
 
 export const getRoutesByRole = (auth, role, code, navigate) => {
   // Admin Routes
@@ -96,33 +99,11 @@ export const getRoutesByRole = (auth, role, code, navigate) => {
     { path: "/employee-list", component: <EmployeeList /> },
     { path: "/add-employee", component: <AddEmployee /> },
     { path: "/my-order-requests", component: <MyOrderRequests /> }, //my  order requests
-    { path: "/my-orders", component: <MyOrders /> }, //my orders
     { path: "/order-requests", component: <OrderRequests /> }, //my orders
+    { path: "/admin-requests", component: <AdminRequests /> }, //my orders
+    { path: "/redeem-wallet", component: <RedeemWallet /> },
+    { path: "/reward-list", component: <Rewards /> },
     { path: "/cart", component: <Cart /> },
-    // { path: "*", component: <Navigate to="/logout" replace /> },
-    //   { path: "/products", component: <SellerProducts /> },
-    //   { path: "/products/rewards", component: <AddRewards/> },
-    //   { path: "/request", component: <SellerRequest /> },
-    //   { path: "/redeem", component: <Redeem/> },
-
-    //   { path: "/requests/q/:id", component: <SellerQueryRequestView /> },
-
-    //   { path: "/analytics", component: <SellerAnalytics /> },
-    // { path: "/orders", component: <SellerOrders /> }, //manage orders
-    //   { path: "/orders/requests/:id", component: <OrderRequest/> },
-    //   { path: "/myorders/requests/:id", component: <MyorderRequest/> },
-    // { path: "/connections", component: <SellerConnectionsView /> },
-
-    //   { path: "/products/new", component: <AddProducts /> },
-    //   { path: "/products/:id", component: <SellerProductView /> },
-    //   { path: "/products/:id/:variantid", component: <SellerVariantView /> },
-    //   { path: "/products/edit/:id", component: <EditProducts /> },
-    //   { path: `/connections`, component: <SellerConnectionsView /> },
-    // {path:"/shop",component: <SellerCategories/> },
-    // {path:"/shop",component: <SellerCategories/> },
-    // {path:"/shop",component: <SellerCategories/> },
-
-    // ...other business routes
   ];
 
   // console.log(`Auth : ${auth} ; Role : ${role}`);

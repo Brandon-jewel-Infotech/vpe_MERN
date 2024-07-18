@@ -5,15 +5,21 @@ import { logout } from "../../redux/slice";
 import PrimaryLayout from "../../Layout/PrimaryLayout";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import FallbackText from "../../components/FallbackText";
+import { LuUsers } from "react-icons/lu";
+import Loading from "../../components/Loading";
 
 const Users = () => {
   const { tok } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
   const [users, setUsers] = useState([]);
   const [selectedRole, setSelectedRole] = useState(2);
-  const dispatch = useDispatch();
+  const [loadingData, setLoadingData] = useState(false);
 
   //  Get all products from the database.
   const getData = async () => {
+    setLoadingData(true);
     try {
       // setloading(true);
       const { data } = await axios.post(
@@ -34,6 +40,7 @@ const Users = () => {
         dispatch(logout());
       }
     }
+    setLoadingData(false);
   };
 
   const suspendUserHandler = async (code, status) => {
@@ -161,26 +168,33 @@ const Users = () => {
               </div>
             </div>
             {/* table starts here */}
-            <div className="mt-3 overflow-x-auto">
-              <table className="table table-zebra table-auto w-full">
-                <thead className="bg-neutral text-white">
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Contact</th>
-                    {/* <th>Role</th> */}
-                    <th>Status</th>
-                    <th>GSTIN</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users?.map((user) => (
-                    <tr key={user?.id}>
-                      <td>{user?.name}</td>
-                      <td>{user?.email}</td>
-                      <td>{user?.contact}</td>
-                      {/* <td>
+            {loadingData && (
+              <div className="w-40 h-40 m-auto">
+                <Loading />
+              </div>
+            )}
+            {!loadingData &&
+              (users?.length ? (
+                <div className="mt-3 overflow-x-auto">
+                  <table className="table table-zebra table-auto w-full">
+                    <thead className="bg-neutral text-center text-white">
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        {/* <th>Role</th> */}
+                        <th>Status</th>
+                        <th>GSTIN</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users?.map((user) => (
+                        <tr key={user?.id}>
+                          <td>{user?.name}</td>
+                          <td>{user?.email}</td>
+                          <td>{user?.contact}</td>
+                          {/* <td>
                         {user?.role === 1
                           ? "Admin"
                           : user?.role === 2
@@ -189,35 +203,40 @@ const Users = () => {
                           ? "Moderator"
                           : "Employee"}
                           </td> */}
-                      <td>
-                        {user?.status === 1
-                          ? "Pending"
-                          : user?.status === 2
-                          ? "Declined"
-                          : "Accepted"}
-                      </td>
-                      <td>{user?.gstin}</td>
-                      <td>
-                        <div className=" flex items-center justify-around gap-5">
-                          <button
-                            className="secondary-btn text-white"
-                            onClick={() => suspendUserHandler(user?.code, 2)}
-                          >
-                            Suspend
-                          </button>
-                          <Link
-                            to={`/connections/?code=${user?.code}`}
-                            className="primary-btn text-white"
-                          >
-                            Connections
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          <td>
+                            {user?.status === 1
+                              ? "Pending"
+                              : user?.status === 2
+                              ? "Declined"
+                              : "Accepted"}
+                          </td>
+                          <td>{user?.gstin}</td>
+                          <td>
+                            <div className=" flex items-center justify-around gap-5">
+                              <button
+                                className="secondary-btn text-white"
+                                onClick={() =>
+                                  suspendUserHandler(user?.code, 2)
+                                }
+                              >
+                                Suspend
+                              </button>
+                              <Link
+                                to={`/connections/?code=${user?.code}`}
+                                className="primary-btn text-white"
+                              >
+                                Connections
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <FallbackText IconRef={LuUsers} message={"No User Found"} />
+              ))}
           </div>
         </div>
       </PrimaryLayout>

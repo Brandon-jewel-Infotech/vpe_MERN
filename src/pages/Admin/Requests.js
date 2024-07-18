@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice";
 import { toast } from "react-toastify";
+import FallbackText from "../../components/FallbackText";
+import Loading from "../../components/Loading";
+import { TiDocumentText } from "react-icons/ti";
 
 const Requests = () => {
   const dispatch = useDispatch();
@@ -12,9 +15,10 @@ const Requests = () => {
 
   const [requests, setRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState({});
+  const [loadingData, setLoadingData] = useState(false);
 
-  //  Get all products from the database.
   const getRequests = async () => {
+    setLoadingData(true);
     try {
       const { data } = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/requests`,
@@ -25,7 +29,7 @@ const Requests = () => {
           },
         }
       );
-      console.log(data);
+
       setRequests(data);
     } catch (error) {
       if (error?.response?.status === 401) {
@@ -34,6 +38,7 @@ const Requests = () => {
         dispatch(logout());
       }
     }
+    setLoadingData(false);
   };
 
   useEffect(() => {
@@ -42,7 +47,6 @@ const Requests = () => {
 
   return (
     <>
-      {/* <AddRequest getRequests={getRequests} /> */}
       <UpdateRequest request={selectedRequest} setRequests={setRequests} />
       <PrimaryLayout>
         <div className="card bg-white max-w-full">
@@ -52,72 +56,72 @@ const Requests = () => {
                 <h2 className="text-lg font-bold text-start">Request List</h2>
                 <p className="text-sm">Requests {">"} Request List</p>
               </div>
-              {/* <Link
-                className="primary-btn font-semibold"
-                // onClick={() => {
-                //   navigate("/add-product");
-                // }}
-                onClick={() =>
-                  document.getElementById("add_request").showModal()
-                }
-                // to={"/add-request"}
-              >
-                <GoPlus size={20} /> Add New
-              </Link> */}
             </div>
-            {/* table starts here */}
-            <div className="mt-3 overflow-x-auto">
-              <table className="table table-zebra table-auto w-full">
-                <thead className="bg-neutral text-white">
-                  <tr>
-                    <th>User Name</th>
-                    <th>Description</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Response</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {requests?.map((request) => (
-                    <tr key={request?.id}>
-                      <td>{request?.user?.name}</td>
-                      <td>{request?.description}</td>
-                      <td className="capitalize">
-                        {request?.role === 0
-                          ? "account creation"
-                          : request?.role === 1
-                          ? "connection request"
-                          : "query"}
-                      </td>
-                      <td className="capitalize">
-                        {request?.status == 1
-                          ? "open"
-                          : request?.status == 2
-                          ? "declined"
-                          : request?.status == 3
-                          ? "approved"
-                          : "closed"}
-                      </td>
-                      <td>{request?.response}</td>
-                      <td>
-                        <Link
-                          className="primary-btn"
-                          onClick={() => {
-                            setSelectedRequest(request);
-                            document
-                              .getElementById("update_request")
-                              .showModal();
-                          }}
-                        >
-                          Update
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {loadingData && (
+              <div className="w-40 h-40 m-auto">
+                <Loading />
+              </div>
+            )}
+            {!loadingData &&
+              (requests?.length ? (
+                <div className="mt-3 overflow-x-auto">
+                  <table className="table table-zebra table-auto w-full">
+                    <thead className="bg-neutral text-center text-white">
+                      <tr>
+                        <th>User Name</th>
+                        <th>Description</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Response</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {requests?.map((request) => (
+                        <tr key={request?.id}>
+                          <td>{request?.user?.name}</td>
+                          <td>{request?.description}</td>
+                          <td className="capitalize">
+                            {request?.role === 0
+                              ? "account creation"
+                              : request?.role === 1
+                              ? "connection request"
+                              : "query"}
+                          </td>
+                          <td className="capitalize">
+                            {request?.status == 1
+                              ? "open"
+                              : request?.status == 2
+                              ? "declined"
+                              : request?.status == 3
+                              ? "approved"
+                              : "closed"}
+                          </td>
+                          <td>{request?.response}</td>
+                          <td>
+                            <Link
+                              className="primary-btn"
+                              onClick={() => {
+                                setSelectedRequest(request);
+                                document
+                                  .getElementById("update_request")
+                                  .showModal();
+                              }}
+                            >
+                              Update
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <FallbackText
+                  IconRef={TiDocumentText}
+                  message={"No Requests found"}
+                />
+              ))}
           </div>
         </div>
       </PrimaryLayout>
@@ -359,7 +363,7 @@ const UpdateRequest = ({ request, setRequests }) => {
           <div className="flex justify-between items-center">
             <div className="modal-action my-0">
               <form method="dialog">
-                <button className="btn">Close</button>
+                <button className="secondary-btn">Close</button>
               </form>
             </div>
             <button className="primary-btn" onClick={updateRequestHandler}>
