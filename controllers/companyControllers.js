@@ -3,7 +3,7 @@ const Company = require("../models/companyModel");
 //sequelized and tested
 exports.fetchCompany = async (req, res) => {
   try {
-    const result = await Company.findAll();
+    const result = await Company.findAll({ order: ["name"] });
     res.json(result);
   } catch (error) {
     console.error(error);

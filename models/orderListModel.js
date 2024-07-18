@@ -44,6 +44,9 @@ const OrderListModel = sequelize.define("order_list", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
+  rewarded_coins: {
+    type: Sequelize.INTEGER,
+  },
   variant_id: {
     type: Sequelize.INTEGER,
     references: {

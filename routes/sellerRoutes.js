@@ -107,36 +107,36 @@ router.delete(
 );
 
 //order routes
-router.post(
-  "/orders",
-  roleAuthentication(2),
-  sellerOrderController.getSellerOrders
-);
-router.post(
-  "/orders/create",
-  roleAuthentication(2),
-  sellerOrderController.createSellerOrders
-);
-router.post(
-  "/orders/update",
-  roleAuthentication(2),
-  sellerOrderController.updateSellerOrders
-);
-router.post(
-  "/orders/cancel",
-  roleAuthentication(2),
-  sellerOrderController.cancelOrder
-);
+// router.post(
+//   "/orders",
+//   roleAuthentication(2),
+//   sellerOrderController.getSellerOrders
+// );
+// router.post(
+//   "/orders/create",
+//   roleAuthentication(2),
+//   sellerOrderController.createSellerOrders
+// );
+// router.post(
+//   "/orders/update",
+//   roleAuthentication(2),
+//   sellerOrderController.updateSellerOrders
+// );
+// router.post(
+//   "/orders/cancel",
+//   roleAuthentication(2),
+//   sellerOrderController.cancelOrder
+// );
 router.post(
   "/order_request",
   userAuthentication,
   sellerOrderController.getOrderlists
 );
-router.post(
-  "/order_requests",
-  userAuthentication,
-  sellerOrderController.getAllOrderlists
-);
+// router.post(
+//   "/order_requests",
+//   userAuthentication,
+//   sellerOrderController.getAllOrderlists
+// );
 router.post(
   "/order_requests/myorders",
   userAuthentication,
@@ -156,6 +156,12 @@ router.patch(
   "/order_requests/:id",
   userAuthentication,
   sellerOrderController.updateCreatedOrderslists
+);
+
+router.get(
+  "/admin_requests",
+  userAuthentication,
+  sellerOrderController.getMyAllOrderlists
 );
 
 //reward router (ALL TESTED AND WORKING)

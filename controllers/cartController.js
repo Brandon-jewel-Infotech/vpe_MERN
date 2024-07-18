@@ -3,6 +3,7 @@ const Cart = require("../models/cartModel");
 const VariantsModel = require("../models/variantsModel");
 const ImageModel = require("../models/imageModel");
 const sequelize = require("../utils/database");
+const RewardsModel = require("../models/rewardsModel");
 
 // to get all  the products added to the cart (customer's controller) (sequelized and tested)
 exports.getCart = async (req, res) => {
@@ -24,6 +25,10 @@ exports.getCart = async (req, res) => {
             {
               model: ImageModel,
               attributes: ["id", "url"],
+            },
+            {
+              model: RewardsModel,
+              attributes: ["id", "name", "coins", "conditions", "status"],
             },
           ],
         },

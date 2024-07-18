@@ -1,36 +1,30 @@
 const Reward = require("../models/rewardsModel");
 
-// to create  the rewards for the product (admin's controller) (sequelized and tested)
 exports.createReward = async (req, res) => {
-  const { name, productId, coins, stage, status, conditions } = req?.body;
+  const { name, coins, status, conditions = "" } = req?.body;
 
   try {
     const newReward = await Reward.create({
       name,
-      productId, // Assuming you have a productId column in your rewards table
       coins,
-      stage,
       status,
       conditions,
     });
 
-    res.json({ message: "Successfully Added", result: newReward });
+    res.status(201).json({ message: "Successfully Added", result: newReward });
   } catch (err) {
     console.error("Error creating reward:", err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-// to get  the rewards for the product  (seller's controller) (sequelized and teseted)
 exports.getReward = async (req, res) => {
   const { id } = req?.body;
 
   try {
     const rewards = await Reward.findAll({
       attributes: ["name", "coins", "stage", "status", "conditions", "id"],
-      where: {
-        // Add any additional conditions if needed
-      },
+      where: {},
     });
 
     res.json({ results: rewards, message: "Successfully retrieved rewards" });
@@ -40,18 +34,16 @@ exports.getReward = async (req, res) => {
   }
 };
 
-// to update  the rewards for the product (seller's controller) (sequelized and tested)
 exports.updateReward = async (req, res) => {
-  const { id, name, coins, stage, status, condition } = req?.body;
+  const { id, name, coins, status, conditions } = req?.body;
 
   try {
     const [updatedRowsCount] = await Reward.update(
       {
         name,
         coins,
-        stage,
         status,
-        conditions: condition,
+        conditions: status == 3 ? conditions : "",
       },
       {
         where: {
@@ -61,7 +53,7 @@ exports.updateReward = async (req, res) => {
     );
 
     if (updatedRowsCount > 0) {
-      res.json({ message: "Successfully updated the rewards" });
+      res.status(200).json({ message: "Successfully updated the rewards" });
     } else {
       res.status(404).json({ message: `Reward with ID ${id} not found` });
     }
@@ -71,7 +63,6 @@ exports.updateReward = async (req, res) => {
   }
 };
 
-// to delete  the rewards for the product (seller's controller) (sequelized and tested)
 exports.deleteReward = async (req, res) => {
   const { id } = req?.body;
 

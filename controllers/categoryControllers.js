@@ -40,6 +40,7 @@ exports.fetchCategories = async (req, res) => {
         },
       ],
       attributes: ["id", "name"],
+      order: [["name"]],
     });
 
     res.json(categories);

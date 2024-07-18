@@ -279,6 +279,7 @@ exports.getConnections = async (req, res) => {
         "LIKE",
         `%${code.toLowerCase()}%`
       ),
+      order: [["name"]],
     });
 
     // Find customers
@@ -289,6 +290,7 @@ exports.getConnections = async (req, res) => {
         "LIKE",
         `%${code.toLowerCase()}%`
       ),
+      order: [["name"]],
     });
 
     return res.status(200).json({ suppliers, customers });
@@ -370,6 +372,7 @@ exports.fetchUsers = async (req, res) => {
         role,
         status: 3,
       },
+      order: [["name"]],
     });
 
     return res.status(200).json(users);
@@ -491,6 +494,23 @@ exports.analytics = async (req, res) => {
       "this year": thisYearCount,
       total: totalCount,
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.getWallet = async (req, res) => {
+  const { id } = req.user;
+
+  try {
+    const user = await User.findByPk(id, { attributes: ["wallet"] });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user.wallet);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });

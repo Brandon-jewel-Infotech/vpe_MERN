@@ -34,6 +34,7 @@ router.post(
   userController.createEmployee
 ); //tested
 router.post("/users/fetch", roleAuthentication(1), userController.fetchUsers); //tested
+router.get("/users/wallet", userAuthentication, userController.getWallet); //tested
 router.get("/users/:id", roleAuthentication(1), userController.searchByCode); //tested
 router.put("/users/", roleAuthentication(1), userController.updateById); //to update status of user //tested
 router.delete("/users/:id", roleAuthentication(1), userController.deleteById); //tested

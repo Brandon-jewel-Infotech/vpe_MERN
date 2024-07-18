@@ -157,6 +157,14 @@ exports.getSellerProducts = async (req, res) => {
         "reward_id",
         "description",
         "instock",
+        [
+          sequelize.literal(`(
+            SELECT COUNT(*)
+            FROM variants AS variant
+            WHERE variant.product_id = products.id
+          )`),
+          "variants",
+        ],
       ],
       include: [
         { model: Category, attributes: ["id", "name"] },
@@ -165,6 +173,7 @@ exports.getSellerProducts = async (req, res) => {
         { model: Company, attributes: ["id", "name"] },
         { model: User, as: "user", attributes: ["id"] },
         { model: ImageModel, attributes: ["id", "url"], as: "images" },
+        // { model: Variant, attributes: ["id"], as: "variants" },
       ],
       where: {
         created_by: req.user.userId,
@@ -619,3 +628,5 @@ exports.markOutOfStock = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error });
   }
 };
+
+

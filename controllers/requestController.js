@@ -9,6 +9,7 @@ const AddressDetails = require("../models/addressDetailsModel");
 const BankDetails = require("../models/bankDetailsModel");
 
 const fs = require("fs");
+const { Op } = require("sequelize");
 
 // to create  the request to  the seller  (seller's controller) (sequelized and tested)
 exports.createRequest = async (req, res) => {
@@ -55,12 +56,13 @@ exports.fetchRequests = async (req, res) => {
             id: sequelize.literal("`requests`.`createdBy` = `user`.`id`"),
           },
         },
+
         // where: {
         //   role: {
         //     [sequelize.literal("NOT")]: 1, // Exclude requests with role 1
         //   },
         // },
-        order: [["status"]],
+        order: [["status"], ["createdAt", "DESC"]],
       });
     } else {
       // If user role is not 1
@@ -76,19 +78,17 @@ exports.fetchRequests = async (req, res) => {
         include: {
           model: User,
           attributes: ["name"],
-          where: {
-            id: sequelize.literal("`requests`.`createdBy` = `user`.`id`"),
-          },
+          // where: {
+          //   id: sequelize.literal("`requests`.`receiver` = `user`.`id`"),
+          // },
         },
         where: {
           role: {
-            [sequelize.literal("NOT")]: 0, // Exclude requests with role 0
+            [Op.not]: 0,
           },
-          [sequelize.literal("(`createdBy` = ? OR `receiver` = ?)")]: [
-            req.user.userId,
-            req.user.userId,
-          ],
+          createdBy: req.user.id,
         },
+        order: [["updatedAt", "DESC"], ["status"]],
       });
     }
 
