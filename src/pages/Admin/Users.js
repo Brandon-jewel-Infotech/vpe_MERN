@@ -43,12 +43,12 @@ const Users = () => {
     setLoadingData(false);
   };
 
-  const suspendUserHandler = async (code, status) => {
+  const suspendUserHandler = async (id, status, role) => {
     try {
       const res = await toast.promise(
         axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/users/`,
-          { code, status },
+          `${process.env.REACT_APP_BACKEND_URL}/users`,
+          { id, status, role },
           {
             headers: {
               Authorization: tok,
@@ -75,7 +75,7 @@ const Users = () => {
       if (res?.status === 200) {
         setUsers((currUsers) => {
           return currUsers.map((user) => {
-            if (user.code === code) {
+            if (user.id === id) {
               user.status = status;
               return user;
             }
@@ -111,12 +111,6 @@ const Users = () => {
                     }
                     onClick={() => setSelectedRole(2)}
                   >
-                    {/* <MdOutlineUpcoming
-                    className={
-                      " text-warning " +
-                      (selectedRole === "idle" ? "text-white" : "")
-                    }
-                  /> */}
                     <span className="max-sm:hidden">Business</span>
                   </button>
                   <button
@@ -126,12 +120,6 @@ const Users = () => {
                     }
                     onClick={() => setSelectedRole(3)}
                   >
-                    {/* <MdOutlineUpcoming
-                    className={
-                      " text-warning " +
-                      (selectedRole === "upcoming" ? "text-white" : "")
-                    }
-                  /> */}
                     <span className="max-sm:hidden">Moderator</span>
                   </button>
                   <button
@@ -141,12 +129,6 @@ const Users = () => {
                     }
                     onClick={() => setSelectedRole(4)}
                   >
-                    {/* <GrCompliance
-                    className={
-                      " text-success " +
-                      (selectedRole === "elapsed" ? "text-white" : "")
-                    }
-                  /> */}
                     <span className="max-sm:hidden">Employees</span>
                   </button>
                   <button
@@ -156,12 +138,6 @@ const Users = () => {
                     }
                     onClick={() => setSelectedRole(1)}
                   >
-                    {/* <GrCompliance
-                    className={
-                      " text-success " +
-                      (selectedRole === "completed" ? "text-white" : "")
-                    }
-                  /> */}
                     <span className="max-sm:hidden">Admin</span>
                   </button>
                 </div>
@@ -182,10 +158,12 @@ const Users = () => {
                         <th>Name</th>
                         <th>Email</th>
                         <th>Contact</th>
-                        {/* <th>Role</th> */}
+                        {(selectedRole == 3 || selectedRole == 4) && (
+                          <th>Employer</th>
+                        )}
                         <th>Status</th>
-                        <th>GSTIN</th>
-                        <th>Actions</th>
+                        {selectedRole == 2 && <th>GSTIN</th>}
+                        {selectedRole != 1 && <th>Actions</th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -194,6 +172,9 @@ const Users = () => {
                           <td>{user?.name}</td>
                           <td>{user?.email}</td>
                           <td>{user?.contact}</td>
+                          {(selectedRole == 3 || selectedRole == 4) && (
+                            <td>{user?.user?.name}</td>
+                          )}
                           {/* <td>
                         {user?.role === 1
                           ? "Admin"
@@ -210,25 +191,34 @@ const Users = () => {
                               ? "Declined"
                               : "Accepted"}
                           </td>
-                          <td>{user?.gstin}</td>
-                          <td>
-                            <div className=" flex items-center justify-around gap-5">
-                              <button
-                                className="secondary-btn text-white"
-                                onClick={() =>
-                                  suspendUserHandler(user?.code, 2)
-                                }
-                              >
-                                Suspend
-                              </button>
-                              <Link
-                                to={`/connections/?code=${user?.code}`}
-                                className="primary-btn text-white"
-                              >
-                                Connections
-                              </Link>
-                            </div>
-                          </td>
+                          {selectedRole == 2 && <td>{user?.gstin}</td>}
+                          {user.role !== 1 && (
+                            <td>
+                              <div className=" flex items-center justify-around gap-5">
+                                <button
+                                  className="secondary-btn text-white"
+                                  onClick={() =>
+                                    suspendUserHandler(
+                                      user?.id,
+                                      user.status == 3 ? 2 : 3,
+                                      user?.role
+                                    )
+                                  }
+                                >
+                                  {user.status == 3 ? "Suspend" : "Un-Suspend"}
+                                </button>
+
+                                {(selectedRole == 1 || selectedRole == 2) && (
+                                  <Link
+                                    to={`/connections/?code=${user?.code}`}
+                                    className="primary-btn text-white"
+                                  >
+                                    Connections
+                                  </Link>
+                                )}
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>

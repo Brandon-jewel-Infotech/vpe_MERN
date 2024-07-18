@@ -25,7 +25,22 @@ const Sidebar = () => {
       { icon: RxDashboard, title: "Dashboard", url: "/" },
       { icon: TiDocumentText, title: "Requests", url: "/requests" },
       { icon: BiCategoryAlt, title: "Categories", url: "/categories" },
-      { icon: LuUsers, title: "Users", url: "/users" },
+      {
+        icon: LuUsers,
+        title: "Users",
+        links: [
+          {
+            icon: AiOutlineUserAdd,
+            title: "Add Moderator",
+            url: "/add-moderator",
+          },
+          {
+            icon: LuUsers,
+            title: "Users List",
+            url: "/users",
+          },
+        ],
+      },
       { icon: FaPeopleRoof, title: "Companies", url: "/companies" },
       { icon: PiPlugsConnected, title: "Connections", url: "/connections" },
       { icon: CiLogin, title: "Login", url: "/login" },

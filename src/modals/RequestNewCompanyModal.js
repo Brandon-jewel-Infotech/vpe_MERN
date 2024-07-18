@@ -65,7 +65,7 @@ const RequestNewCompanyModal = () => {
       );
       document.getElementById("company_modal").close();
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 

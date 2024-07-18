@@ -55,11 +55,6 @@ const Navbar = () => {
 
       if (res?.status === 200) {
         setNotifications((currNotifications) => {
-          console.log(
-            currNotifications.filter(
-              (notification) => notification.id !== notificationId
-            )
-          );
           return currNotifications.filter(
             (notification) => notification.id !== notificationId
           );

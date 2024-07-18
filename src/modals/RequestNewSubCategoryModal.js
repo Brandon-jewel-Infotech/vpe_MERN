@@ -48,7 +48,7 @@ export const RequestNewSubCategoryModal = ({ category }) => {
       );
       document.getElementById("sub_category_modal").close();
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 

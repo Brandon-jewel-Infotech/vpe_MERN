@@ -1,17 +1,16 @@
 import React, { useState } from "react";
-import PrimaryLayout from "../../../Layout/PrimaryLayout";
-import FormField from "../../../components/FormField";
+import PrimaryLayout from "../Layout/PrimaryLayout";
+import FormField from "../components/FormField";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { logout } from "../../../redux/slice";
-import validateEmail from "../../../utils/validateEmail";
+import { logout } from "../redux/slice";
+import validateEmail from "../utils/validateEmail";
 
-const AddEmployee = () => {
+const AddEmployee = ({ role }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const location = useLocation();
   const { tok } = useSelector((state) => state.user);
   const { id } = useParams();
 
@@ -45,22 +44,30 @@ const AddEmployee = () => {
           }
         ),
         {
-          pending: "Adding Employee...",
-          success: "Employee added Successfully!",
+          pending: `Adding ${role === "admin" ? "Moderator" : "Employee"}...`,
+          success: `${
+            role === "admin" ? "Moderator" : "Employee"
+          } added Successfully!`,
           error: {
             render({ data }) {
               if (data?.response?.status === 401) {
                 dispatch(logout());
                 return "Session Expired";
               } else {
-                return data?.response?.data?.error || "Failed to add Employee.";
+                return (
+                  data?.response?.data?.error ||
+                  `Failed to add ${
+                    role === "admin" ? "Moderator" : "Employee"
+                  }.`
+                );
               }
             },
           },
         }
       );
+
       if (res?.status === 201) {
-        navigate("/employee-list");
+        navigate(role === "admin" ? "/users" : "/employee-list");
       }
     } catch (e) {}
   };
@@ -74,8 +81,13 @@ const AddEmployee = () => {
   return (
     <PrimaryLayout>
       <div className="flex flex-col mb-6 text-start">
-        <h2 className="text-xl font-bold">Add Employee</h2>
-        <h4 className="text-md text-start">Employees &gt; Add Employee</h4>
+        <h2 className="text-xl font-bold">
+          Add {role === "admin" ? "Moderator" : "Employee"}
+        </h2>
+        <h4 className="text-md text-start">
+          {role === "admin" ? "Users" : "Employees"} &gt; Add{" "}
+          {role === "admin" ? "Moderator" : "Employee"}
+        </h4>
       </div>
       <div className="flex gap-10 max-lg:flex-col items-center bg-white">
         <div className="bg-base-100 card w-[98%] lg:w-[50%] rounded-md shadow-xl mx-auto">
@@ -113,7 +125,7 @@ const AddEmployee = () => {
               type={"password"}
             />
             <button className="primary-btn mt-5" onClick={submitHandler}>
-              Add Employee
+              Add {role === "admin" ? "Moderator" : "Employee"}
             </button>
           </div>
         </div>

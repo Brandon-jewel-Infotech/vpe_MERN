@@ -68,14 +68,13 @@ const Login = () => {
         });
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
         alert("Session expired");
         // navigate("/logout");
       });
   };
 
   const handleSubmit = (event) => {
-    console.log(loginData);
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     let email = data.get("email");
@@ -95,7 +94,6 @@ const Login = () => {
           password: data.get("password"),
         })
         .then((res) => {
-          console.log(res);
           if (res?.data?.token) {
             //role => 1: Admin , 2 : business , 3 : Mod , 4 : employee
             const user_role =
@@ -131,7 +129,7 @@ const Login = () => {
         })
         .catch((err) => {
           const status = err?.code;
-          console.log(err);
+          // console.log(err);
           if (status === "ERR_NETWORK") {
             setError("Something went wrong. Please try again later ");
           } else if (status === "ERR_BAD_REQUEST") {

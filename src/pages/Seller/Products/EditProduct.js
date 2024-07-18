@@ -108,7 +108,7 @@ const EditProduct = () => {
         toast.error("Session Expired");
         dispatch(logout());
       }
-      console.log(error);
+      // console.log(error);
     }
     setLoadingData(false);
   };
@@ -747,7 +747,7 @@ export const ImageUpdateModal = ({
       });
       // document.getElementById("image_update_modal").close();
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 

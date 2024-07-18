@@ -14,8 +14,6 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      console.log("state issued");
-
       state.auth = true;
       state.tok = action.payload.token;
       state.id = action.payload.id;

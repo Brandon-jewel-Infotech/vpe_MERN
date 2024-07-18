@@ -44,7 +44,7 @@ const Categories = () => {
         toast.error("Session Expired");
         dispatch(logout());
       }
-      console.log(error);
+      // console.log(error);
       // navigate("/logout");
     }
     setLoadingData(false);

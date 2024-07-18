@@ -60,7 +60,6 @@ export const cartSlice = createSlice({
           return item;
         }
       });
-      console.log(state.cart);
     },
 
     decreaseQuantityby10: (state, action) => {

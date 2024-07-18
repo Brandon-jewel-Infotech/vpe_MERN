@@ -55,7 +55,7 @@ import AddVariant from "./pages/Seller/Products/AddVariant";
 import EditProduct from "./pages/Seller/Products/EditProduct";
 import MarketPlace from "./pages/Seller/MarketPlace";
 import EmployeeList from "./pages/Seller/Employee/EmployeeList";
-import AddEmployee from "./pages/Seller/Employee/AddEmployee";
+import AddEmployee from "./pages/AddEmployee";
 
 import MyOrderRequests from "./pages/Seller/Requests/MyOrderRequests";
 import RedeemWallet from "./pages/RedeemWallet";
@@ -72,6 +72,7 @@ export const getRoutesByRole = (auth, role, code, navigate) => {
     { path: "/connections", component: <Connections /> },
     { path: "/categories", component: <Categories /> },
     { path: "/companies", component: <Companies /> },
+    { path: "/add-moderator", component: <AddEmployee role={role} /> },
     // { path: "/orders", component: <Orders  /> },
     //   { path: "/users/edit/:id", component: <EditUsers /> },
     // { path: "/users/add", component: <AddUsers /> },
@@ -97,7 +98,7 @@ export const getRoutesByRole = (auth, role, code, navigate) => {
     { path: "/seller/shop", component: <MarketPlace /> },
     { path: "/product/:id", component: <ProductDetails /> },
     { path: "/employee-list", component: <EmployeeList /> },
-    { path: "/add-employee", component: <AddEmployee /> },
+    { path: "/add-employee", component: <AddEmployee role={role} /> },
     { path: "/my-order-requests", component: <MyOrderRequests /> }, //my  order requests
     { path: "/order-requests", component: <OrderRequests /> }, //my orders
     { path: "/admin-requests", component: <AdminRequests /> }, //my orders
