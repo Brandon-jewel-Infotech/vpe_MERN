@@ -260,7 +260,16 @@ exports.getSellerVariants = async (req, res) => {
 //sequelized
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, price_b2c, price_b2b, availability, description } = req.body;
+    const {
+      name,
+      price_b2c,
+      price_b2b,
+      availability,
+      description,
+      subCategory,
+      company,
+      reward,
+    } = req.body;
     const { id } = req.params;
 
     const updatedProduct = await Product.update(
@@ -270,6 +279,9 @@ exports.updateProduct = async (req, res) => {
         price_b2b,
         availability,
         description,
+        subCategory_id: subCategory,
+        company_id: company,
+        reward_id: reward,
       },
       { where: { id } }
     );
@@ -628,5 +640,3 @@ exports.markOutOfStock = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error });
   }
 };
-
-
