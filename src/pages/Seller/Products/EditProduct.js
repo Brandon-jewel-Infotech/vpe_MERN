@@ -118,7 +118,7 @@ const EditProduct = () => {
       const res = await toast.promise(
         axios.put(
           `${process.env.REACT_APP_BACKEND_URL}/seller/products/update/${id}`,
-          productDetails,
+          { ...productDetails, subCategory, reward, company },
           {
             headers: {
               Authorization: tok,
