@@ -10,6 +10,7 @@ const AddressDetail = require("../models/addressDetailsModel");
 const BankDetail = require("../models/bankDetailsModel");
 const Request = require("../models/requestModel");
 const Employee = require("../models/employeesModel");
+const { Op } = require("sequelize");
 
 async function generateUniqueCode() {
   let code;
@@ -144,6 +145,32 @@ exports.createEmployee = async (req, res) => {
         .json({ error: "Please fill all required details" });
     }
 
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: {
+          email,
+          contact,
+        },
+      },
+      attributes: ["id"],
+    });
+
+    const existingEmployee = await Employee.findOne({
+      where: {
+        [Op.or]: {
+          email,
+          contact,
+        },
+      },
+      attributes: ["id"],
+    });
+
+    if (existingUser?.id || existingEmployee?.id) {
+      return res
+        .status(400)
+        .json({ error: "Email or Contact already registered" });
+    }
+
     const hashed = await encrypt(password);
     const role = req.user.role === 1 ? 3 : 4;
     await Employee.create({
@@ -157,7 +184,7 @@ exports.createEmployee = async (req, res) => {
     return res.status(201).json({ message: "Registration successful" });
   } catch (error) {
     console.error("Error:", error);
-    return res.status(400).json({ message: "User already exists", error });
+    return res.status(400).json({ error: "Failed to add User" });
   }
 };
 
@@ -367,13 +394,29 @@ exports.editConnections = async (req, res) => {
 exports.fetchUsers = async (req, res) => {
   try {
     const role = req?.body?.role ? req.body.role : 2;
-    const users = await User.findAll({
-      where: {
-        role,
-        status: 3,
-      },
-      order: [["name"]],
-    });
+    let users;
+
+    if (role === 1 || role === 2) {
+      users = await User.findAll({
+        where: {
+          role,
+          status: 3,
+        },
+        order: [["name"]],
+      });
+    } else {
+      users = await Employee.findAll({
+        where: {
+          role,
+        },
+        include: [
+          {
+            model: User,
+            attributes: ["id", "name"],
+          },
+        ],
+      });
+    }
 
     return res.status(200).json(users);
   } catch (error) {
@@ -402,10 +445,10 @@ exports.searchByCode = async (req, res) => {
 
 // to update the status of the seller by his id  (seller's controller) (sequelized and tested)
 exports.updateById = async (req, res) => {
-  const { code, deleted } = req?.body;
+  const { id, deleted, role } = req?.body;
   const status = req?.body?.status ? req.body.status : 2;
 
-  if (!req.body?.code) {
+  if (!req.body?.id) {
     return res.json({ message: "User not found" });
   }
 
@@ -413,24 +456,38 @@ exports.updateById = async (req, res) => {
     let result;
 
     if (deleted) {
-      result = await User.destroy({
-        where: {
-          status: [status],
-          code: code,
-        },
-      });
-    } else {
-      result = await User.update(
-        { status: status },
-        {
+      if (role === 2) {
+        result = await User.destroy({
           where: {
-            code: code,
+            status: [status],
+            id,
           },
-        }
-      );
+        });
+      } else {
+        result = await Employee.destroy({
+          where: {
+            status: [status],
+            id,
+          },
+        });
+      }
+    } else {
+      if (role === 2) {
+        result = await User.findByPk(id);
+      } else {
+        result = await Employee.findByPk(id);
+      }
+
+      if (!result.id) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      result.status = status;
+      await result.save();
+      console.log(result);
     }
 
-    res.json({ message: "Successful" });
+    res.status(200).json({ message: "Successful" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch User Details" });

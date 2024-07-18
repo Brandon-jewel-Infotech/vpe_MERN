@@ -32,13 +32,13 @@ const EmployeeModel = sequelize.define("employees", {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  password: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
   role: {
     type: Sequelize.INTEGER,
     allowNull: false,
+  },
+  status: {
+    type: Sequelize.DataTypes.ENUM(2, 3),
+    default: 3,
   },
 });
 
