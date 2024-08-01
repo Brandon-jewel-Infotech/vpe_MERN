@@ -92,9 +92,9 @@ const Companies = () => {
       {/*
       <AddSubCompany company={selectedCompany} /> */}
       <PrimaryLayout>
-        <div className="card bg-white max-w-full">
+        <div className="card bg-white max-w-full max-md:pb-28">
           <div className="card-body p-0 2xl:mx-auto">
-            <div className="flex justify-between items-center">
+            <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3 justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-start">Company List</h2>
                 <p className="text-sm">Companies {">"} Company List</p>
@@ -280,7 +280,7 @@ const AddCompany = ({ getCompanies }) => {
           <div className="flex justify-between items-center">
             <div className="modal-action my-0">
               <form method="dialog">
-                <button className="btn">Close</button>
+                <button className="secondary-btn">Close</button>
               </form>
             </div>
             <button className="primary-btn" onClick={submitHandler}>
@@ -399,7 +399,7 @@ const UpdateCompany = ({ company, setCompanies }) => {
           <div className="flex justify-between items-center">
             <div className="modal-action my-0">
               <form method="dialog">
-                <button className="btn">Close</button>
+                <button className="secondary-btn">Close</button>
               </form>
             </div>
             <button className="primary-btn" onClick={updateCompanyHandler}>

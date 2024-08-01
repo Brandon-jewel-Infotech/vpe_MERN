@@ -597,6 +597,7 @@ const Register = () => {
             <div>
               <FormField
                 title="GSTIN"
+                required={true}
                 inputHandler={(e) => {
                   setGstin(e.target.value);
                 }}

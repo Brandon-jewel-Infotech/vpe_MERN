@@ -19,7 +19,7 @@ const MyOrderRequests = () => {
   const getMyOrderRequests = async () => {
     try {
       setLoadingData(true);
-      const url = `${process.env.REACT_APP_BACKEND_URL}/seller/order_requests/myorders`;
+      const url = `${process.env.REACT_APP_BACKEND_URL}/order_requests/myorders`;
 
       const { data } = await axios.post(
         url,
@@ -58,7 +58,7 @@ const MyOrderRequests = () => {
           <p className="text-sm">Requests {">"} My Order Requests</p>
         </div>
         <div className="card bg-white flex-1 w-full">
-          <div className="card-body p-0 py-2">
+          <div className="card-body p-0 py-2 max-md:pb-28">
             {loadingData && (
               <div className="w-40 h-40 mx-auto">
                 <Loading />
@@ -71,8 +71,8 @@ const MyOrderRequests = () => {
                     <thead className="bg-neutral text-center text-white">
                       <tr>
                         <th>Order Id</th>
-                        <th>Customer Name</th>
-                        <th>Customer Type</th>
+                        <th>Seller Name</th>
+
                         <th>Date</th>
                         <th>Order Total</th>
                         <th>Actions</th>
@@ -95,7 +95,6 @@ const MyOrderRequests = () => {
                           <tr key={order.id}>
                             <td>{order.id}</td>
                             <td>{order?.createdBy?.name}</td>
-                            <td>{order?.createdBy?.role}</td>
                             <td>{order.formattedDate}</td>
                             <td>₹ {order?.orderTotal}</td>
                             <td>
@@ -142,7 +141,7 @@ export const OrderDetailModal = ({
     try {
       const res = await toast.promise(
         axios.patch(
-          `${process.env.REACT_APP_BACKEND_URL}/seller/order_requests/${id}`,
+          `${process.env.REACT_APP_BACKEND_URL}/order_requests/${id}`,
           { stage },
           {
             headers: {
@@ -280,7 +279,7 @@ export const OrderDetailModal = ({
           </div>
         </div>
 
-        <div className="flex items-end justify-between">
+        <div className="flex max-sm:flex-col max-sm:items-start max-sm:mt-auto max-sm:text-start items-end justify-between">
           <div>
             <h3 className="text-lg my-2 font-semibold">
               Order Total:{" "}

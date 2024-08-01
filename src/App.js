@@ -22,6 +22,7 @@ import { getRoutesByRole } from "./Routes";
 // import MyOrderRequests from "./pages/MyOrderRequests";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   const { auth, role, code } = useSelector((state) => state.user);
@@ -46,6 +47,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/logout" element={<Logout />} />
             <Route path="/register" element={<Register />} />
+            {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
           </>
         ) : (
           userRoutes.map((route, index) => (

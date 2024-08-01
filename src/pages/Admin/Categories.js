@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import Loading from "../../components/Loading";
 import FallbackText from "../../components/FallbackText";
 import { BiCategoryAlt } from "react-icons/bi";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 const Categories = () => {
   const dispatch = useDispatch();
@@ -149,9 +150,9 @@ const Categories = () => {
         setCategories={setCategories}
       />
       <PrimaryLayout>
-        <div className="card bg-white max-w-full">
+        <div className="card bg-white max-w-full max-md:mb-28">
           <div className="card-body p-0 2xl:mx-auto">
-            <div className="flex justify-between items-center">
+            <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3 justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-start">Category List</h2>
                 <p className="text-sm">Categories {">"} Category List</p>
@@ -190,7 +191,7 @@ const Categories = () => {
                         <tr key={category?.id}>
                           <td>
                             {editModeId === category.id ? (
-                              <div className="flex justify-between items-center">
+                              <div className="flex justify-between items-center ">
                                 <FormField
                                   value={updatedName}
                                   inputHandler={(e) => {
@@ -200,21 +201,21 @@ const Categories = () => {
                                 />
                                 <div className="flex items-center">
                                   <button
-                                    className="btn btn-ghost text-success"
+                                    className="btn btn-sm btn-ghost text-success"
                                     onClick={() =>
                                       updateCategoryNameHandler(category.id)
                                     }
                                   >
-                                    <FaCheck size={25} />
+                                    <FaCheck size={20} />
                                   </button>
                                   <button
-                                    className="btn btn-ghost text-error"
+                                    className="btn btn-sm btn-ghost text-error"
                                     onClick={() => {
                                       setUpdatedName("");
                                       setEditModeId("");
                                     }}
                                   >
-                                    <MdOutlineCancel size={25} />
+                                    <MdOutlineCancel size={20} />
                                   </button>
                                 </div>
                               </div>
@@ -238,7 +239,7 @@ const Categories = () => {
                             <div className="flex gap-3 flex-wrap">
                               {category?.subcategories?.map((subCat) => (
                                 <div
-                                  className="badge badge-outline badge-primary cursor-pointer hover:bg-error hover:text-white"
+                                  className="badge badge-outline badge-primary cursor-pointer hover:bg-error hover:text-white relative overflow-hidden h-auto"
                                   key={subCat?.id}
                                   onClick={() => {
                                     setSelectedSubCategory(subCat);
@@ -250,13 +251,16 @@ const Categories = () => {
                                       .showModal();
                                   }}
                                 >
+                                  <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-transparent hover:text-white hover:bg-error transition-colors duration-500">
+                                    <RiDeleteBinLine />
+                                  </div>
                                   {subCat?.name}
                                 </div>
                               ))}
                             </div>
                           </td>
                           <td>
-                            <div className=" flex items-center justify-around gap-5">
+                            <div className=" flex max-sm:flex-col items-center justify-around gap-5">
                               <button
                                 className="secondary-btn text-white"
                                 onClick={() =>
@@ -266,7 +270,7 @@ const Categories = () => {
                                 Delete
                               </button>
                               <button
-                                className="primary-btn text-white"
+                                className="primary-btn text-white min-w-40"
                                 onClick={() => {
                                   setSelectedCategory(category);
                                   document

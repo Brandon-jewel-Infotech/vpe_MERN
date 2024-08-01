@@ -57,10 +57,13 @@ import MarketPlace from "./pages/Seller/MarketPlace";
 import EmployeeList from "./pages/Seller/Employee/EmployeeList";
 import AddEmployee from "./pages/AddEmployee";
 
+import SellerDashboard from "./pages/Seller/Dashboard";
 import MyOrderRequests from "./pages/Seller/Requests/MyOrderRequests";
 import RedeemWallet from "./pages/RedeemWallet";
 import AdminRequests from "./pages/Seller/Requests/AdminRequests";
 import Rewards from "./pages/Seller/Rewards/Rewards";
+import Announcements from "./pages/Seller/Announcements";
+import ForgotPassword from "./pages/ForgotPassword";
 
 export const getRoutesByRole = (auth, role, code, navigate) => {
   // Admin Routes
@@ -89,13 +92,13 @@ export const getRoutesByRole = (auth, role, code, navigate) => {
 
   // Business Routes
   const businessRoutes = [
-    { path: "/", component: <Dashboard /> },
+    { path: "/", component: <SellerDashboard /> },
     { path: "/add-product", component: <AddProduct /> },
     { path: "/products", component: <ProductList /> },
     { path: "/products/edit/:id", component: <EditProduct /> },
     { path: "/products/variant/:id", component: <AddVariant /> },
     { path: "/products/cart", component: <Cart /> },
-    { path: "/seller/shop", component: <MarketPlace /> },
+    { path: "/marketplace", component: <MarketPlace /> },
     { path: "/product/:id", component: <ProductDetails /> },
     { path: "/employee-list", component: <EmployeeList /> },
     { path: "/add-employee", component: <AddEmployee role={role} /> },
@@ -105,6 +108,7 @@ export const getRoutesByRole = (auth, role, code, navigate) => {
     { path: "/redeem-wallet", component: <RedeemWallet /> },
     { path: "/reward-list", component: <Rewards /> },
     { path: "/cart", component: <Cart /> },
+    { path: "/announcements", component: <Announcements /> },
   ];
 
   // console.log(`Auth : ${auth} ; Role : ${role}`);

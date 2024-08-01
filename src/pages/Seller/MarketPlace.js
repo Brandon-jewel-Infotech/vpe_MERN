@@ -5,17 +5,22 @@ import axios from "axios";
 import FallbackText from "../../components/FallbackText";
 import Loading from "../../components/Loading";
 import { IoBagHandleOutline } from "react-icons/io5";
+import { useSelector } from "react-redux";
 
 const MarketPlace = () => {
+  const { tok } = useSelector((state) => state.user);
   const [products, setProducts] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
 
   const getProducts = async () => {
     setLoadingData(true);
     try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/seller/get-all-products`
+      const { data } = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/seller/all`,
+        {},
+        { headers: { Authorization: tok } }
       );
+
       setProducts(data);
     } catch (error) {
       // console.log(error);
@@ -159,7 +164,7 @@ const MarketPlace = () => {
           )}
           {!loadingData &&
             (products?.length ? (
-              <div className="flex flex-wrap gap-6 mt-4 justify-center lg:justify-start">
+              <div className="flex flex-wrap gap-6 mt-4 justify-center lg:justify-start max-md:pb-28">
                 {products?.map((product, ind) => (
                   <MarketPlaceItem key={product.id} product={product} />
                 ))}

@@ -19,6 +19,7 @@ const Users = () => {
 
   //  Get all products from the database.
   const getData = async () => {
+    setUsers([]);
     setLoadingData(true);
     try {
       // setloading(true);
@@ -95,53 +96,53 @@ const Users = () => {
       {/* <AddUser />
       <AddSubUser user={selectedUser} /> */}
       <PrimaryLayout>
-        <div className="card bg-white max-w-full">
+        <div className="card bg-white max-w-full max-md:pb-28">
           <div className="card-body p-0 2xl:mx-auto">
-            <div className="flex justify-between items-center">
+            <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3 justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-start">User List</h2>
                 <p className="text-sm">Users {">"} User List</p>
               </div>
-              <div className="flex justify-between flex-wrap items-center">
-                <div className=" flex items-center gap-4 flex-wrap justify-between max-sm:w-full ms-auto my-5">
-                  <button
-                    className={
-                      "font-semibold border border-neutral hover:bg-neutral hover:text-white flex items-center py-1 px-4 rounded-md gap-2 " +
-                      (selectedRole === 2 ? "bg-neutral text-white" : "")
-                    }
-                    onClick={() => setSelectedRole(2)}
-                  >
-                    <span className="max-sm:hidden">Business</span>
-                  </button>
-                  <button
-                    className={
-                      "font-semibold border border-neutral hover:bg-neutral hover:text-white flex items-center py-1 px-4 rounded-md gap-2 " +
-                      (selectedRole === 3 ? "bg-neutral text-white" : "")
-                    }
-                    onClick={() => setSelectedRole(3)}
-                  >
-                    <span className="max-sm:hidden">Moderator</span>
-                  </button>
-                  <button
-                    className={
-                      "font-semibold border border-neutral hover:bg-neutral hover:text-white flex items-center py-1 px-4 rounded-md gap-2 " +
-                      (selectedRole === 4 ? "bg-neutral text-white" : "")
-                    }
-                    onClick={() => setSelectedRole(4)}
-                  >
-                    <span className="max-sm:hidden">Employees</span>
-                  </button>
-                  <button
-                    className={
-                      "font-semibold border border-neutral hover:bg-neutral hover:text-white flex items-center py-1 px-4 rounded-md gap-2 " +
-                      (selectedRole === 1 ? "bg-neutral text-white" : "")
-                    }
-                    onClick={() => setSelectedRole(1)}
-                  >
-                    <span className="max-sm:hidden">Admin</span>
-                  </button>
-                </div>
+              {/* <div className="flex justify-between flex-wrap items-center"> */}
+              <div className=" flex items-center gap-4 flex-wrap sm:justify-between max-sm:w-full ms-auto my-5">
+                <button
+                  className={
+                    "font-semibold border border-neutral hover:bg-neutral hover:text-white flex items-center py-1 px-4 rounded-md gap-2 " +
+                    (selectedRole === 2 ? "bg-neutral text-white" : "")
+                  }
+                  onClick={() => setSelectedRole(2)}
+                >
+                  <span>Business</span>
+                </button>
+                <button
+                  className={
+                    "font-semibold border border-neutral hover:bg-neutral hover:text-white flex items-center py-1 px-4 rounded-md gap-2 " +
+                    (selectedRole === 3 ? "bg-neutral text-white" : "")
+                  }
+                  onClick={() => setSelectedRole(3)}
+                >
+                  <span>Moderator</span>
+                </button>
+                <button
+                  className={
+                    "font-semibold border border-neutral hover:bg-neutral hover:text-white flex items-center py-1 px-4 rounded-md gap-2 " +
+                    (selectedRole === 4 ? "bg-neutral text-white" : "")
+                  }
+                  onClick={() => setSelectedRole(4)}
+                >
+                  <span>Employees</span>
+                </button>
+                <button
+                  className={
+                    "font-semibold border border-neutral hover:bg-neutral hover:text-white flex items-center py-1 px-4 rounded-md gap-2 " +
+                    (selectedRole === 1 ? "bg-neutral text-white" : "")
+                  }
+                  onClick={() => setSelectedRole(1)}
+                >
+                  <span>Admin</span>
+                </button>
               </div>
+              {/* </div> */}
             </div>
             {/* table starts here */}
             {loadingData && (
@@ -158,9 +159,7 @@ const Users = () => {
                         <th>Name</th>
                         <th>Email</th>
                         <th>Contact</th>
-                        {(selectedRole == 3 || selectedRole == 4) && (
-                          <th>Employer</th>
-                        )}
+                        {selectedRole == 4 && <th>Employer</th>}
                         <th>Status</th>
                         {selectedRole == 2 && <th>GSTIN</th>}
                         {selectedRole != 1 && <th>Actions</th>}
@@ -172,8 +171,8 @@ const Users = () => {
                           <td>{user?.name}</td>
                           <td>{user?.email}</td>
                           <td>{user?.contact}</td>
-                          {(selectedRole == 3 || selectedRole == 4) && (
-                            <td>{user?.user?.name}</td>
+                          {selectedRole == 4 && (
+                            <td>{user?.employer?.employer?.name}</td>
                           )}
                           {/* <td>
                         {user?.role === 1
@@ -192,7 +191,7 @@ const Users = () => {
                               : "Accepted"}
                           </td>
                           {selectedRole == 2 && <td>{user?.gstin}</td>}
-                          {user.role !== 1 && (
+                          {user.role != 1 && (
                             <td>
                               <div className=" flex items-center justify-around gap-5">
                                 <button

@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { logout } from "../../../redux/slice";
-import validateEmail from "../../../utils/validateEmail";
 import FileUploader from "../../../components/FileUploader";
 import RequestNewCompanyModal from "../../../modals/RequestNewCompanyModal";
 import RequestNewSubCategoryModal from "../../../modals/RequestNewSubCategoryModal";
@@ -21,7 +20,8 @@ const AddProduct = () => {
 
   const [category, setCategory] = useState({});
   const [subCategory, setSubCategory] = useState(null);
-  const [reward, setReward] = useState(null);
+  const [sellerReward, setSellerReward] = useState(null);
+  const [employeeReward, setEmployeeReward] = useState(null);
   const [company, setCompany] = useState(null);
   const [productDetails, setProductDetails] = useState({
     name: "",
@@ -106,7 +106,8 @@ const AddProduct = () => {
       }
       formData.append("subCategory", subCategory);
       formData.append("company", company);
-      formData.append("reward", reward);
+      formData.append("sellerReward", sellerReward);
+      formData.append("employeeReward", employeeReward);
 
       const res = await toast.promise(
         axios.post(
@@ -156,7 +157,7 @@ const AddProduct = () => {
         <h2 className="text-xl font-bold ">Add Product Details</h2>
         <h4 className="text-md ">Products &gt; Product Details</h4>
       </div>
-      <div className="flex gap-10 max-lg:flex-col bg-white">
+      <div className="flex gap-10 max-lg:flex-col bg-white max-md:pb-28">
         <div className="w-[98%] lg:w-[50%] h-full">
           <div className="bg-base-100 card card-body  shadow-xl rounded-md">
             <FormField
@@ -206,7 +207,7 @@ const AddProduct = () => {
         </div>
         <div className="bg-base-100 card w-[98%] lg:w-[50%] rounded-md shadow-xl">
           <div className="card-body">
-            <div className="flex gap-4">
+            <div className="flex max-sm:flex-col sm:gap-4">
               <div className="w-full flex flex-col justify-start">
                 <label className="form-control w-full ">
                   <div className="label">
@@ -236,26 +237,6 @@ const AddProduct = () => {
                   Request a new sub-category?
                 </button> */}
               </div>
-            </div>
-            <div className="flex gap-4">
-              <FormField
-                title="Price for Business"
-                required={true}
-                type={"number"}
-                value={productDetails?.price_b2b}
-                name={"price_b2b"}
-                inputHandler={inputHandler}
-              />
-              <FormField
-                title="Price for Customer"
-                required={true}
-                type={"number"}
-                value={productDetails?.price_b2c}
-                name={"price_b2c"}
-                inputHandler={inputHandler}
-              />
-            </div>
-            <div className="flex gap-4">
               <div className="w-full flex flex-col justify-start">
                 <label className="form-control w-full ">
                   <div className="label">
@@ -281,15 +262,37 @@ const AddProduct = () => {
                 </label>
                 <RequestNewCompanyModal />
               </div>
+            </div>
+            <div className="flex max-sm:flex-col sm:gap-4">
+              <FormField
+                title="Price for Business"
+                required={true}
+                type={"number"}
+                value={productDetails?.price_b2b}
+                name={"price_b2b"}
+                inputHandler={inputHandler}
+              />
+              <FormField
+                title="Price for Customer"
+                required={true}
+                type={"number"}
+                value={productDetails?.price_b2c}
+                name={"price_b2c"}
+                inputHandler={inputHandler}
+              />
+            </div>
+            <div className="flex max-sm:flex-col sm:gap-4">
               <div className="w-full flex flex-col justify-start">
                 <label className="form-control w-full ">
                   <div className="label">
-                    <span className="label-text font-semibold">Rewards</span>
+                    <span className="label-text font-semibold">
+                      Seller Rewards
+                    </span>
                   </div>
                   <select
                     className="select select-bordered bg-white"
                     onChange={(e) => {
-                      setReward(e.target.value);
+                      setSellerReward(e.target.value);
                     }}
                   >
                     <option disabled selected>
@@ -308,6 +311,30 @@ const AddProduct = () => {
                 >
                   Create a new reward schema?
                 </Link>
+              </div>
+              <div className="w-full flex flex-col justify-start">
+                <label className="form-control w-full ">
+                  <div className="label">
+                    <span className="label-text font-semibold">
+                      Employee Rewards
+                    </span>
+                  </div>
+                  <select
+                    className="select select-bordered bg-white"
+                    onChange={(e) => {
+                      setEmployeeReward(e.target.value);
+                    }}
+                  >
+                    <option disabled selected>
+                      Pick one
+                    </option>
+                    {rewards?.map((reward, index) => (
+                      <option key={index} value={reward.id}>
+                        {reward.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
             </div>
 

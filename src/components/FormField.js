@@ -12,7 +12,7 @@ const FormField = ({
   className,
 }) => {
   return (
-    <label className="form-control w-full ">
+    <label className="form-control w-full min-w-20">
       <div className="label">
         <span className="label-text font-semibold">
           {title} {required && <span style={{ color: "red" }}>*</span>}

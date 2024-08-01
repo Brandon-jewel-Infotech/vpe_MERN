@@ -89,7 +89,7 @@ const AddEmployee = ({ role }) => {
           {role === "admin" ? "Moderator" : "Employee"}
         </h4>
       </div>
-      <div className="flex gap-10 max-lg:flex-col items-center bg-white">
+      <div className="flex gap-10 max-lg:flex-col items-center bg-white max-md:pb-28">
         <div className="bg-base-100 card w-[98%] lg:w-[50%] rounded-md shadow-xl mx-auto">
           <div className="bg-base-100 card card-body rounded-md shadow-xl">
             <FormField
@@ -99,7 +99,7 @@ const AddEmployee = ({ role }) => {
               value={employeeDetails?.name}
               inputHandler={inputHandler}
             />
-            <div className="flex gap-4">
+            <div className="flex max-sm:flex-col sm:gap-4">
               <FormField
                 title="Contact"
                 required={true}

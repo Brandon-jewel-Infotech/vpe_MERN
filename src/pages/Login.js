@@ -4,9 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { login } from "../redux/slice";
-import { addToCart } from "../redux/cartSlice";
+// import { addToCart } from "../redux/cartSlice";
 import FormField from "../components/FormField";
 import validateEmail from "../utils/validateEmail";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -22,7 +23,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
   const { tok } = useSelector((state) => state.user);
-  const { cart } = useSelector((state) => state.cart);
+  // const { cart } = useSelector((state) => state.cart);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("Something went wrong!");
 
@@ -32,111 +33,100 @@ const Login = () => {
     if (auth) navigate("/");
   }, []);
 
-  const getCart = (token) => {
-    axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/seller/cart`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      })
-      .then((res) => {
-        let qty = [];
-        let variant = [];
+  // const getCart = (token) => {
+  //   axios
+  //     .get(`${process.env.REACT_APP_BACKEND_URL}/cart`, {
+  //       headers: {
+  //         Authorization: `${token}`,
+  //       },
+  //     })
+  //     .then((res) => {
+  //       let qty = [];
+  //       let variant = [];
 
-        // handleClick(res.data.message);
-        // console.log(res?.data)
-        // console.log(res?.data.result[0].description)
-        // console.log(res?.data.result[0].image.split(',')[0])
-        // console.log("Hello2")
-        // console.log(res.data.total,res.data.variant_id,res.data.qty)
-        res.data?.result?.map((i, index) => {
-          dispatch(
-            addToCart({
-              createdBy: id,
-              price: i.price_b2b,
-              description: i.description,
-              images: i.image.split(",")[0],
-              name: i.name,
-              id: i.id,
-              quantity: parseInt(res.data.qty[index]),
-              variant_id: res.data.variant_id[index]
-                ? res.data.variant_id[index]
-                : 0,
-              total: res.data.total,
-            })
-          );
-        });
-      })
-      .catch((err) => {
-        // console.log(err);
-        alert("Session expired");
-        // navigate("/logout");
-      });
-  };
+  //       // handleClick(res.data.message);
+  //       // console.log(res?.data)
+  //       // console.log(res?.data.result[0].description)
+  //       // console.log(res?.data.result[0].image.split(',')[0])
+  //       // console.log("Hello2")
+  //       // console.log(res.data.total,res.data.variant_id,res.data.qty)
+  //       res.data?.result?.map((i, index) => {
+  //         dispatch(
+  //           addToCart({
+  //             createdBy: id,
+  //             price: i.price_b2b,
+  //             description: i.description,
+  //             images: i.image.split(",")[0],
+  //             name: i.name,
+  //             id: i.id,
+  //             quantity: parseInt(res.data.qty[index]),
+  //             variant_id: res.data.variant_id[index]
+  //               ? res.data.variant_id[index]
+  //               : 0,
+  //             total: res.data.total,
+  //           })
+  //         );
+  //       });
+  //     })
+  //     .catch((err) => {
+  //       // console.log(err);
+  //       alert("Session expired");
+  //       // navigate("/logout");
+  //     });
+  // };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     let email = data.get("email");
     let password = data.get("password");
 
-    if (!validateEmail(email)) {
-      setShowAlert(true);
-      setAlertMessage("Please enter a valid email");
-      return;
-    }
-    // console.log(email, password);
+    toast.dismiss();
 
-    if (email.length >= 8 && password.length >= 8) {
-      axios
-        .post(`${process.env.REACT_APP_BACKEND_URL}/login`, {
+    if (!validateEmail(email)) {
+      return toast.error("Please enter a valid email");
+    }
+
+    if (password?.length < 8) {
+      return toast.error("Password must be at least 8 characters");
+    }
+
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/login`,
+        {
           email: data.get("email").toLowerCase(),
           password: data.get("password"),
-        })
-        .then((res) => {
-          if (res?.data?.token) {
-            //role => 1: Admin , 2 : business , 3 : Mod , 4 : employee
-            const user_role =
-              res.data.role === 1
-                ? "admin"
-                : res.data.role === 2
-                ? "business"
-                : res.data.role === 3
-                ? "mod"
-                : "employee";
-            // console.log('logged in')
-            dispatch(
-              login({
-                token: res.data.token,
-                code: res.data.code,
-                id: res.data.userId,
-                role: user_role,
-                email: data.get("email").toLowerCase(),
-              })
-            );
+        }
+      );
 
-            // socket.emit('login', res.data.userId)
-            // socket.on("newUserResponse",console.log(data));
-            user_role === "admin"
-              ? navigate("/")
-              : user_role === "business"
-              ? navigate("/")
-              : navigate("/login");
-            // getCart();
-          } else {
-            setError(res?.data?.message || "Something went wrong");
-          }
-        })
-        .catch((err) => {
-          const status = err?.code;
-          // console.log(err);
-          if (status === "ERR_NETWORK") {
-            setError("Something went wrong. Please try again later ");
-          } else if (status === "ERR_BAD_REQUEST") {
-            setError("Invalid Credentials");
-          } else setError("Something went wrong. Please try again later ");
-        });
-    } else setError(`Please fill all the fields  `);
+      if (res?.data?.token) {
+        //role => 1: Admin , 2 : business , 3 : Mod , 4 : employee
+        const user_role =
+          res.data.role === 1 ? "admin" : res.data.role === 2 ? "business" : "";
+
+        if (user_role === "") {
+          toast.dismiss();
+          return toast.error("Admin and Seller login allowed only");
+        }
+        // console.log('logged in')
+        dispatch(
+          login({
+            token: res.data.token,
+            code: res.data.code,
+            id: res.data.userId,
+            role: user_role,
+            email: data.get("email").toLowerCase(),
+          })
+        );
+
+        navigate("/");
+      } else {
+        setError(res?.data?.message || "Something went wrong");
+      }
+    } catch (err) {
+      return toast.error(err?.response?.data?.error || "Failed to Login");
+    }
   };
 
   return (
@@ -220,12 +210,12 @@ const Login = () => {
           </form>
 
           <div className="flex flex-col gap-3">
-            <Link
-              to={"/"}
+            {/* <Link
+              to={"/forgot-password"}
               className="text-neutral hover:text-neutral/70 font-semibold"
             >
               Forgot your password
-            </Link>
+            </Link> */}
             <Link
               to={"/register"}
               className="text-neutral hover:text-neutral/70 font-semibold"
@@ -240,39 +230,3 @@ const Login = () => {
 };
 
 export default Login;
-
-// <div className="flex justify-center items-center h-screen md:px-20 sm:px-10 sm:py-5 md:py-10 bg-neutral100">
-//   <div className="shadow-md overflow-hidden h-[100%] min-h-0 max-md:hidden">
-//     <img src="./assets/images/Login_Signup.png" className="w-full" />
-//   </div>
-//   <div className="w-1/2 max-md:w-full sm:px-10 lg:px-16 px-8 bg-white shadow-md h-[100%] flex flex-col justify-center gap-8">
-//     <form className="flex flex-col gap-6 pb-8 border-b-2 border-neutral300">
-//       <h1 className="text-3xl text-primary300 font-semibold">Login</h1>
-//       <div>
-//         <FormField title="Email" loginHandler={loginHandler} />
-//         <FormField
-//           title="Password"
-//           type="password"
-//           loginHandler={loginHandler}
-//         />
-//       </div>
-//       <button className="rounded-md py-3 px-6 bg-primary300 hover:bg-primary200 text-white shadow-md">
-//         Login
-//       </button>
-//     </form>
-//     <div className="flex flex-col gap-3">
-//       <Link
-//         to={"/"}
-//         className="text-primary300 hover:text-primary200 font-semibold"
-//       >
-//         Forgot your password
-//       </Link>
-//       <Link
-//         to={"/register"}
-//         className="text-primary300 hover:text-primary200 font-semibold"
-//       >
-//         Register New User
-//       </Link>
-//     </div>
-//   </div>
-// </div>

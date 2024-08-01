@@ -42,7 +42,8 @@ const EditProduct = () => {
 
   const [category, setCategory] = useState(null);
   const [subCategory, setSubCategory] = useState(null);
-  const [reward, setReward] = useState(null);
+  const [sellerReward, setSellerReward] = useState(null);
+  const [employeeReward, setEmployeeReward] = useState(null);
   const [company, setCompany] = useState(null);
 
   const getCategories = async () => {
@@ -97,9 +98,11 @@ const EditProduct = () => {
         }
       );
 
+      // console.log(productData?.seller_reward?.id);
       setProductDetails(productData);
       setSubCategory(productData.subcategory.id);
-      setReward(productData.reward.id);
+      setEmployeeReward(productData?.employee_reward_id);
+      setSellerReward(productData.seller_reward.id);
       setCompany(productData.company.id);
       setProductVariants(variants);
     } catch (error) {
@@ -118,7 +121,13 @@ const EditProduct = () => {
       const res = await toast.promise(
         axios.put(
           `${process.env.REACT_APP_BACKEND_URL}/seller/products/update/${id}`,
-          { ...productDetails, subCategory, reward, company },
+          {
+            ...productDetails,
+            subCategory,
+            sellerReward,
+            employeeReward,
+            company,
+          },
           {
             headers: {
               Authorization: tok,
@@ -259,7 +268,7 @@ const EditProduct = () => {
           <p className="text-md">Products &gt; Update Product Details</p>
         </div>
 
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8 max-md:pb-28">
           <div className="flex gap-10 max-lg:flex-col bg-white">
             <div className="w-[98%] lg:w-[50%] h-full">
               <div className="bg-base-100 card card-body  shadow-md rounded-md">
@@ -344,7 +353,7 @@ const EditProduct = () => {
             </div>
             <div className="bg-base-100 card w-[98%] lg:w-[50%] rounded-md shadow-md">
               <div className="card-body">
-                <div className="flex gap-4">
+                <div className="flex max-sm:flex-col sm:gap-4">
                   <div className="w-full flex flex-col justify-start">
                     <label className="form-control w-full ">
                       <div className="label">
@@ -372,26 +381,6 @@ const EditProduct = () => {
                       <RequestNewSubCategoryModal category={category} />
                     </label>
                   </div>
-                </div>
-                <div className="flex gap-4">
-                  <FormField
-                    title="Price for Business"
-                    required={true}
-                    type={"number"}
-                    value={productDetails?.price_b2b}
-                    name={"price_b2b"}
-                    inputHandler={inputHandler}
-                  />
-                  <FormField
-                    title="Price for Customer"
-                    required={true}
-                    type={"number"}
-                    value={productDetails?.price_b2c}
-                    name={"price_b2c"}
-                    inputHandler={inputHandler}
-                  />
-                </div>
-                <div className="flex gap-4">
                   <div className="w-full flex flex-col justify-start">
                     <label className="form-control w-full ">
                       <div className="label">
@@ -418,19 +407,72 @@ const EditProduct = () => {
                     </label>
                     <RequestNewCompanyModal />
                   </div>
+                </div>
+                <div className="flex max-sm:flex-col sm:gap-4">
+                  <FormField
+                    title="Price for Business"
+                    required={true}
+                    type={"number"}
+                    value={productDetails?.price_b2b}
+                    name={"price_b2b"}
+                    inputHandler={inputHandler}
+                  />
+                  <FormField
+                    title="Price for Customer"
+                    required={true}
+                    type={"number"}
+                    value={productDetails?.price_b2c}
+                    name={"price_b2c"}
+                    inputHandler={inputHandler}
+                  />
+                </div>
+                <div className="flex max-sm:flex-col sm:gap-4">
                   <div className="w-full flex flex-col justify-start">
                     <label className="form-control w-full ">
                       <div className="label">
                         <span className="label-text font-semibold">
-                          Rewards
+                          Seller Rewards
                         </span>
                       </div>
                       <select
                         className="select select-bordered bg-white"
                         onChange={(e) => {
-                          setReward(e.target.value);
+                          setSellerReward(e.target.value);
                         }}
-                        value={reward}
+                        value={sellerReward}
+                      >
+                        <option disabled selected>
+                          Pick one
+                        </option>
+                        {rewards?.map((reward, index) => (
+                          <option key={index} value={reward.id}>
+                            {reward.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    {/* <RequestNewRewardsSchema /> */}
+                    <Link
+                      to={"/reward-list"}
+                      className="text-start ml-2 mt-1 text-neutral hover:text-[#bc8ffc] w-fit"
+                    >
+                      Create a new reward schema?
+                    </Link>
+                  </div>
+                  <div className="w-full flex flex-col justify-start">
+                    <label className="form-control w-full ">
+                      <div className="label">
+                        <span className="label-text font-semibold">
+                          Employee Reward
+                        </span>
+                      </div>
+                      <select
+                        className="select select-bordered bg-white"
+                        onChange={(e) => {
+                          setEmployeeReward(e.target.value);
+                        }}
+                        value={employeeReward}
                       >
                         <option disabled selected>
                           Pick one
@@ -443,12 +485,12 @@ const EditProduct = () => {
                       </select>
                     </label>
                     {/* <RequestNewRewardsSchema /> */}
-                    <Link
+                    {/* <Link
                       to={"/reward-list"}
                       className="text-start ml-2 mt-1 text-neutral hover:text-[#bc8ffc] w-fit"
                     >
                       Create a new reward schema?
-                    </Link>
+                    </Link> */}
                   </div>
                 </div>
 
@@ -463,7 +505,7 @@ const EditProduct = () => {
           </div>
           <div className="w-[98%] lg:w-full h-full">
             <div className="bg-base-100 card card-body shadow-md rounded-md">
-              <div className="flex justify-between items-center">
+              <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3 justify-between items-center">
                 <div>
                   <h2 className="text-lg font-bold text-start">
                     Variants List

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PrimaryLayout from "../../../Layout/PrimaryLayout";
 import FallbackText from "../../../components/FallbackText";
-import { RiMedalLine } from "react-icons/ri";
+import { RiDeleteBinLine, RiMedalLine } from "react-icons/ri";
 import { GoPlus } from "react-icons/go";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../../components/Loading";
@@ -78,9 +78,9 @@ const Rewards = () => {
         selectedReward={selectedReward}
         setRewards={setRewards}
       />
-      <div className="card bg-white max-w-full">
+      <div className="card bg-white max-w-full max-md:pb-28">
         <div className="card-body p-0 2xl:mx-auto">
-          <div className="flex justify-between items-center">
+          <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3  justify-between items-center">
             <div>
               <h2 className="text-xl font-bold text-start">Reward List</h2>
               <p className="text-md">Rewards &gt; Reward List</p>
@@ -325,7 +325,7 @@ const UpdateRewardModal = ({ selectedReward, setRewards }) => {
     <dialog id="update_reward_modal" className="modal">
       <div className="modal-box">
         <h2 className="font-semibold text-xl my-2">Update Reward Scheme</h2>
-        <div className="flex gap-5 max-sm:flex-wrap">
+        <div className="flex sm:gap-5 max-sm:flex-wrap">
           <FormField
             name={"name"}
             placeholder={"Name"}
@@ -353,10 +353,13 @@ const UpdateRewardModal = ({ selectedReward, setRewards }) => {
               <option value={2}>Fixed Percentage</option>
               <option value={3}>Variable Rewards</option>
             </select>
+            <div className="label">
+              <span className="label-text font-semibold"></span>
+            </div>
           </label>
         </div>
         {(rewardStatus == 1 || rewardStatus == 2) && (
-          <div className="flex gap-5 max-sm:flex-wrap">
+          <div className="flex max-sm:gap-5 max-sm:flex-wrap max-sm:text-start">
             <FormField
               name={"coins"}
               placeholder={"Coins"}
@@ -376,7 +379,7 @@ const UpdateRewardModal = ({ selectedReward, setRewards }) => {
         {rewardStatus == 3 && (
           <>
             <form
-              className="flex gap-5 max-sm:flex-wrap"
+              className="flex sm:gap-5 max-sm:flex-wrap"
               onSubmit={(e) => {
                 e.preventDefault();
 
@@ -449,7 +452,7 @@ const UpdateRewardModal = ({ selectedReward, setRewards }) => {
                 <div className="flex gap-3 flex-wrap mb-5">
                   {variableScheme?.map((scheme, i) => (
                     <div
-                      className="badge badge-neutral hover:badge-error hover:text-white cursor-pointer"
+                      className="badge badge-neutral hover:badge-error hover:text-white cursor-pointer relative overflow-hidden"
                       onClick={() => {
                         setVariableScheme((currScheme) => {
                           return currScheme.filter((scheme, ind) => ind != i);
@@ -457,6 +460,9 @@ const UpdateRewardModal = ({ selectedReward, setRewards }) => {
                       }}
                       key={scheme.condition}
                     >
+                      <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-transparent hover:text-white hover:bg-error transition-colors duration-500">
+                        <RiDeleteBinLine />
+                      </div>
                       {scheme.condition}, {scheme.coin}
                     </div>
                   ))}

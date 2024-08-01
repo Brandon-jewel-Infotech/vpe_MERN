@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { logout } from "../redux/slice";
 import FormField from "../components/FormField";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 export const AddRewardModal = ({ fetchRewards }) => {
   const dispatch = useDispatch();
@@ -74,7 +75,7 @@ export const AddRewardModal = ({ fetchRewards }) => {
       return `${currentCoin * 100} coins will be rewarded for 100 Items`;
     } else if (rewardStatus == 2) {
       let rewardedCoins = Math.floor((100 * currentCoin) / 100);
-      return `${rewardedCoins} coins will be rewarded for 100 Items`;
+      return `${rewardedCoins} coins will be rewarded for ₹ 100 `;
     } else if (rewardStatus == 3) {
       let rewardedCoins = 0;
       let remainingItems = items;
@@ -115,7 +116,7 @@ export const AddRewardModal = ({ fetchRewards }) => {
     <dialog id="add_reward_modal" className="modal">
       <div className="modal-box">
         <h2 className="font-semibold text-xl my-2">Add Reward Scheme</h2>
-        <div className="flex gap-5 max-sm:flex-wrap">
+        <div className="flex sm:gap-5 max-sm:flex-wrap">
           <FormField
             name={"name"}
             placeholder={"Name"}
@@ -143,10 +144,14 @@ export const AddRewardModal = ({ fetchRewards }) => {
               <option value={2}>Fixed Percentage</option>
               <option value={3}>Variable Rewards</option>
             </select>
+
+            <div className="label">
+              <span className="label-text font-semibold"> </span>
+            </div>
           </label>
         </div>
         {(rewardStatus == 1 || rewardStatus == 2) && (
-          <div className="flex gap-5 max-sm:flex-wrap">
+          <div className="flex max-sm:gap-5 max-sm:flex-wrap max-sm:text-start">
             <FormField
               name={"coins"}
               placeholder={"Coins"}
@@ -166,7 +171,7 @@ export const AddRewardModal = ({ fetchRewards }) => {
         {rewardStatus == 3 && (
           <>
             <form
-              className="flex gap-5 max-sm:flex-wrap"
+              className="flex sm:gap-5 max-sm:flex-wrap"
               onSubmit={(e) => {
                 e.preventDefault();
 
@@ -239,7 +244,7 @@ export const AddRewardModal = ({ fetchRewards }) => {
                 <div className="flex gap-3 flex-wrap mb-5">
                   {variableScheme?.map((scheme, i) => (
                     <div
-                      className="badge badge-neutral hover:badge-error hover:text-white cursor-pointer"
+                      className="badge badge-neutral hover:badge-error hover:text-white cursor-pointer relative overflow-hidden"
                       onClick={() => {
                         setVariableScheme((currScheme) => {
                           return currScheme.filter((scheme, ind) => ind != i);
@@ -247,6 +252,9 @@ export const AddRewardModal = ({ fetchRewards }) => {
                       }}
                       key={scheme.condition}
                     >
+                      <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-transparent hover:text-white hover:bg-error transition-colors duration-500">
+                        <RiDeleteBinLine />
+                      </div>
                       {scheme.condition}, {scheme.coin}
                     </div>
                   ))}

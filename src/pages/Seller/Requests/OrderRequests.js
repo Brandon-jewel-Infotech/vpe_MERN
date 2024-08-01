@@ -17,14 +17,13 @@ const OrderRequests = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState({});
   const [loadingData, setLoadingData] = useState(false);
-  console.log(selectedOrder);
 
   //fetch the orders
   const getOrderRequests = async () => {
     setLoadingData(true);
     try {
       //   setloading(true);
-      const url = `${process.env.REACT_APP_BACKEND_URL}/seller/order_requests/myorders`;
+      const url = `${process.env.REACT_APP_BACKEND_URL}/order_requests/myorders`;
 
       const { data } = await axios.post(
         url,
@@ -63,7 +62,7 @@ const OrderRequests = () => {
           <p className="text-sm">Requests {">"} Order Requests</p>
         </div>
         <div className="card bg-white flex-1 w-full">
-          <div className="card-body p-0 py-2">
+          <div className="card-body p-0 py-2 max-md:pb-28">
             {loadingData && (
               <div className="w-40 h-40 mx-auto">
                 <Loading />
@@ -157,7 +156,7 @@ export const OrderDetailModal = ({
 
       const res = await toast.promise(
         axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/seller/order_requests/${id}`,
+          `${process.env.REACT_APP_BACKEND_URL}/order_requests/${id}`,
           requestBody,
           {
             headers: {
@@ -267,7 +266,10 @@ export const OrderDetailModal = ({
                                 value={updatedQty}
                                 className={"max-w-24"}
                                 inputHandler={(e) => {
-                                  if (e.target.value > 0) {
+                                  if (
+                                    e.target.value > 0 ||
+                                    e.target.value <= item.qty
+                                  ) {
                                     setUpdatedQty(e.target.value);
                                     setUpdatedRewardCoins(
                                       getRewardCoins(
@@ -388,7 +390,7 @@ export const OrderDetailModal = ({
           </div>
         </div>
 
-        <div className="flex items-end justify-between">
+        <div className="flex max-sm:flex-col max-sm:items-start max-sm:mt-auto max-sm:text-start items-end justify-between">
           <div>
             <h3 className="text-lg my-2 font-semibold">
               Order Total:{" "}

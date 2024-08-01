@@ -3,111 +3,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, toggleSidebar } from "../redux/slice";
-import { CiLogin } from "react-icons/ci";
-import { RxDashboard } from "react-icons/rx";
-import { PiPlugsConnected, PiUsersThree } from "react-icons/pi";
-import { IoBagHandleOutline, IoCartOutline } from "react-icons/io5";
-import { TiDocumentText } from "react-icons/ti";
-import { BiCategoryAlt } from "react-icons/bi";
-import { LuUsers } from "react-icons/lu";
-import { FaPeopleRoof } from "react-icons/fa6";
-import { GiCardboardBox } from "react-icons/gi";
-import { AiOutlineUserAdd } from "react-icons/ai";
-import { RiMedalLine } from "react-icons/ri";
 
-const Sidebar = () => {
-  const { auth, role, id, sidebarExpanded } = useSelector(
-    (state) => state.user
-  );
+const Sidebar = ({ sidebarItems }) => {
+  const { auth, id, sidebarExpanded } = useSelector((state) => state.user);
 
-  const sidebarItems =
-    (role === "admin" && [
-      { icon: RxDashboard, title: "Dashboard", url: "/" },
-      { icon: TiDocumentText, title: "Requests", url: "/requests" },
-      { icon: BiCategoryAlt, title: "Categories", url: "/categories" },
-      {
-        icon: LuUsers,
-        title: "Users",
-        links: [
-          {
-            icon: AiOutlineUserAdd,
-            title: "Add Moderator",
-            url: "/add-moderator",
-          },
-          {
-            icon: LuUsers,
-            title: "Users List",
-            url: "/users",
-          },
-        ],
-      },
-      { icon: FaPeopleRoof, title: "Companies", url: "/companies" },
-      { icon: PiPlugsConnected, title: "Connections", url: "/connections" },
-      { icon: CiLogin, title: "Login", url: "/login" },
-    ]) ||
-    (role === "business" && [
-      { icon: RxDashboard, title: "Dashboard", url: "/" },
-      {
-        icon: GiCardboardBox,
-        title: "Products",
-        links: [
-          {
-            icon: GiCardboardBox,
-            title: "Add Product",
-            url: "/add-product",
-          },
-          {
-            icon: GiCardboardBox,
-            title: "Product List",
-            url: "/products",
-          },
-        ],
-      },
-      {
-        icon: PiUsersThree,
-        title: "Employees",
-        links: [
-          {
-            icon: AiOutlineUserAdd,
-            title: "Add Employee",
-            url: "/add-employee",
-          },
-          {
-            icon: PiUsersThree,
-            title: "Employee List",
-            url: "/employee-list",
-          },
-        ],
-      },
-      {
-        icon: TiDocumentText,
-        title: "Requests",
-        links: [
-          {
-            icon: TiDocumentText,
-            title: "Admin",
-            url: "/admin-requests",
-          },
-          {
-            icon: TiDocumentText,
-            title: "Order",
-            url: "/order-requests",
-          },
-          {
-            icon: TiDocumentText,
-            title: "My Order",
-            url: "/my-order-requests",
-          },
-        ],
-      },
-      {
-        icon: RiMedalLine,
-        title: "Rewards Scheme",
-        url: "/reward-list",
-      },
-      { icon: IoBagHandleOutline, title: "Marketplace", url: "/seller/shop" },
-      { icon: IoCartOutline, title: "Cart", url: "/cart" },
-    ]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -115,7 +14,7 @@ const Sidebar = () => {
     <ul
       className={`hidden md:flex menu h-[88vh] self-start bg-base-200 sticky top-[12vh] z-50 shadow-xl`}
     >
-      {sidebarItems.map((item, i) => {
+      {sidebarItems?.map((item, i) => {
         if (item.title === "Login" && auth) return;
         return (
           <SidebarItem
@@ -154,7 +53,7 @@ const SidebarItem = ({ dataObj, sidebarExpanded }) => {
             className="transition-all duration-300"
           >
             <summary>
-              <dataObj.icon size={20} />
+              <dataObj.Icon size={20} />
               {dataObj.title}
             </summary>
             <ul>
@@ -175,7 +74,7 @@ const SidebarItem = ({ dataObj, sidebarExpanded }) => {
               if (location.pathname === dataObj.url) dispatch(toggleSidebar());
             }}
           >
-            <dataObj.icon size={20} />
+            <dataObj.Icon size={20} />
             {dataObj?.title}
           </Link>
         )
@@ -191,7 +90,7 @@ const SidebarItem = ({ dataObj, sidebarExpanded }) => {
           }}
           data-tip={dataObj.title}
         >
-          <dataObj.icon size={20} />
+          <dataObj.Icon size={20} />
         </Link>
       )}
     </li>

@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import FallbackText from "../../../components/FallbackText";
 import Loading from "../../../components/Loading";
 import { TiDocumentText } from "react-icons/ti";
+import formatDate from "../../../utils/FormatDate";
 
 const AdminRequests = () => {
   const dispatch = useDispatch();
@@ -59,7 +60,7 @@ const AdminRequests = () => {
           )}
           {!loadingData &&
             (requests?.length ? (
-              <div className="mt-3 overflow-x-auto">
+              <div className="mt-3 overflow-x-auto max-md:pb-28">
                 <table className="table table-zebra table-auto w-full">
                   <thead className="bg-neutral text-center text-white">
                     <tr>
@@ -67,6 +68,8 @@ const AdminRequests = () => {
                       <th>Description</th>
                       <th>Role</th>
                       <th>Status</th>
+                      <th>Created At</th>
+                      <th>Last Updated At</th>
                       <th>Response</th>
                     </tr>
                   </thead>
@@ -91,6 +94,8 @@ const AdminRequests = () => {
                             ? "approved"
                             : "closed"}
                         </td>
+                        <td>{formatDate(request?.createdAt)}</td>
+                        <td>{formatDate(request?.updatedAt)}</td>
                         <td>{request?.response}</td>
                       </tr>
                     ))}

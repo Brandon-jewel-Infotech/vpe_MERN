@@ -100,9 +100,9 @@ const AddVariant = () => {
         <h2 className="text-xl font-bold text-start">Add Variant Details</h2>
         <p className="text-md">Products &gt; Add Variant</p>
       </div>
-      <div className="bg-base-100 card w-[98%] lg:w-[50%] rounded-md shadow-xl mx-auto">
+      <div className="bg-base-100 card w-[98%] lg:w-[50%] rounded-md shadow-xl mx-auto max-md:mb-28 ">
         <div className="card-body">
-          <div className="flex gap-4">
+          <div className="flex max-sm:flex-col sm:gap-4">
             <FormField
               title="Name"
               name={"name"}
@@ -119,7 +119,7 @@ const AddVariant = () => {
               type={"number"}
             />
           </div>
-          <div className="flex gap-4">
+          <div className="flex max-sm:flex-col sm:gap-4">
             <FormField
               title="Price for Customers"
               name={"price_b2c"}
@@ -137,7 +137,7 @@ const AddVariant = () => {
               type={"number"}
             />
           </div>
-          <div className="flex gap-4">
+          <div className="flex max-sm:flex-col sm:gap-4">
             <label className="form-control w-full">
               <div className="label">
                 <span className="label-text font-semibold">

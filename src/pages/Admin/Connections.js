@@ -18,7 +18,9 @@ const Connections = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [connections, setConnections] = useState([]);
   const [selectedConnection, setSelectedConnection] = useState({});
-  const [searchCode, setSearchCode] = useState(searchParams.get("code") || "");
+  const [searchCode, setSearchCode] = useState(
+    searchParams.get("code") || code
+  );
   const [loadingData, setLoadingData] = useState(false);
 
   const getConnections = async (sCode) => {
@@ -33,7 +35,6 @@ const Connections = () => {
           },
         }
       );
-      // console.log(data);
 
       setConnections(data);
     } catch (error) {
@@ -49,15 +50,17 @@ const Connections = () => {
   };
 
   const search = (sCode) => {
-    navigate({
-      pathname: "/connections",
-      search: `?code=${sCode || searchCode}`,
-    });
+    navigate(`/connections?code=${encodeURIComponent(sCode)}`);
     getConnections(sCode);
   };
 
   useEffect(() => {
-    search();
+    search(searchCode);
+  }, [searchCode]);
+
+  useEffect(() => {
+    let paramCode = searchParams.get("code") || code;
+    if (searchCode != paramCode) setSearchCode(paramCode);
   }, [searchParams.get("code")]);
 
   return (
@@ -68,7 +71,7 @@ const Connections = () => {
         getConnections={getConnections}
       />
       <PrimaryLayout>
-        <div className="card bg-white max-w-full">
+        <div className="card bg-white max-w-full max-md:pb-28">
           <div className="card-body p-0 2xl:mx-auto">
             <div className="flex justify-between items-center max-sm:flex-col text-start max-sm:text-center">
               <div className=" ">

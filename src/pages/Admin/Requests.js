@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import FallbackText from "../../components/FallbackText";
 import Loading from "../../components/Loading";
 import { TiDocumentText } from "react-icons/ti";
+import formatDate from "../../utils/FormatDate";
 
 const Requests = () => {
   const dispatch = useDispatch();
@@ -49,7 +50,7 @@ const Requests = () => {
     <>
       <UpdateRequest request={selectedRequest} setRequests={setRequests} />
       <PrimaryLayout>
-        <div className="card bg-white max-w-full">
+        <div className="card bg-white max-w-full max-md:pb-28">
           <div className="card-body p-0 2xl:mx-auto">
             <div className="flex justify-between items-center">
               <div>
@@ -73,6 +74,8 @@ const Requests = () => {
                         <th>Role</th>
                         <th>Status</th>
                         <th>Response</th>
+                        <th>Created At</th>
+                        <th>Last Updated</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -98,6 +101,8 @@ const Requests = () => {
                               : "closed"}
                           </td>
                           <td>{request?.response}</td>
+                          <td>{formatDate(request?.createdAt)}</td>
+                          <td>{formatDate(request?.updatedAt)}</td>
                           <td>
                             <Link
                               className="primary-btn"
@@ -296,7 +301,8 @@ const UpdateRequest = ({ request, setRequests }) => {
         document.getElementById("update_request").close();
         setRequests((currRequests) => {
           return currRequests.map((comp) => {
-            if (comp.id === request.id) return { ...comp, ...updatedRequest };
+            if (comp.id === request.id)
+              return { ...comp, ...updatedRequest, updatedAt: new Date() };
             return comp;
           });
         });
