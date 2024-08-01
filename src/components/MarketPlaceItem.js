@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Autoplay, Navigation, Thumbs } from "swiper/modules";
+import { Autoplay, Thumbs } from "swiper/modules";
 import { SwiperSlide, Swiper } from "swiper/react";
 
 const MarketPlaceItem = ({ product }) => {
@@ -52,7 +52,7 @@ const MarketPlaceItem = ({ product }) => {
                 </div> */}
         <p className="text-start">{product?.description}</p>
         <div className="card-actions items-end justify-between">
-          <div className="text-xl">₹{product?.price_b2b}</div>
+          <div className="text-xl">₹{product?.price_b2c}</div>
           <Link
             className="btn btn-info text-white justify-end"
             to={`/product/${product?.id}`}

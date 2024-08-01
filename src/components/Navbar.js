@@ -45,7 +45,9 @@ const Navbar = () => {
   const removeNotification = async (notificationId) => {
     try {
       const res = await axios.delete(
-        `${process.env.REACT_APP_BACKEND_URL}/notification/${notificationId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/notification/${
+          notificationId || ""
+        }`,
         {
           headers: {
             Authorization: tok,
@@ -54,12 +56,10 @@ const Navbar = () => {
       );
 
       if (res?.status === 200) {
+        if (!notificationId) {
+          return setNotifications([]);
+        }
         setNotifications((currNotifications) => {
-          console.log(
-            currNotifications.filter(
-              (notification) => notification.id !== notificationId
-            )
-          );
           return currNotifications.filter(
             (notification) => notification.id !== notificationId
           );
@@ -102,7 +102,7 @@ const Navbar = () => {
         VPE
       </h2>
 
-      <div className="flex-none hidden lg:block">
+      <div className="flex-none ">
         <ul className="menu menu-horizontal">
           <li className="dropdown dropdown-hover dropdown-end ">
             <div tabIndex={0} role="button" className="indicator">
@@ -113,8 +113,19 @@ const Navbar = () => {
             </div>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-80 h-96 overflow-y-scroll  list-item"
+              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-56 sm:w-80 h-96 overflow-y-scroll list-item relative"
             >
+              <div className="flex justify-between items-center p-2">
+                <h3 className="text-xl">Notifications</h3>
+                {notifications?.length > 0 && (
+                  <button
+                    className="primary-btn"
+                    onClick={() => removeNotification()}
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
               {notifications?.length ? (
                 notifications?.map((notification) => (
                   <li
@@ -141,7 +152,7 @@ const Navbar = () => {
               )}
             </ul>
           </li>
-          {role === "business" && (
+          {role === "employee" && (
             <li className="dropdown dropdown-hover dropdown-end">
               <div tabIndex={0} role="button" className="indicator">
                 <span className="indicator-item badge badge-neutral top-2 right-4">

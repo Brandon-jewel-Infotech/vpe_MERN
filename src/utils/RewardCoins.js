@@ -1,13 +1,13 @@
-const getRewardCoins = (reward, items) => {
+const getRewardCoins = (reward, items, amount) => {
   let rewardCoins = reward?.coins?.split(",");
   let rewardConditions = reward?.conditions?.split(",");
 
-  if (reward.status == 1) {
-    return `${rewardCoins[0] * items} coins will be rewarded for 100 Items`;
-  } else if (reward.status == 2) {
-    let rewardCoins = Math.floor((items * rewardCoins[0]) / 100);
-    return `${rewardCoins[0]} coins will be rewarded for 100 Items`;
-  } else if (reward.status == 3) {
+  if (reward?.status == 1) {
+    return rewardCoins[0] * items;
+  } else if (reward?.status == 2) {
+    rewardCoins = Math.floor((amount * rewardCoins[0]) / 100);
+    return rewardCoins[0];
+  } else if (reward?.status == 3) {
     let rewardedCoins = 0;
     let remainingItems = items;
 
@@ -30,6 +30,7 @@ const getRewardCoins = (reward, items) => {
 
     return rewardedCoins;
   }
+  return 0;
 };
 
 module.exports = getRewardCoins;

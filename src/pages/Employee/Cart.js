@@ -32,7 +32,7 @@ const Cart = () => {
     setLoadingData(true);
     try {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/seller/cart`,
+        `${process.env.REACT_APP_BACKEND_URL}/cart`,
 
         {
           headers: {
@@ -69,7 +69,7 @@ const Cart = () => {
       }
 
       const res = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/seller/cart/${cartItem?.id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/cart/${cartItem?.id}`,
         { qty: newQuantity },
         { headers: { Authorization: tok } }
       );
@@ -94,7 +94,7 @@ const Cart = () => {
   const deleteItem = async (id) => {
     try {
       const res = await toast.promise(
-        axios.delete(`${process.env.REACT_APP_BACKEND_URL}/seller/cart/${id}`, {
+        axios.delete(`${process.env.REACT_APP_BACKEND_URL}/cart/${id}`, {
           headers: {
             Authorization: tok,
           },
@@ -129,7 +129,7 @@ const Cart = () => {
     try {
       const res = await toast.promise(
         axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/seller/order_requests/create`,
+          `${process.env.REACT_APP_BACKEND_URL}/order_requests/create`,
           {},
           { headers: { Authorization: tok } }
         ),
@@ -162,9 +162,9 @@ const Cart = () => {
     const calculatedSubTotal = cartData?.reduce((acc, item) => {
       return (
         acc +
-        (item?.variant?.price_b2b !== undefined
-          ? item?.variant?.price_b2b
-          : item?.product?.price_b2b) *
+        (item?.variant?.price_b2c !== undefined
+          ? item?.variant?.price_b2c
+          : item?.product?.price_b2c) *
           item.qty
       );
     }, 0);
@@ -172,7 +172,10 @@ const Cart = () => {
     const cartTotal = cartData?.reduce((acc, item) => acc + item?.total, 0);
     setCartTotal(cartTotal);
     const calculatedTotalRewardCoins = cartData?.reduce((acc, item) => {
-      return acc + getRewardCoins(item?.product?.reward, item?.qty);
+      return (
+        acc +
+        getRewardCoins(item?.product?.employee_reward, item?.qty, item?.total)
+      );
     }, 0);
     setTotalRewardCoins(calculatedTotalRewardCoins);
   }, [cartData]);
@@ -189,7 +192,7 @@ const Cart = () => {
       )}
       {!loadingData &&
         (cartData?.length ? (
-          <div className="flex gap-10 max-lg:flex-col">
+          <div className="flex sm:gap-10 max-lg:flex-col max-md:pb-20">
             <div className="card bg-white flex-1 lg:w-[60%] xl:w-[70%]">
               <div className="card-body p-0 py-2">
                 <div className="overflow-x-auto">
@@ -207,13 +210,14 @@ const Cart = () => {
                     <tbody>
                       {cartData?.map((cartItem, i) => {
                         const itemPrice =
-                          (cartItem?.variant?.price_b2b !== undefined
-                            ? cartItem?.variant?.price_b2b
-                            : cartItem?.product?.price_b2b) * cartItem.qty;
+                          (cartItem?.variant?.price_b2c !== undefined
+                            ? cartItem?.variant?.price_b2c
+                            : cartItem?.product?.price_b2c) * cartItem.qty;
 
                         const rewardedCoins = getRewardCoins(
-                          cartItem?.product?.reward,
-                          cartItem?.qty
+                          cartItem?.product?.employee_reward,
+                          cartItem?.qty,
+                          cartItem?.total
                         );
 
                         return (
@@ -253,8 +257,8 @@ const Cart = () => {
                             </td>
                             <td>
                               ₹{" "}
-                              {cartItem?.variant?.price_b2b ||
-                                cartItem?.product?.price_b2b}
+                              {cartItem?.variant?.price_b2c ||
+                                cartItem?.product?.price_b2c}
                             </td>
                             <td>₹ {itemPrice}</td>
                             <td>{rewardedCoins}</td>
@@ -363,7 +367,7 @@ const Cart = () => {
                 <button className="primary-btn" onClick={placeOrderHandler}>
                   Place Order
                 </button>
-                <Link className="btn btn-accent" to={"/seller/shop"}>
+                <Link className="btn btn-accent" to={"/employee/shop"}>
                   Continue Shopping
                 </Link>
               </div>

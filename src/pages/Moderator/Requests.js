@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import FallbackText from "../../components/FallbackText";
 import Loading from "../../components/Loading";
 import { TiDocumentText } from "react-icons/ti";
+import formatDate from "../../utils/FormatDate";
 
 const Requests = () => {
   const dispatch = useDispatch();
@@ -21,7 +22,7 @@ const Requests = () => {
     setLoadingData(true);
     try {
       const { data } = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/requests`,
+        `${process.env.REACT_APP_BACKEND_URL}/employee/requests`,
         {},
         {
           headers: {
@@ -64,7 +65,7 @@ const Requests = () => {
             )}
             {!loadingData &&
               (requests?.length ? (
-                <div className="mt-3 overflow-x-auto">
+                <div className="mt-3 overflow-x-auto max-md:pb-20">
                   <table className="table table-zebra table-auto w-full">
                     <thead className="bg-neutral text-center text-white">
                       <tr>
@@ -73,6 +74,8 @@ const Requests = () => {
                         <th>Role</th>
                         <th>Status</th>
                         <th>Response</th>
+                        <th>Created At</th>
+                        <th>Last Updated</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -98,6 +101,8 @@ const Requests = () => {
                               : "closed"}
                           </td>
                           <td>{request?.response}</td>
+                          <td>{formatDate(request?.createdAt)}</td>
+                          <td>{formatDate(request?.updatedAt)}</td>
                           <td>
                             <Link
                               className="primary-btn"
@@ -255,8 +260,8 @@ const UpdateRequest = ({ request, setRequests }) => {
 
   useEffect(() => {
     setUpdatedRequest({
-      response: request?.response,
-      status: request?.status,
+      response: request?.response || "",
+      status: request?.status || "",
     });
   }, [request]);
 
@@ -271,7 +276,7 @@ const UpdateRequest = ({ request, setRequests }) => {
     try {
       const res = await toast.promise(
         axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/requests/update/${request.id}`,
+          `${process.env.REACT_APP_BACKEND_URL}/employee/requests/update/${request.id}`,
           { ...updatedRequest, user_id: request?.createdBy },
           { headers: { Authorization: tok } }
         ),
@@ -296,7 +301,8 @@ const UpdateRequest = ({ request, setRequests }) => {
         document.getElementById("update_request").close();
         setRequests((currRequests) => {
           return currRequests.map((comp) => {
-            if (comp.id === request.id) return { ...comp, ...updatedRequest };
+            if (comp.id === request.id)
+              return { ...comp, ...updatedRequest, updatedAt: new Date() };
             return comp;
           });
         });
