@@ -13,22 +13,18 @@ const sellerCategoryController = require("../controllers/sellerCategoryControlle
 const sellerOrderController = require("../controllers/sellerOrderControllers");
 const userController = require("../controllers/userControllers");
 const upload = require("../middleware/multerMiddleware");
+const {
+  deleteAnnouncement,
+  getAnnouncements,
+  createAnnouncement,
+  updateAnnouncement,
+} = require("../controllers/announcementController");
+const {
+  getSellerStatistics,
+  getSellerChartData,
+} = require("../controllers/analytics");
 
 //Routes
-
-//Cart routes
-router.post("/cart", roleAuthentication(2), cartController.createCart); //tested
-router.get("/cart", roleAuthentication(2), cartController.getCart); //tested
-router.put(
-  "/cart/:id",
-  roleAuthentication(2),
-  cartController.updateCartItemQuantity
-); //tested
-router.delete(
-  "/cart/:id",
-  roleAuthentication(2),
-  cartController.deleteCartItem
-); //tested
 
 //seller category routes
 router.post(
@@ -57,7 +53,11 @@ router.patch(
   sellerCategoryController.markOutOfStock
 );
 
-router.get("/get-all-products", sellerCategoryController.getAllProducts);
+// router.get(
+//   "/get-all-products",
+//   userAuthentication,
+//   sellerCategoryController.getAllProducts
+// );
 
 router.post(
   //tested
@@ -127,42 +127,17 @@ router.delete(
 //   roleAuthentication(2),
 //   sellerOrderController.cancelOrder
 // );
-router.post(
-  "/order_request",
-  userAuthentication,
-  sellerOrderController.getOrderlists
-);
 // router.post(
 //   "/order_requests",
 //   userAuthentication,
 //   sellerOrderController.getAllOrderlists
 // );
-router.post(
-  "/order_requests/myorders",
-  userAuthentication,
-  sellerOrderController.getMyAllOrderlists
-);
-router.post(
-  "/order_requests/create",
-  userAuthentication,
-  sellerOrderController.createOrderslist
-);
-router.put(
-  "/order_requests/:id",
-  userAuthentication,
-  sellerOrderController.updateOrderslists
-);
-router.patch(
-  "/order_requests/:id",
-  userAuthentication,
-  sellerOrderController.updateCreatedOrderslists
-);
 
-router.get(
-  "/admin_requests",
-  userAuthentication,
-  sellerOrderController.getMyAllOrderlists
-);
+// router.get(
+//   "/admin_requests",
+//   roleAuthentication(2),
+//   sellerOrderController.getMyAllOrderlists
+// );
 
 //reward router (ALL TESTED AND WORKING)
 router.post("/rewards", roleAuthentication(2), rewardsController.getReward); //tested
@@ -220,5 +195,15 @@ router.post(
   roleAuthentication(2),
   userController.editConnections
 );
+
+router.post("/announcements", roleAuthentication(2), createAnnouncement);
+router.get("/announcements", roleAuthentication(2), getAnnouncements);
+router.delete("/announcements/:id", roleAuthentication(2), deleteAnnouncement);
+router.put("/announcements/:id", roleAuthentication(2), updateAnnouncement);
+
+// Statistics
+router.get("/statistics", roleAuthentication(2), getSellerStatistics);
+
+router.get("/chart-data", roleAuthentication(2), getSellerChartData);
 
 module.exports = router;

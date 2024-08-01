@@ -11,6 +11,10 @@ const BankDetail = require("../models/bankDetailsModel");
 const Request = require("../models/requestModel");
 const Employee = require("../models/employeesModel");
 const { Op } = require("sequelize");
+const AddressModel = require("../models/addressDetailsModel");
+const CartModel = require("../models/cartModel");
+const NotificationsModel = require("../models/notificationsModel");
+const OrderListModel = require("../models/orderListModel");
 
 async function generateUniqueCode() {
   let code;
@@ -109,14 +113,6 @@ exports.signup = async (req, res) => {
     //Don't know why Request is created
     await Request.create({ createdBy: user.id });
 
-    // const token = jwt.sign(
-    //   { id: user.id, name, email, role },
-    //   process.env.SECRET_KEY,
-    //   {
-    //     expiresIn: "1h",
-    //   }
-    // );
-
     return res.status(200).json({ message: "Application Successful" });
   } catch (error) {
     if (
@@ -130,16 +126,20 @@ exports.signup = async (req, res) => {
   }
 };
 
-// to add new employee under the seller (sequelized and tested)
 exports.createEmployee = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
-    const { name, email, password, contact } = req?.body;
+    const { id: userId } = req.user;
+    const { name, email, password, contact } = req.body;
+
     if (
       !name?.length ||
       !email?.length ||
       contact?.length !== 10 ||
       password?.length < 8
     ) {
+      await transaction.rollback();
       return res
         .status(400)
         .json({ error: "Please fill all required details" });
@@ -147,25 +147,14 @@ exports.createEmployee = async (req, res) => {
 
     const existingUser = await User.findOne({
       where: {
-        [Op.or]: {
-          email,
-          contact,
-        },
+        [Op.or]: [{ email }, { contact }],
       },
       attributes: ["id"],
+      transaction,
     });
 
-    const existingEmployee = await Employee.findOne({
-      where: {
-        [Op.or]: {
-          email,
-          contact,
-        },
-      },
-      attributes: ["id"],
-    });
-
-    if (existingUser?.id || existingEmployee?.id) {
+    if (existingUser?.id) {
+      await transaction.rollback();
       return res
         .status(400)
         .json({ error: "Email or Contact already registered" });
@@ -173,33 +162,52 @@ exports.createEmployee = async (req, res) => {
 
     const hashed = await encrypt(password);
     const role = req.user.role === 1 ? 3 : 4;
-    await Employee.create({
-      name: name,
-      email: email,
-      contact: contact,
-      password: hashed,
-      employer: req.user.id,
-      role: role,
-    });
+
+    const newUser = await User.create(
+      {
+        name,
+        email,
+        contact,
+        password: hashed,
+        status: 3,
+        role,
+      },
+      { transaction }
+    );
+
+    if (role === 4) {
+      await Employee.create(
+        {
+          employerId: userId,
+          employeeId: newUser.id,
+        },
+        { transaction }
+      );
+    }
+
+    await transaction.commit();
     return res.status(201).json({ message: "Registration successful" });
   } catch (error) {
+    await transaction.rollback();
     console.error("Error:", error);
     return res.status(400).json({ error: "Failed to add User" });
   }
 };
 
-// to get  employees  under the seller  (sequelized and tested)
 exports.getEmployee = async (req, res) => {
   try {
-    const employees = await Employee.findAll({
+    let employees = await Employee.findAll({
       where: {
-        employer: req.user.id,
+        employerId: req.user.id,
+      },
+      include: {
+        model: User,
+        as: "employee",
+        attributes: ["id", "name", "email", "contact", "status"],
       },
     });
 
-    if (employees.length === 0) {
-      return res.status(404).json({ message: "No employees found" });
-    }
+    employees = employees.map((employee) => employee.employee);
 
     return res.status(200).json(employees);
   } catch (error) {
@@ -208,75 +216,135 @@ exports.getEmployee = async (req, res) => {
   }
 };
 
-// to delete the  employee under the seller  (sequelized and tested)
 exports.deleteEmployee = async (req, res) => {
   const { id } = req.params;
+  const { id: employerId } = req.user;
+
+  const transaction = await sequelize.transaction();
+
   try {
-    const deletedEmployee = await Employee.destroy({
+    const employeeRecord = await Employee.findOne({
       where: {
-        id: id,
+        employeeId: id,
+        employerId: employerId,
       },
+      transaction,
     });
 
-    if (!deletedEmployee) {
+    if (!employeeRecord) {
+      await transaction.rollback();
+      return res.status(403).json({
+        error: "You do not have permission to delete this employee",
+      });
+    }
+
+    const deletedEmployee = await Employee.destroy({
+      where: {
+        employeeId: id,
+      },
+      transaction,
+    });
+
+    const deletedUser = await User.destroy({
+      where: {
+        id,
+      },
+      transaction,
+    });
+
+    await CartModel.destroy({
+      where: {
+        createdBy: id,
+      },
+      transaction,
+    });
+
+    await NotificationsModel.destroy({
+      where: {
+        createdBy: id,
+      },
+      transaction,
+    });
+
+    await OrderListModel.destroy({
+      where: {
+        createdBy: id,
+      },
+      transaction,
+    });
+
+    if (!deletedEmployee || !deletedUser) {
+      await transaction.rollback();
       return res
         .status(404)
-        .json({ message: `Employee with ID ${id} not found` });
+        .json({ error: `Employee with ID ${id} not found` });
     }
+
+    await transaction.commit();
 
     return res.status(200).send(`Employee deleted with ID: ${id}`);
   } catch (error) {
+    await transaction.rollback();
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-//login user ( sequelized and tested )
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email: email } });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    // Check password
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
     if (user.status === 1) {
-      return res.status(200).json({ message: "Unapproved Account" });
+      return res.status(401).json({ error: "Unapproved Account" });
     }
 
     if (user.status === 2 || user.status === 4) {
-      await Promise.all([
-        User.destroy({ where: { id: user.id } }),
-        Request.destroy({ where: { createdBy: user.id } }),
-        AddressDetail.destroy({ where: { user_id: user.id } }),
-        BankDetail.destroy({ where: { user_id: user.id } }),
-      ]);
+      // await Promise.all([
+      //   User.destroy({ where: { id: user.id } }),
 
-      console.log(`Deleted: ${user.id} from users`);
+      //   Request.destroy({ where: { createdBy: user.id } }),
+      //   AddressDetail.destroy({ where: { user_id: user.id } }),
+      //   BankDetail.destroy({ where: { user_id: user.id } }),
+      // ]);
 
-      return res.status(200).json({ message: "Account request Declined" });
+      return res.status(403).json({
+        error:
+          user.status === 2
+            ? "Your Account Request is Declined."
+            : "Your Account is Suspended.",
+      });
     }
 
-    console.log(user);
-    // Create token
+    let employerId = null;
+    if (user.role === 4) {
+      const employee = await Employee.findOne({
+        where: { employeeId: user.id },
+      });
+      employerId = employee ? employee.employerId : null;
+    }
+
     const token = jwt.sign(
       {
         userId: user.id,
         email: user.email,
         role: user.role,
         category: user.categoryId,
+        employerId,
       },
       process.env.SECRET_KEY
-      // ,{ expiresIn: "5h" }
+      // { expiresIn: "5h" }
     );
 
     return res.status(200).json({
@@ -304,7 +372,7 @@ exports.getConnections = async (req, res) => {
       where: sequelize.where(
         sequelize.fn("LOWER", sequelize.col("suppliers")),
         "LIKE",
-        `%${code.toLowerCase()}%`
+        `%${code?.toLowerCase()}%`
       ),
       order: [["name"]],
     });
@@ -341,9 +409,6 @@ exports.editConnections = async (req, res) => {
 
     const customer = users[0].code;
     const supplier = users[1].code;
-
-    console.log(customer);
-    console.log(supplier);
 
     await User.update(
       {
@@ -396,24 +461,52 @@ exports.fetchUsers = async (req, res) => {
     const role = req?.body?.role ? req.body.role : 2;
     let users;
 
-    if (role === 1 || role === 2) {
+    if (role === 4) {
+      users = await User.findAll({
+        where: {
+          role,
+          status: 3,
+        },
+        include: [
+          {
+            model: Employee,
+            as: "employer",
+            attributes: ["id", "employerId"],
+            include: [
+              {
+                model: User,
+                as: "employer",
+                attributes: ["id", "name"],
+              },
+            ],
+          },
+        ],
+        order: [["name"]],
+        attributes: [
+          "id",
+          "name",
+          "email",
+          "contact",
+          "role",
+          "status",
+          "code",
+        ],
+      });
+    } else {
       users = await User.findAll({
         where: {
           role,
           status: 3,
         },
         order: [["name"]],
-      });
-    } else {
-      users = await Employee.findAll({
-        where: {
-          role,
-        },
-        include: [
-          {
-            model: User,
-            attributes: ["id", "name"],
-          },
+        attributes: [
+          "id",
+          "name",
+          "email",
+          "contact",
+          "role",
+          "status",
+          "code",
         ],
       });
     }
@@ -472,11 +565,7 @@ exports.updateById = async (req, res) => {
         });
       }
     } else {
-      if (role === 2) {
-        result = await User.findByPk(id);
-      } else {
-        result = await Employee.findByPk(id);
-      }
+      result = await User.findByPk(id);
 
       if (!result.id) {
         return res.status(404).json({ error: "User not found" });
@@ -484,7 +573,6 @@ exports.updateById = async (req, res) => {
 
       result.status = status;
       await result.save();
-      console.log(result);
     }
 
     res.status(200).json({ message: "Successful" });
@@ -567,7 +655,7 @@ exports.getWallet = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user.wallet);
+    res.json(user.wallet || 0);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });

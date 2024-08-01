@@ -12,7 +12,12 @@ const ProductModel = require("../models/productsModel");
 const ImageModel = require("../models/imageModel");
 const path = require("path");
 const VariantsModel = require("../models/variantsModel");
+const CategoriesModel = require("../models/categoriesModel");
+const SubCategoriesModel = require("../models/subCategoriesModel");
+
 const { deleteProductImages } = require("../utils/imageCleanup");
+const EmployeeModel = require("../models/employeesModel");
+const { Sequelize } = require("sequelize");
 
 //sequelized
 exports.fetchSellerCategories = async (req, res) => {
@@ -40,7 +45,8 @@ exports.addProduct = async (req, res) => {
     company,
     availability,
     description,
-    reward,
+    sellerReward,
+    employeeReward,
   } = req.body;
 
   const files = req.files;
@@ -70,7 +76,8 @@ exports.addProduct = async (req, res) => {
       subCategory_id: +subCategory,
       company_id: +company,
       availability: +availability,
-      reward_id: +reward || null,
+      seller_reward_id: +sellerReward || null,
+      employee_reward_id: +employeeReward || null,
       category_id: req.user.category,
       created_by: req.user.userId,
       instock: +availability ? 1 : 0,
@@ -145,8 +152,6 @@ exports.addVariant = async (req, res) => {
 //sequelized and tested
 exports.getSellerProducts = async (req, res) => {
   try {
-    const id = req.body.id || null;
-
     const products = await Product.findAll({
       attributes: [
         "id",
@@ -154,7 +159,7 @@ exports.getSellerProducts = async (req, res) => {
         "price_b2b",
         "price_b2c",
         "availability",
-        "reward_id",
+        "seller_reward_id",
         "description",
         "instock",
         [
@@ -169,7 +174,12 @@ exports.getSellerProducts = async (req, res) => {
       include: [
         { model: Category, attributes: ["id", "name"] },
         { model: Subcategory, attributes: ["id", "name"] },
-        { model: Reward, attributes: ["id", "name"] },
+        {
+          model: Reward,
+          as: "seller_reward",
+          attributes: ["id", "name"],
+          where: { id: Sequelize.col(`seller_reward_id`) },
+        },
         { model: Company, attributes: ["id", "name"] },
         { model: User, as: "user", attributes: ["id"] },
         { model: ImageModel, attributes: ["id", "url"], as: "images" },
@@ -185,6 +195,104 @@ exports.getSellerProducts = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getAllEmployeeProducts = async (req, res) => {
+  try {
+    let employerId = req.user.employerId;
+
+    let whereClause = { created_by: employerId };
+
+    if (req?.params?.id) {
+      whereClause.id = req.params.id;
+    }
+
+    const products = await ProductModel.findAll({
+      attributes: [
+        "id",
+        "name",
+        "price_b2c",
+        "availability",
+        "description",
+        "instock",
+        [sequelize.col("employee_reward.id"), "reward_id"],
+        [sequelize.col("employee_reward.coins"), "coins"],
+        [sequelize.col("employee_reward.conditions"), "conditions"],
+        [sequelize.col("employee_reward.status"), "status"],
+        [sequelize.col("user.id"), "seller_id"],
+        [sequelize.col("user.code"), "seller_code"],
+        [sequelize.col("user.name"), "seller_name"],
+      ],
+      include: [
+        {
+          model: CategoriesModel,
+          as: "category",
+          attributes: ["id", "name"],
+        },
+        {
+          model: Reward,
+          as: "employee_reward",
+          attributes: ["id", "coins", "conditions", "status"],
+          where: { id: Sequelize.col(`employee_reward_id`) },
+        },
+        {
+          model: SubCategoriesModel,
+          as: "subcategory",
+          attributes: ["id", "name"],
+        },
+        {
+          model: Company,
+          as: "company",
+          attributes: ["id", "name"],
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: [],
+        },
+        {
+          model: ImageModel,
+          as: "images",
+          attributes: ["id", "url"],
+        },
+      ],
+      where: whereClause,
+    });
+
+    if (req?.params?.id && products?.length) {
+      const product = products[0];
+      const variants = await VariantsModel.findAll({
+        attributes: [
+          "id",
+          "name",
+          "price_b2c",
+          "product_id",
+          "description",
+          "qty",
+        ],
+        include: [
+          {
+            model: ImageModel,
+            as: "images",
+            attributes: ["id", "url"],
+          },
+        ],
+        where: { product_id: req.params.id },
+      });
+
+      const productWithVariants = {
+        ...product.get({ plain: true }),
+        variants: variants,
+      };
+
+      return res.json(productWithVariants);
+    } else {
+      return res.json(products);
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -235,7 +343,7 @@ exports.getSellerVariants = async (req, res) => {
             "price_b2b",
             "price_b2c",
             "availability",
-            "reward_id",
+            "seller_reward_id",
             "description",
             "instock",
           ],
@@ -268,7 +376,8 @@ exports.updateProduct = async (req, res) => {
       description,
       subCategory,
       company,
-      reward,
+      sellerReward,
+      employeeReward,
     } = req.body;
     const { id } = req.params;
 
@@ -281,7 +390,8 @@ exports.updateProduct = async (req, res) => {
         description,
         subCategory_id: subCategory,
         company_id: company,
-        reward_id: reward,
+        seller_reward_id: sellerReward,
+        employee_reward_id: employeeReward,
       },
       { where: { id } }
     );
@@ -322,12 +432,18 @@ exports.editProduct = async (req, res) => {
 //sequelized
 exports.getAllProducts = async (req, res) => {
   try {
+    const { role } = req.user;
+
+    const rewardAttribute =
+      role === 2 ? "seller_reward_id" : "employee_reward_id";
+
+    const rewardField = role === 2 ? "seller_reward" : "employee_reward";
+
     let whereClause = {};
 
     if (req?.body?.id) {
       whereClause.id = req.body.id;
     } else {
-      // whereClause["$category.id$"] = req.user.category;
     }
 
     const products = await Product.findAll({
@@ -339,10 +455,12 @@ exports.getAllProducts = async (req, res) => {
         "availability",
         "description",
         "instock",
-        [sequelize.col("reward.id"), "reward_id"],
-        [sequelize.col("reward.coins"), "coins"],
-        [sequelize.col("reward.conditions"), "conditions"],
-        [sequelize.col("reward.status"), "status"],
+        "employee_reward_id",
+        // rewardAttribute,
+        [sequelize.col(`${rewardField}.id`), "reward_id"],
+        [sequelize.col(`${rewardField}.coins`), "coins"],
+        [sequelize.col(`${rewardField}.conditions`), "conditions"],
+        [sequelize.col(`${rewardField}.status`), "status"],
         [sequelize.col("user.id"), "seller_id"],
         [sequelize.col("user.code"), "seller_code"],
         [sequelize.col("user.name"), "seller_name"],
@@ -355,9 +473,11 @@ exports.getAllProducts = async (req, res) => {
         },
         {
           model: Reward,
-          as: "reward",
+          as: rewardField,
           attributes: ["id", "coins", "conditions", "status"],
-          required: false,
+          where: {
+            id: Sequelize.col(rewardAttribute),
+          },
         },
         {
           model: Subcategory,
@@ -390,7 +510,6 @@ exports.getAllProducts = async (req, res) => {
           "id",
           "name",
           "price_b2b",
-          "price_b2c",
           "product_id",
           "description",
           "qty",

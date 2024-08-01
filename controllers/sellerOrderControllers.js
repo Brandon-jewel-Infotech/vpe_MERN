@@ -12,6 +12,9 @@ const NotificationsModel = require("../models/notificationsModel");
 const CartModel = require("../models/cartModel");
 const VariantsModel = require("../models/variantsModel");
 const RewardsModel = require("../models/rewardsModel");
+const { Sequelize, Op } = require("sequelize");
+const CategoriesModel = require("../models/categoriesModel");
+const CompanyModel = require("../models/companyModel");
 
 //sequelized
 // exports.createSellerOrders = async (req, res) => {
@@ -154,7 +157,10 @@ exports.createOrderslist = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-    const userId = req.user.id;
+    const { id: userId, role } = req.user;
+
+    const rewardAttribute =
+      role === 2 ? "seller_reward_id" : "employee_reward_id";
 
     const cartItems = await CartModel.findAll({
       where: { createdBy: userId },
@@ -163,7 +169,12 @@ exports.createOrderslist = async (req, res) => {
           model: Product,
           as: "product",
           attributes: ["id", "name", "availability", "instock", "created_by"],
-          include: [{ model: RewardsModel }],
+          include: {
+            model: RewardsModel,
+            as: "seller_reward",
+            attributes: ["id", "name", "coins", "conditions", "status"],
+            where: { id: Sequelize.col(`product.${rewardAttribute}`) },
+          },
         },
         {
           model: VariantsModel,
@@ -186,7 +197,8 @@ exports.createOrderslist = async (req, res) => {
 
       const rewarded_coins = getRewardCoins(
         cartItem?.product?.reward,
-        cartItem?.qty
+        cartItem?.qty,
+        cartItem?.total
       );
 
       if (variant_id) {
@@ -209,7 +221,7 @@ exports.createOrderslist = async (req, res) => {
         }
 
         await Product.decrement(
-          { availability: qty, instock: 1 },
+          { availability: qty },
           { where: { id: product_id }, transaction: t }
         );
       }
@@ -243,65 +255,65 @@ exports.createOrderslist = async (req, res) => {
 };
 
 // to get specific order recieved to the seller (seller controller) sequelized
-exports.getOrderlists = async (req, res) => {
-  const { id } = req.body;
+// exports.getOrderlists = async (req, res) => {
+//   const { id } = req.body;
 
-  try {
-    const { prod_id } = await OrderList.findOne({
-      attributes: [
-        [sequelize.fn("GROUP_CONCAT", sequelize.col("prod_id")), "prod_id"],
-      ],
-      where: { order_group: id },
-      raw: true,
-    });
+//   try {
+//     const { prod_id } = await OrderList.findOne({
+//       attributes: [
+//         [sequelize.fn("GROUP_CONCAT", sequelize.col("prod_id")), "prod_id"],
+//       ],
+//       where: { order_group: id },
+//       raw: true,
+//     });
 
-    const orders = await OrderList.findAll({
-      attributes: [
-        "qty",
-        "prices",
-        "variant_id",
-        "prod_id",
-        "createdAt",
-        "rewarded_coins",
-      ],
-      where: { order_group: id },
-      include: [
-        {
-          model: Product,
-          attributes: ["name", "image", "created_by"],
-          where: { id: prod_id.split(",") },
-        },
-        {
-          model: User,
-          attributes: ["name", "id", "email", "contact"],
-        },
-      ],
-      raw: true,
-    });
+//     const orders = await OrderList.findAll({
+//       attributes: [
+//         "qty",
+//         "prices",
+//         "variant_id",
+//         "prod_id",
+//         "createdAt",
+//         "rewarded_coins",
+//       ],
+//       where: { order_group: id },
+//       include: [
+//         {
+//           model: Product,
+//           attributes: ["name", "image", "created_by"],
+//           where: { id: prod_id.split(",") },
+//         },
+//         {
+//           model: User,
+//           attributes: ["name", "id", "email", "contact"],
+//         },
+//       ],
+//       raw: true,
+//     });
 
-    const output = orders.map((order) => ({
-      qty: parseInt(order.qty),
-      rewarded_coins: parseInt(order.rewarded_coins),
-      prices: parseInt(order.prices),
-      variant_id: parseInt(order.variant_id),
-      prod_id: parseInt(order.prod_id),
-      customer_email: order["User.email"],
-      customer_name: order["User.name"],
-      customer_id: order["User.id"],
-      customer_contact: order["User.contact"],
-      prod_name: order["Product.name"],
-      createdBy: order.createdBy,
-      prod_image: order["Product.image"].split(",")[0],
-      stage: parseInt(order.stage),
-      createdAt: order.createdAt,
-    }));
+//     const output = orders.map((order) => ({
+//       qty: parseInt(order.qty),
+//       rewarded_coins: parseInt(order.rewarded_coins),
+//       prices: parseInt(order.prices),
+//       variant_id: parseInt(order.variant_id),
+//       prod_id: parseInt(order.prod_id),
+//       customer_email: order["User.email"],
+//       customer_name: order["User.name"],
+//       customer_id: order["User.id"],
+//       customer_contact: order["User.contact"],
+//       prod_name: order["Product.name"],
+//       createdBy: order.createdBy,
+//       prod_image: order["Product.image"].split(",")[0],
+//       stage: parseInt(order.stage),
+//       createdAt: order.createdAt,
+//     }));
 
-    res.json(output);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+//     res.json(output);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
 // to get all orders recieved to the seller (seller controller) sequelized
 // exports.getAllOrderlists = (req, res) => {
@@ -358,21 +370,44 @@ exports.getOrderlists = async (req, res) => {
 exports.getMyAllOrderlists = async (req, res) => {
   try {
     const { type } = req.body;
-    const userId = req.user.id;
+    const { id: userId, role } = req.user;
+
+    const userDetailType =
+      type === "created" ? "reciever_details" : "creator_details";
 
     const orders = await OrderList.findAll({
       where: { [type === "created" ? "createdBy" : "receiver"]: userId },
       include: [
         {
           model: User,
-          as: "user",
+          as: "reciever_details",
+          attributes: ["id", "name", "role"],
+        },
+        {
+          model: User,
+          as: "creator_details",
           attributes: ["id", "name", "role"],
         },
         {
           model: Product,
           as: "product",
           attributes: ["id", "name"],
-          include: [{ model: RewardsModel, as: "reward" }],
+          include: [
+            {
+              model: RewardsModel,
+              as: "seller_reward",
+              attributes: ["id", "name", "coins", "conditions", "status"],
+              required: false,
+              where: { id: Sequelize.col(`product.seller_reward_id`) },
+            },
+            {
+              model: RewardsModel,
+              as: "employee_reward",
+              attributes: ["id", "name", "coins", "conditions", "status"],
+              required: false,
+              where: { id: Sequelize.col(`product.employee_reward_id`) },
+            },
+          ],
         },
         {
           model: VariantsModel,
@@ -385,30 +420,31 @@ exports.getMyAllOrderlists = async (req, res) => {
     });
 
     const orderMap = {};
-
     orders?.forEach((order) => {
       const orderId = order.order_group;
+      const creator_role = order[`${userDetailType}.role`];
+      const reward_type =
+        creator_role === 2 ? "seller_reward" : "employee_reward";
 
       if (!orderMap[orderId]) {
         orderMap[orderId] = {
           createdBy: {
-            id: order["user.id"],
-            name: order["user.name"],
+            id: order[`${userDetailType}.id`],
+            name: order[`${userDetailType}.name`],
             role:
-              order["user.role"] === 1
+              creator_role === 1
                 ? "Admin"
-                : order["user.role"] === 2
+                : creator_role === 2
                 ? "Business"
-                : order["user.role"] === 3
+                : creator_role === 3
                 ? "Moderator"
-                : "Accepted",
+                : "Employee",
           },
           id: orderId,
           createdAt: order.createdAt,
           orderItems: [],
         };
       }
-      console.log(order);
 
       orderMap[orderId].orderItems.push({
         id: order.id,
@@ -420,10 +456,10 @@ exports.getMyAllOrderlists = async (req, res) => {
         variant_id: order.variant_id,
         price: order.prices,
         reward: {
-          id: order["product.reward.id"],
-          coins: order["product.reward.coins"],
-          conditions: order["product.reward.conditions"],
-          status: order["product.reward.status"],
+          id: order[`product.${reward_type}.id`],
+          coins: order[`product.${reward_type}.coins`],
+          conditions: order[`product.${reward_type}.conditions`],
+          status: order[`product.${reward_type}.status`],
         },
         product: order["product.name"],
         variant: order["variant.name"],
@@ -456,10 +492,28 @@ exports.updateOrderslists = async (req, res) => {
           as: "variant",
         },
         {
+          model: User,
+          attributes: ["role"],
+          as: "creator_details",
+        },
+        {
           model: Product,
           attributes: ["name"],
           as: "product",
-          include: [{ model: RewardsModel }],
+          include: [
+            {
+              model: RewardsModel,
+              as: "seller_reward",
+              attributes: ["id", "name", "coins", "conditions", "status"],
+              where: { id: Sequelize.col(`product.seller_reward_id`) },
+            },
+            {
+              model: RewardsModel,
+              as: "employee_reward",
+              attributes: ["id", "name", "coins", "conditions", "status"],
+              where: { id: Sequelize.col(`product.employee_reward_id`) },
+            },
+          ],
         },
       ],
       where: { id, receiver: req.user.id },
@@ -468,9 +522,17 @@ exports.updateOrderslists = async (req, res) => {
     if (stage === 2) {
       content = "processed successfully";
     } else if (stage === 3) {
+      const creator_role = orderlist.creator_details.role;
+
       orderlist.prices = (orderlist.prices / +orderlist.qty) * +qty;
       orderlist.qty = qty;
-      orderlist.rewarded_coins = getRewardCoins(orderlist.product.reward, qty);
+      orderlist.rewarded_coins = getRewardCoins(
+        orderlist.product[
+          creator_role === 2 ? "seller_reward" : "employee_reward"
+        ],
+        qty,
+        orderlist.prices
+      );
       content = "processed but partially accepted";
     } else if (stage === 4) {
       content = "rejected";
@@ -486,8 +548,8 @@ exports.updateOrderslists = async (req, res) => {
 
     await sequelize.transaction(async (t) => {
       orderlist.stage = stage;
-      if (orderlist.stage == 6) {
-        User.increment("wallet", {
+      if (stage == 6) {
+        await User.increment("wallet", {
           by: orderlist.rewarded_coins,
           where: { id: orderlist.createdBy },
         });
@@ -573,16 +635,16 @@ exports.updateCreatedOrderslists = async (req, res) => {
   }
 };
 
-const getRewardCoins = (reward, items) => {
+const getRewardCoins = (reward, items, amount) => {
   let rewardCoins = reward?.coins?.split(",");
   let rewardConditions = reward?.conditions?.split(",");
 
-  if (reward.status == 1) {
-    return `${rewardCoins[0] * items} coins will be rewarded for 100 Items`;
-  } else if (reward.status == 2) {
-    let rewardCoins = Math.floor((items * rewardCoins[0]) / 100);
-    return `${rewardCoins[0]} coins will be rewarded for 100 Items`;
-  } else if (reward.status == 3) {
+  if (reward?.status == 1) {
+    return rewardCoins[0] * items;
+  } else if (reward?.status == 2) {
+    let rewardedCoins = Math.floor((amount * rewardCoins[0]) / 100);
+    return rewardedCoins;
+  } else if (reward?.status == 3) {
     let rewardedCoins = 0;
     let remainingItems = items;
 
@@ -602,7 +664,7 @@ const getRewardCoins = (reward, items) => {
         break;
       }
     }
-
     return rewardedCoins;
   }
+  return 0;
 };

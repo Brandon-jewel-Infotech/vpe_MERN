@@ -9,43 +9,32 @@ const EmployeeModel = sequelize.define("employees", {
     allowNull: false,
     primaryKey: true,
   },
-  employer: {
+  employerId: {
     type: Sequelize.INTEGER,
     references: {
       model: UserModel,
-      key: "id", // The column in UserModel that employer references
+      key: "id",
     },
   },
-  name: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  password: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  contact: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  role: {
+  employeeId: {
     type: Sequelize.INTEGER,
-    allowNull: false,
-  },
-  status: {
-    type: Sequelize.DataTypes.ENUM(2, 3),
-    default: 3,
+    references: {
+      model: UserModel,
+      key: "id",
+    },
   },
 });
 
-//Associations
-EmployeeModel.belongsTo(UserModel, { foreignKey: "employer" });
+EmployeeModel.belongsTo(UserModel, {
+  as: "employer",
+  foreignKey: "employerId",
+});
+EmployeeModel.belongsTo(UserModel, {
+  as: "employee",
+  foreignKey: "employeeId",
+});
+
+UserModel.hasMany(EmployeeModel, { as: "employees", foreignKey: "employerId" });
+UserModel.hasOne(EmployeeModel, { as: "employer", foreignKey: "employeeId" });
 
 module.exports = EmployeeModel;
-
-// user has many employers
-// employee has one employer (user)

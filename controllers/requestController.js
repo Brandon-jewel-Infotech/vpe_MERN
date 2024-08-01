@@ -38,7 +38,7 @@ exports.fetchRequests = async (req, res) => {
   try {
     let requests;
 
-    if (req.user.role === 1) {
+    if (req.user.role === 1 || req.user.role === 3) {
       // If user role is 1 (assuming 1 is an admin role)
       requests = await Request.findAll({
         attributes: [
@@ -48,6 +48,8 @@ exports.fetchRequests = async (req, res) => {
           "role",
           "response",
           "createdBy",
+          "createdAt",
+          "updatedAt",
         ],
         include: {
           model: User,
@@ -74,6 +76,8 @@ exports.fetchRequests = async (req, res) => {
           "role",
           "response",
           "createdBy",
+          "createdAt",
+          "updatedAt",
         ],
         include: {
           model: User,
@@ -206,37 +210,39 @@ exports.updateRequest = async (req, res) => {
     // Using a transaction for updating multiple tables
     await sequelize.transaction(async (t) => {
       // Update requests table
-      await Request.update(
-        { status, response },
-        {
-          where: {
-            id,
-          },
-          transaction: t,
-        }
-      );
+      let request = await Request.findOne({
+        where: {
+          id,
+        },
+        transaction: t,
+      });
 
-      // Update address_details table
-      await AddressDetails.update(
-        { aadhar_pic: "" },
-        {
-          where: {
-            user_id,
-          },
-          transaction: t,
-        }
-      );
+      request.status = status;
+      request.response = response;
 
-      // Update users table
-      await User.update(
-        { status },
-        {
-          where: {
-            id: user_id,
-          },
-          transaction: t,
-        }
-      );
+      await request.save();
+
+      if (request.role === 0) {
+        await AddressDetails.update(
+          { aadhar_pic: "" },
+          {
+            where: {
+              user_id,
+            },
+            transaction: t,
+          }
+        );
+
+        await User.update(
+          { status },
+          {
+            where: {
+              id: user_id,
+            },
+            transaction: t,
+          }
+        );
+      }
     });
 
     res.json({ message: "Successful" });

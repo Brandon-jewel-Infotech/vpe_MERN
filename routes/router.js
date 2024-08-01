@@ -12,7 +12,13 @@ const companyController = require("../controllers/companyControllers");
 const requestController = require("../controllers/requestController");
 const subCategoryController = require("../controllers/subCategoryControllers");
 const userController = require("../controllers/userControllers");
+const cartController = require("../controllers/cartController");
+const sellerOrderController = require("../controllers/sellerOrderControllers");
 const notificationController = require("../controllers/notificationController");
+const {
+  getAdminChartData,
+  getAdminStatistics,
+} = require("../controllers/analytics");
 
 //routes (all tested)
 
@@ -141,9 +147,50 @@ router.get(
   notificationController.getNotification
 ); //teseted
 router.delete(
-  "/notification/:id",
+  "/notification/:id?",
   userAuthentication,
   notificationController.deleteNotification
 ); //teseted
+
+router.post("/cart", userAuthentication, cartController.createCart); //tested
+router.get("/cart", userAuthentication, cartController.getCart); //tested
+router.put(
+  "/cart/:id",
+  userAuthentication,
+  cartController.updateCartItemQuantity
+); //tested
+router.delete("/cart/:id", userAuthentication, cartController.deleteCartItem); //tested
+
+// router.post(
+//   "/order_request",
+//   roleAuthentication(2),
+//   sellerOrderController.getOrderlists
+// );
+router.post(
+  "/order_requests/myorders",
+  userAuthentication,
+  sellerOrderController.getMyAllOrderlists
+);
+router.post(
+  "/order_requests/create",
+  userAuthentication,
+  sellerOrderController.createOrderslist
+);
+router.put(
+  "/order_requests/:id",
+  userAuthentication,
+  sellerOrderController.updateOrderslists
+);
+router.patch(
+  "/order_requests/:id",
+  userAuthentication,
+  sellerOrderController.updateCreatedOrderslists
+);
+
+// analytics
+
+router.get("/statistics", roleAuthentication(1), getAdminStatistics);
+
+router.get("/chart-data", roleAuthentication(1), getAdminChartData);
 
 module.exports = router;

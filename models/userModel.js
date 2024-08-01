@@ -32,7 +32,6 @@ const UserModel = sequelize.define("users", {
   },
   categoryId: {
     type: Sequelize.INTEGER,
-    allowNull: false,
     references: {
       model: CategoriesModel,
       key: "id",
@@ -48,7 +47,6 @@ const UserModel = sequelize.define("users", {
   },
   gstin: {
     type: Sequelize.STRING,
-    allowNull: false,
   },
   customers: {
     type: Sequelize.TEXT,
@@ -58,6 +56,7 @@ const UserModel = sequelize.define("users", {
   },
   wallet: {
     type: Sequelize.INTEGER,
+    default: 0,
   },
 });
 

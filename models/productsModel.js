@@ -38,7 +38,7 @@ const ProductModel = sequelize.define("products", {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
-      model: "subCategories",
+      model: SubCategoryModel,
       key: "id",
     },
   },
@@ -70,7 +70,14 @@ const ProductModel = sequelize.define("products", {
       key: "id",
     },
   },
-  reward_id: {
+  seller_reward_id: {
+    type: Sequelize.INTEGER,
+    references: {
+      model: "rewards",
+      key: "id",
+    },
+  },
+  employee_reward_id: {
     type: Sequelize.INTEGER,
     references: {
       model: "rewards",
@@ -84,6 +91,13 @@ ProductModel.belongsTo(CategoryModel, { foreignKey: "category_id" });
 ProductModel.belongsTo(SubCategoryModel, { foreignKey: "subCategory_id" });
 ProductModel.belongsTo(CompanyModel, { foreignKey: "company_id" });
 ProductModel.belongsTo(UserModel, { foreignKey: "created_by", as: "user" });
-ProductModel.belongsTo(RewardsModel, { foreignKey: "reward_id" });
+ProductModel.belongsTo(RewardsModel, {
+  as: "seller_reward",
+  foreignKey: "seller_reward_id",
+});
+ProductModel.belongsTo(RewardsModel, {
+  as: "employee_reward",
+  foreignKey: "employee_reward_id",
+});
 
 module.exports = ProductModel;

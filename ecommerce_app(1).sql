@@ -661,7 +661,7 @@ CREATE TABLE `users` (
   `role` int(11) NOT NULL DEFAULT 2 COMMENT '1: Admin , 2 : business , 3 : Mod , 4 : employee',
   `category` varchar(255) NOT NULL,
   `code` varchar(255) DEFAULT NULL,
-  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1: Pending , 2 : Declined , 3 : Accepted',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1: Pending , 2 : Declined , 3 : Accepted, 4 : Suspended',
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `gstin` varchar(255) NOT NULL,
   `customers` text NOT NULL,

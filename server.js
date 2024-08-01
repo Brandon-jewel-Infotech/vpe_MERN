@@ -9,6 +9,7 @@ require("dotenv").config();
 
 //new routes
 const sellerRouter = require("./routes/sellerRoutes");
+const employeeRouter = require("./routes/employeeModRoutes");
 const router = require("./routes/router");
 const sequelize = require("./utils/database");
 
@@ -37,31 +38,11 @@ app.use(cors());
 
 const port = process.env.PORT || 5500;
 
-// const instance = app.listen(process.env.PORT, () => {
-//   console.log("listening at backend");
-// });
-// // console.log(port)
-
-// const server = new Server(instance, {
-//   cors: {
-//     origin: ["http://localhost:3000"],
-//     methods: ["GET", "POST"],
-//   },
-//   allowEIO3: true, // false by default
-// });
-
-//routes
-
-// app.use(router);
-// app.use("/seller/", sellerRouter);
-
-//new routes
-
 app.use("/public/uploads", express.static("public/uploads"));
 app.use("/public/products", express.static("public/products"));
 app.use(router);
 app.use("/seller", sellerRouter);
-// app.use("/seller", sellerRouter);
+app.use("/employee", employeeRouter);
 
 sequelize
   .sync({})
@@ -72,33 +53,3 @@ sequelize
   .catch((err) => {
     console.log(err);
   });
-
-// // Add this middleware after defining your routes and before any error handlers
-// app.use((err, req, res, next) => {
-//   // console.log("request called from server.js line:21 ");
-//   // console.log(req.user);
-//   if (err instanceof multer.MulterError) {
-//     // Multer error occurred
-
-//     console.log("Multer Error:", err.field); // Log the unexpected field
-//     res.status(400).json({ error: "Unexpected field in the request" });
-//   } else {
-//     console.log("Error : req.fields");
-//     next(err); // Forward other errors to the default error handler
-//   }
-// });
-
-// connection.connect(function (err) {
-//   if (err) {
-//     console.error("Error connecting: " + err.stack);
-//     return;
-//   }
-//   connection.query(
-//     `SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))`
-//   );
-//   console.log("Connected as id " + connection.threadId);
-// });
-
-// http.listen(port, () => {
-//   console.log("Listening at : " + port);
-// });

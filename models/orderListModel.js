@@ -65,8 +65,14 @@ const OrderListModel = sequelize.define("order_list", {
 });
 
 //Associations
-OrderListModel.belongsTo(UserModel, { foreignKey: "createdBy" });
-OrderListModel.belongsTo(UserModel, { foreignKey: "receiver" });
+OrderListModel.belongsTo(UserModel, {
+  as: "creator_details",
+  foreignKey: "createdBy",
+});
+OrderListModel.belongsTo(UserModel, {
+  as: "reciever_details",
+  foreignKey: "receiver",
+});
 OrderListModel.belongsTo(ProductsModel, { foreignKey: "prod_id" });
 OrderListModel.belongsTo(VariantsModel, { foreignKey: "variant_id" });
 

@@ -4,10 +4,16 @@ const VariantsModel = require("../models/variantsModel");
 const ImageModel = require("../models/imageModel");
 const sequelize = require("../utils/database");
 const RewardsModel = require("../models/rewardsModel");
+const { Sequelize, where } = require("sequelize");
 
 // to get all  the products added to the cart (customer's controller) (sequelized and tested)
 exports.getCart = async (req, res) => {
   try {
+    const { role, id, userId } = req.user;
+    const rewardAttribute =
+      role === 2 ? "seller_reward_id" : "employee_reward_id";
+    const rewardField = role === 2 ? "seller_reward" : "employee_reward";
+
     const cartItems = await Cart.findAll({
       include: [
         {
@@ -16,8 +22,7 @@ exports.getCart = async (req, res) => {
           attributes: [
             "id",
             "name",
-            "price_b2b",
-            "price_b2c",
+            role === 2 ? "price_b2b" : "price_b2c",
             "availability",
             "instock",
           ],
@@ -28,14 +33,21 @@ exports.getCart = async (req, res) => {
             },
             {
               model: RewardsModel,
+              as: rewardField,
               attributes: ["id", "name", "coins", "conditions", "status"],
+              where: { id: Sequelize.col(`product.${rewardAttribute}`) },
             },
           ],
         },
         {
           model: VariantsModel,
           as: "variant",
-          attributes: ["id", "name", "price_b2b", "price_b2c", "qty"],
+          attributes: [
+            "id",
+            role === 2 ? "price_b2b" : "price_b2c",
+            "name",
+            "qty",
+          ],
           include: [
             {
               model: ImageModel,
@@ -44,6 +56,7 @@ exports.getCart = async (req, res) => {
           ],
         },
       ],
+      where: { createdBy: id || userId },
     });
 
     if (!cartItems.length) {
@@ -61,13 +74,12 @@ exports.getCart = async (req, res) => {
 exports.createCart = async (req, res) => {
   try {
     const { product_id, qty, total } = req.body;
-    const createdBy = req.user.userId;
-    let variant_id = 0;
+    const createdBy = req.user.id;
+    let variant_id = null;
 
     if (req.body.variant_id) {
       variant_id = req.body.variant_id;
     }
-
     // Check if cart item already exists for the user and product
     const existingCartItem = await Cart.findOne({
       include: [
@@ -91,8 +103,9 @@ exports.createCart = async (req, res) => {
         (existingCartItem?.variant?.qty != undefined
           ? existingCartItem?.variant?.qty
           : existingCartItem?.product?.availability)
-          ? +existingCartItem.qty + +qty
+          ? +existingCartItem?.qty + +qty
           : +qty;
+
       // If cart item exists, update the values
       await existingCartItem.update({
         total: sequelize.literal(`(total/qty) * ${newQuantity}`),
@@ -108,6 +121,10 @@ exports.createCart = async (req, res) => {
         createdBy,
       });
     }
+    // await Product.decrement("availability", {
+    //   by: qty,
+    //   where: { id: product_id },
+    // });
 
     return res.status(200).json({ message: "Successfully Added to Cart" });
   } catch (error) {
@@ -123,7 +140,7 @@ exports.deleteCartItem = async (req, res) => {
     // Find the cart item
     const cartItem = await Cart.findOne({
       id,
-      createdBy: req.body.userId,
+      createdBy: req.user.id,
     });
 
     if (!cartItem) {
@@ -132,6 +149,12 @@ exports.deleteCartItem = async (req, res) => {
 
     // Delete the cart item
     await cartItem.destroy();
+
+    // await Product.increment("availability", {
+    //   by: cartItem.qty,
+    //   where: { id: cartItem?.product_id },
+    // });
+
     res.status(200).json({ message: "Cart item deleted successfully." });
   } catch (error) {
     console.error("Error deleting cart item:", error);
@@ -146,7 +169,7 @@ exports.updateCartItemQuantity = async (req, res) => {
   try {
     const cartItem = await Cart.findOne({
       id,
-      createdBy: req.body.userId,
+      createdBy: req.user.id,
     });
 
     if (!cartItem) {
@@ -157,8 +180,21 @@ exports.updateCartItemQuantity = async (req, res) => {
       return res.status(400).json({ message: "Quantity cannot be negative." });
     }
 
+    // if (cartItem?.qty < qty) {
+    //   await Product.decrement("availability", {
+    //     by: qty - cartItem?.qty,
+    //     where: { id: cartItem?.product_id },
+    //   });
+    // } else {
+    //   await Product.increment("availability", {
+    //     by: cartItem?.qty - qty,
+    //     where: { id: cartItem?.product_id },
+    //   });
+    // }
+
     cartItem.total = (cartItem.total / cartItem.qty) * qty;
     cartItem.qty = qty;
+
     await cartItem.save();
 
     res

@@ -36,9 +36,17 @@ exports.getNotification = async (req, res) => {
 exports.deleteNotification = async (req, res) => {
   //tested
   const { id } = req.params;
+  const { id: userId } = req.user;
+
+  let whereClause = { reciever: userId };
+
+  if (id) {
+    whereClause.id = id;
+  }
+
   try {
     await Notification.destroy({
-      where: { reciever: req.user.id, id },
+      where: whereClause,
     });
 
     return res
