@@ -17,6 +17,7 @@ import Loading from "../../components/Loading";
 import FallbackText from "../../components/FallbackText";
 import { IoCartOutline } from "react-icons/io5";
 import getRewardCoins from "../../utils/RewardCoins";
+import currencyFormatter from "../../utils/currencyFormatter";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -27,13 +28,13 @@ const Cart = () => {
   const [cartTotal, setCartTotal] = useState(0);
   const [loadingData, setLoadingData] = useState(false);
   const [totalRewardCoins, setTotalRewardCoins] = useState(0);
+  const [note, setNote] = useState("");
 
   const getCart = async () => {
     setLoadingData(true);
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/cart`,
-
         {
           headers: {
             Authorization: tok,
@@ -130,7 +131,7 @@ const Cart = () => {
       const res = await toast.promise(
         axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/order_requests/create`,
-          {},
+          { note },
           { headers: { Authorization: tok } }
         ),
         {
@@ -192,7 +193,7 @@ const Cart = () => {
       )}
       {!loadingData &&
         (cartData?.length ? (
-          <div className="flex sm:gap-10 max-lg:flex-col max-md:pb-20">
+          <div className="flex sm:gap-10 max-lg:flex-col">
             <div className="card bg-white flex-1 lg:w-[60%] xl:w-[70%]">
               <div className="card-body p-0 py-2">
                 <div className="overflow-x-auto">
@@ -257,12 +258,14 @@ const Cart = () => {
                             </td>
                             <td>
                               ₹{" "}
-                              {cartItem?.variant?.price_b2c ||
-                                cartItem?.product?.price_b2c}
+                              {currencyFormatter(
+                                cartItem?.variant?.price_b2c ||
+                                  cartItem?.product?.price_b2c
+                              )}
                             </td>
-                            <td>₹ {itemPrice}</td>
+                            <td>₹ {currencyFormatter(itemPrice)}</td>
                             <td>{rewardedCoins}</td>
-                            <td>₹{cartItem.total}</td>
+                            <td>₹{currencyFormatter(cartItem?.total)}</td>
                             <td className="flex justify-center">
                               <div className="flex justify-center w-[50%]">
                                 <button
@@ -343,7 +346,9 @@ const Cart = () => {
                     <tbody>
                       <tr>
                         <th>Sub Total</th>
-                        <td className="text-end">₹{subTotal}</td>
+                        <td className="text-end">
+                          ₹{currencyFormatter(subTotal)}
+                        </td>
                       </tr>
                       <tr>
                         <th>Total Reward Coins</th>
@@ -359,10 +364,26 @@ const Cart = () => {
                   </tr> */}
                       <tr className="text-xl">
                         <th>Total</th>
-                        <td className="text-end">₹{cartTotal}</td>
+                        <td className="text-end">
+                          ₹{currencyFormatter(cartTotal)}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
+                  <label className="form-control">
+                    <div className="label">
+                      <span className="label-text font-semibold">
+                        Additional Note
+                      </span>
+                    </div>
+                    <textarea
+                      className="textarea textarea-bordered h-18 bg-white"
+                      value={note}
+                      name="response"
+                      onChange={(e) => setNote(e.target.value)}
+                    ></textarea>
+                    <div className="label"></div>
+                  </label>
                 </div>
                 <button className="primary-btn" onClick={placeOrderHandler}>
                   Place Order

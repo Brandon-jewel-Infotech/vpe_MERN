@@ -9,6 +9,7 @@ const FormField = ({
   errorMsg,
   value,
   name,
+  disabled,
   className,
 }) => {
   return (
@@ -24,8 +25,12 @@ const FormField = ({
         type={type}
         name={name}
         value={value}
+        disabled={disabled}
         placeholder={placeholder}
-        className={"input input-bordered w-full bg-white " + (className || "")}
+        className={
+          "input input-bordered w-full disabled:bg-gray-200 bg-white " +
+          (className || "")
+        }
         onChange={inputHandler}
       />
       <div className="label"></div>

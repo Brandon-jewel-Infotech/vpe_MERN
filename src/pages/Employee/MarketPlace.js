@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PrimaryLayout from "../../Layout/PrimaryLayout";
 import MarketPlaceItem from "../../components/MarketPlaceItem";
 import axios from "axios";
@@ -6,11 +6,14 @@ import FallbackText from "../../components/FallbackText";
 import Loading from "../../components/Loading";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
+import debounce from "../../utils/debounce";
+import FormField from "../../components/FormField";
 
 const MarketPlace = () => {
   const { tok } = useSelector((state) => state.user);
   const [products, setProducts] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
+  const [keyword, setKeyword] = useState("");
 
   const getProducts = async () => {
     setLoadingData(true);
@@ -26,9 +29,23 @@ const MarketPlace = () => {
     setLoadingData(false);
   };
 
+  const debouncedGetProducts = useCallback(
+    debounce((nextValue) => {
+      getProducts(nextValue);
+    }, 300),
+    []
+  );
+
   useEffect(() => {
-    getProducts();
-  }, []);
+    if (keyword) {
+      debouncedGetProducts(keyword);
+    } else {
+      getProducts();
+    }
+
+    return () => {};
+  }, [keyword, debouncedGetProducts]);
+
   return (
     <PrimaryLayout>
       <div className="card bg-white ">
@@ -37,6 +54,15 @@ const MarketPlace = () => {
             <div>
               <h2 className="text-xl font-bold text-start mb-3">MarketPlace</h2>
             </div>
+            <FormField
+              name={"keyword"}
+              placeholder={"Type to search..."}
+              value={keyword}
+              className={"max-w-52 ms-auto"}
+              inputHandler={(e) => {
+                setKeyword(e.target.value);
+              }}
+            />
           </div>
 
           {loadingData && (
@@ -46,7 +72,7 @@ const MarketPlace = () => {
           )}
           {!loadingData &&
             (products?.length ? (
-              <div className="flex flex-wrap gap-6 mt-4 justify-center lg:justify-start max-md:pb-20">
+              <div className="flex flex-wrap gap-6 mt-4 justify-center lg:justify-start">
                 {products?.map((product, ind) => (
                   <MarketPlaceItem key={product.id} product={product} />
                 ))}

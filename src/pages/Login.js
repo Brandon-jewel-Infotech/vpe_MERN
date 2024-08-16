@@ -160,12 +160,12 @@ const Login = () => {
           </form>
 
           <div className="flex flex-col gap-3">
-            {/* <Link
-              to={"/"}
+            <Link
+              to={"/forgot-password"}
               className="text-neutral hover:text-neutral/70 font-semibold"
             >
-              Forgot your password
-            </Link> */}
+              Forgot your password?
+            </Link>
             {/* <Link
               to={"/register"}
               className="text-neutral hover:text-neutral/70 font-semibold"

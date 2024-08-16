@@ -6,20 +6,25 @@ import MarketPlace from "./pages/Employee/MarketPlace";
 import MyOrderRequests from "./pages/Employee/MyOrderRequests";
 import RedeemWallet from "./pages/RedeemWallet";
 import Announcements from "./pages/Employee/Announcements";
+import UpdateProfile from "./pages/UpdateProfile";
 
 export const getRoutesByRole = (auth, role, code, navigate) => {
   // Moderator Routes
-  const moderatorRoutes = [{ path: "/", component: <Requests /> }];
+  const moderatorRoutes = [
+    { path: "/", component: <Requests /> },
+    { path: "/update-profile", component: <UpdateProfile /> },
+  ];
 
   // Employee Routes
   const employeeRoutes = [
     { path: "/", component: <MarketPlace /> },
     { path: "/cart", component: <Cart /> },
-    { path: "/products/cart", component: <Cart /> },
+    // { path: "/products/cart", component: <Cart /> },
     { path: "/product/:id", component: <ProductDetails /> },
     { path: "/my-order-requests", component: <MyOrderRequests /> },
     { path: "/redeem-wallet", component: <RedeemWallet /> },
     { path: "/announcements", component: <Announcements /> },
+    { path: "/update-profile", component: <UpdateProfile /> },
     // { path: "/reward-list", component: <Rewards /> },
   ];
 

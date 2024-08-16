@@ -2,6 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Autoplay, Thumbs } from "swiper/modules";
 import { SwiperSlide, Swiper } from "swiper/react";
+import truncateString from "../utils/stringTruncate";
+import currencyFormatter from "../utils/currencyFormatter";
 
 const MarketPlaceItem = ({ product }) => {
   return (
@@ -26,7 +28,7 @@ const MarketPlaceItem = ({ product }) => {
       </div>
       <div className="card-body">
         <div className="flex justify-between items-center">
-          <h2 className="card-title">{product?.name}</h2>
+          <h2 className="card-title">{truncateString(product?.name)}</h2>
           <div
             className={`badge ${
               product?.availability && product?.instock
@@ -50,9 +52,11 @@ const MarketPlaceItem = ({ product }) => {
                 )
                 )}
                 </div> */}
-        <p className="text-start">{product?.description}</p>
+        <p className="text-start">{truncateString(product?.description, 80)}</p>
         <div className="card-actions items-end justify-between">
-          <div className="text-xl">₹{product?.price_b2c}</div>
+          <div className="text-xl">
+            ₹{currencyFormatter(product?.price_b2c)}
+          </div>
           <Link
             className="btn btn-info text-white justify-end"
             to={`/product/${product?.id}`}

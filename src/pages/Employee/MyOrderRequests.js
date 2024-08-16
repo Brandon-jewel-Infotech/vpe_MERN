@@ -7,6 +7,7 @@ import { logout } from "../../redux/slice";
 import FallbackText from "../../components/FallbackText";
 import { TiDocumentText } from "react-icons/ti";
 import Loading from "../../components/Loading";
+import currencyFormatter from "../../utils/currencyFormatter";
 
 const MyOrderRequests = () => {
   const dispatch = useDispatch();
@@ -55,10 +56,10 @@ const MyOrderRequests = () => {
       <PrimaryLayout>
         <div className="text-start">
           <h2 className="text-lg font-bold ">My Order Requests</h2>
-          <p className="text-sm">Requests {">"} My Order Requests</p>
+          {/* <p className="text-sm">Requests {">"} My Order Requests</p> */}
         </div>
         <div className="card bg-white flex-1 w-full">
-          <div className="card-body p-0 py-2 max-md:pb-20">
+          <div className="card-body p-0 py-2">
             {loadingData && (
               <div className="w-40 h-40 mx-auto">
                 <Loading />
@@ -95,7 +96,7 @@ const MyOrderRequests = () => {
                             <td>{order.id}</td>
                             <td>{order?.createdBy?.name}</td>
                             <td>{order.formattedDate}</td>
-                            <td>₹ {order?.orderTotal}</td>
+                            <td>₹ {currencyFormatter(order?.orderTotal)}</td>
                             <td>
                               <button
                                 className="primary-btn"
@@ -212,6 +213,12 @@ export const OrderDetailModal = ({
             Customer Type:{" "}
             <span className="font-normal">{orderDetails?.createdBy?.role}</span>
           </h3>
+          {orderDetails?.note && (
+            <h3 className="my-2">
+              Additional Note :{" "}
+              <span className="font-normal">{orderDetails?.note}</span>
+            </h3>
+          )}
           <div>
             <h3 className="my-2 font-semibold">Order Items: </h3>
             <div className="overflow-x-auto max-h-50vh overflow-auto">
@@ -234,7 +241,7 @@ export const OrderDetailModal = ({
                           {item?.product} {item.variant && `- ${item?.variant}`}
                         </td>
                         <td>{item?.qty}</td>
-                        <td>₹ {item?.price}</td>
+                        <td>₹ {currencyFormatter(item?.price)}</td>
                         <td>{item?.rewarded_coins}</td>
                         <td>
                           {item?.stage === 1
@@ -282,7 +289,9 @@ export const OrderDetailModal = ({
           <div>
             <h3 className="text-lg my-2 font-semibold">
               Order Total:{" "}
-              <span className="font-normal">₹ {orderDetails?.orderTotal}</span>
+              <span className="font-normal">
+                ₹ {currencyFormatter(orderDetails?.orderTotal)}
+              </span>
             </h3>
             <h3 className="text-lg my-2 font-semibold">
               Total Reward Coins:{" "}

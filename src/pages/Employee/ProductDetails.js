@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PrimaryLayout from "../../Layout/PrimaryLayout";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import "swiper/css";
@@ -16,6 +16,9 @@ import { logout } from "../../redux/slice";
 import { addToCart } from "../../redux/cartSlice";
 import FallbackText from "../../components/FallbackText";
 import { GiCardboardBox } from "react-icons/gi";
+import currencyFormatter from "../../utils/currencyFormatter";
+import truncateString from "../../utils/stringTruncate";
+import { FaArrowLeft } from "react-icons/fa";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -125,14 +128,22 @@ const ProductDetails = () => {
     <PrimaryLayout>
       <>
         <div className="text-start capitalize">
-          <h2 className="text-xl font-bold">
+          {/* <h2 className="text-xl font-bold">
             {product?.name || "Product Details"}
-          </h2>
-          <p className="text-md">
+          </h2> */}
+          <Link
+            to={"/marketplace"}
+            className="secondary-btn "
+            style={{ borderRadius: "100px" }}
+          >
+            {" "}
+            <FaArrowLeft /> Back to Marketplace
+          </Link>
+          {/* <p className="text-md">
             Products &gt; {product?.name || "Product Details"}
-          </p>
+          </p> */}
         </div>
-        <div className="flex gap-10 max-lg:flex-col justify-between max-md:pb-20">
+        <div className="flex gap-10 max-lg:flex-col justify-between">
           {product.id || loading ? (
             <>
               <div className="flex flex-col gap-5 flex-1">
@@ -248,7 +259,9 @@ const ProductDetails = () => {
                           </div>
                           <div>
                             <span className="font-semibold">MRP: </span>₹{" "}
-                            {selectedVariant?.price_b2c || product?.price_b2c}
+                            {currencyFormatter(
+                              selectedVariant?.price_b2c || product?.price_b2c
+                            )}
                           </div>
                           {product?.variants?.length > 0 && (
                             <div className="flex gap-2 items-center justify-center">
@@ -405,7 +418,9 @@ const ProductDetails = () => {
                           <tbody>
                             <tr>
                               <th>Item</th>
-                              <td className="text-end">{product?.name}</td>
+                              <td className="text-end">
+                                {truncateString(product?.name)}
+                              </td>
                             </tr>
                             <tr>
                               <th>Category</th>
@@ -452,8 +467,10 @@ const ProductDetails = () => {
                         onClick={addToCartHandler}
                       >
                         Add To Cart - ₹{" "}
-                        {(selectedVariant?.price_b2c || product?.price_b2c) *
-                          quantity || 0}
+                        {currencyFormatter(
+                          (selectedVariant?.price_b2c || product?.price_b2c) *
+                            quantity || 0
+                        )}
                       </button>
                       {/* <p className="text-secondary font-semibold">
                   Delivery Expected by Thu,26 Mar 2024
