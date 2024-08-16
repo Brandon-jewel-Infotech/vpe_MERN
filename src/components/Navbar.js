@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toggleSidebar } from "../redux/slice";
 import { Link } from "react-router-dom";
+import { FaCircleUser } from "react-icons/fa6";
 
 const Navbar = () => {
   const { tok, role } = useSelector((state) => state.user);
@@ -105,7 +106,7 @@ const Navbar = () => {
               <span className="indicator-item badge badge-neutral top-2 right-4">
                 {notifications?.length <= 99 ? notifications?.length : "99+"}
               </span>
-              <FaBell size={30} />
+              <FaBell size={25} />
             </div>
             <ul
               tabIndex={0}
@@ -154,7 +155,7 @@ const Navbar = () => {
                 <span className="indicator-item badge badge-neutral top-2 right-4">
                   {wallet}
                 </span>
-                <FaWallet size={30} />
+                <FaWallet size={25} />
               </div>
               <ul
                 tabIndex={0}
@@ -166,6 +167,11 @@ const Navbar = () => {
               </ul>
             </li>
           )}
+          <li>
+            <Link to={"/update-profile"}>
+              <FaCircleUser size={25} />
+            </Link>
+          </li>
         </ul>
       </div>
     </div>

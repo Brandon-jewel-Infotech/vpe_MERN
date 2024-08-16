@@ -265,10 +265,10 @@ const EditProduct = () => {
       <PrimaryLayout>
         <div className="flex flex-col text-start mb-6">
           <h2 className="text-xl font-bold ">Update Product Details</h2>
-          <p className="text-md">Products &gt; Update Product Details</p>
+          {/* <p className="text-md">Products &gt; Update Product Details</p> */}
         </div>
 
-        <div className="flex flex-col gap-8 max-md:pb-28">
+        <div className="flex flex-col gap-8">
           <div className="flex gap-10 max-lg:flex-col bg-white">
             <div className="w-[98%] lg:w-[50%] h-full">
               <div className="bg-base-100 card card-body  shadow-md rounded-md">
@@ -474,7 +474,7 @@ const EditProduct = () => {
                         }}
                         value={employeeReward}
                       >
-                        <option disabled selected>
+                        <option value={undefined} selected>
                           Pick one
                         </option>
                         {rewards?.map((reward, index) => (

@@ -64,6 +64,7 @@ import AdminRequests from "./pages/Seller/Requests/AdminRequests";
 import Rewards from "./pages/Seller/Rewards/Rewards";
 import Announcements from "./pages/Seller/Announcements";
 import ForgotPassword from "./pages/ForgotPassword";
+import UpdateProfile from "./pages/UpdateProfile";
 
 export const getRoutesByRole = (auth, role, code, navigate) => {
   // Admin Routes
@@ -76,6 +77,7 @@ export const getRoutesByRole = (auth, role, code, navigate) => {
     { path: "/categories", component: <Categories /> },
     { path: "/companies", component: <Companies /> },
     { path: "/add-moderator", component: <AddEmployee role={role} /> },
+    { path: "/update-profile", component: <UpdateProfile /> },
     // { path: "/orders", component: <Orders  /> },
     //   { path: "/users/edit/:id", component: <EditUsers /> },
     // { path: "/users/add", component: <AddUsers /> },
@@ -109,6 +111,7 @@ export const getRoutesByRole = (auth, role, code, navigate) => {
     { path: "/reward-list", component: <Rewards /> },
     { path: "/cart", component: <Cart /> },
     { path: "/announcements", component: <Announcements /> },
+    { path: "/update-profile", component: <UpdateProfile /> },
   ];
 
   // console.log(`Auth : ${auth} ; Role : ${role}`);

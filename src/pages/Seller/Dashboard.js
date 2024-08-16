@@ -19,6 +19,8 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Loading from "../../components/Loading";
+import truncateString from "../../utils/stringTruncate";
+import currencyFormatter from "../../utils/currencyFormatter";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -85,7 +87,7 @@ const Dashboard = () => {
 
       setDashboardData((currData) =>
         currData.map((dt, i) => {
-          dt.value = (i === 2 ? "₹ " : "") + (data[i] || 0);
+          dt.value = (i === 2 ? "₹ " : "") + currencyFormatter(data[i] || 0);
           return dt;
         })
       );
@@ -111,6 +113,10 @@ const Dashboard = () => {
         }
       );
 
+      data.pieChartData = data.pieChartData.map((item) => ({
+        name: truncateString(item.name),
+        value: item.value,
+      }));
       setChartData(data);
     } catch (error) {
       if (error?.response?.status === 401) {
@@ -160,7 +166,7 @@ const Dashboard = () => {
 
   return (
     <PrimaryLayout>
-      <div className="flex flex-col gap-10 max-md:pb-28">
+      <div className="flex flex-col gap-10">
         <div className="flex flex-wrap justify-center items-center gap-4 flex-col lg:flex-row">
           {dashboardData.map((item, i) => (
             <DashboardCard key={i} {...item} loading={loadingStatisticsData} />

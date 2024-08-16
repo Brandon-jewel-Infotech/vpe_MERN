@@ -476,6 +476,7 @@ const Register = () => {
                 />
                 <FormField
                   title="Address Line 2"
+                  required={true}
                   inputHandler={(e) => {
                     setAddressLine2(e.target.value);
                   }}
@@ -484,12 +485,14 @@ const Register = () => {
               <div className="flex sm:gap-5 max-sm:flex-wrap">
                 <FormField
                   title="City"
+                  required={true}
                   inputHandler={(e) => {
                     setCity(e.target.value);
                   }}
                 />
                 <FormField
                   title="State"
+                  required={true}
                   inputHandler={(e) => {
                     setState(e.target.value);
                   }}
@@ -498,12 +501,14 @@ const Register = () => {
               <div className="flex sm:gap-5 max-sm:flex-wrap">
                 <FormField
                   title="Country"
+                  required={true}
                   inputHandler={(e) => {
                     setCountry(e.target.value);
                   }}
                 />
                 <FormField
                   title="Pincode"
+                  required={true}
                   inputHandler={(e) => {
                     setPincode(e.target.value);
                   }}
@@ -513,7 +518,7 @@ const Register = () => {
                 <label className="form-control w-full">
                   <div className="label">
                     <span className="label-text font-semibold">
-                      Aadhar Card
+                      Aadhar Card <span style={{ color: "red" }}>*</span>
                     </span>
                   </div>
                   <input
@@ -524,6 +529,7 @@ const Register = () => {
                 </label>
                 <FormField
                   title="Google maps link"
+                  required={true}
                   inputHandler={(e) => {
                     setGoogleMapLink(e.target.value);
                   }}

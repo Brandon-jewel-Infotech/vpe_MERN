@@ -17,13 +17,13 @@ const RequestNewCompanyModal = () => {
   const requestNewCompany = async () => {
     try {
       if (!companyName?.length) {
-        toast.error("Please enter a valid company name");
+        return toast.error("Please enter a valid company name");
       } else if (companyNumber?.length !== 10) {
-        toast.error("Please enter a valid contact number");
+        return toast.error("Please enter a valid contact number");
       } else if (companyWhatsappNumber?.length !== 10) {
-        toast.error("Please enter a valid whatsapp number");
+        return toast.error("Please enter a valid whatsapp number");
       } else if (validateEmail(companyEmail)) {
-        toast.error("Please enter a valid email address");
+        return toast.error("Please enter a valid email address");
       }
       let message = `I want to request a new company  : 
           \nCompany Name : ${companyName}

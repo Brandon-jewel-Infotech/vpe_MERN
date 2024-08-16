@@ -17,6 +17,7 @@ import Loading from "../../components/Loading";
 import FallbackText from "../../components/FallbackText";
 import { IoCartOutline } from "react-icons/io5";
 import getRewardCoins from "../../utils/RewardCoins";
+import currencyFormatter from "../../utils/currencyFormatter";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -191,7 +192,7 @@ const Cart = () => {
       )}
       {!loadingData &&
         (cartData?.length ? (
-          <div className="flex sm:gap-10 max-lg:flex-col max-md:pb-28">
+          <div className="flex sm:gap-10 max-lg:flex-col">
             <div className="card bg-white flex-1 lg:w-[60%] xl:w-[70%]">
               <div className="card-body p-0 py-2">
                 <div className="overflow-x-auto">
@@ -256,12 +257,14 @@ const Cart = () => {
                             </td>
                             <td>
                               ₹{" "}
-                              {cartItem?.variant?.price_b2b ||
-                                cartItem?.product?.price_b2b}
+                              {currencyFormatter(
+                                cartItem?.variant?.price_b2b ||
+                                  cartItem?.product?.price_b2b
+                              )}
                             </td>
-                            <td>₹ {itemPrice}</td>
+                            <td>₹ {currencyFormatter(itemPrice)}</td>
                             <td>{rewardedCoins}</td>
-                            <td>₹{cartItem.total}</td>
+                            <td>₹{currencyFormatter(cartItem.total)}</td>
                             <td className="flex justify-center">
                               <div className="flex justify-center w-[50%]">
                                 <button
@@ -342,7 +345,9 @@ const Cart = () => {
                     <tbody>
                       <tr>
                         <th>Sub Total</th>
-                        <td className="text-end">₹{subTotal}</td>
+                        <td className="text-end">
+                          ₹{currencyFormatter(subTotal)}
+                        </td>
                       </tr>
                       <tr>
                         <th>Total Reward Coins</th>
@@ -358,7 +363,9 @@ const Cart = () => {
                   </tr> */}
                       <tr className="text-xl">
                         <th>Total</th>
-                        <td className="text-end">₹{cartTotal}</td>
+                        <td className="text-end">
+                          ₹{currencyFormatter(cartTotal)}
+                        </td>
                       </tr>
                     </tbody>
                   </table>

@@ -78,12 +78,12 @@ const Rewards = () => {
         selectedReward={selectedReward}
         setRewards={setRewards}
       />
-      <div className="card bg-white max-w-full max-md:pb-28">
+      <div className="card bg-white max-w-full">
         <div className="card-body p-0 2xl:mx-auto">
           <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3  justify-between items-center">
             <div>
               <h2 className="text-xl font-bold text-start">Reward List</h2>
-              <p className="text-md">Rewards &gt; Reward List</p>
+              {/* <p className="text-md">Rewards &gt; Reward List</p> */}
             </div>
             <button
               className="primary-btn font-semibold"

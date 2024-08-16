@@ -30,18 +30,14 @@ const ForgotPassword = () => {
   };
 
   const getForgotPasswordOTP = async () => {
-    if (forgotPasswordData?.contact?.length !== 10)
-      return toast.error(`Contact Number must have 10 characters`);
-
     if (!validateEmail(forgotPasswordData?.email))
       return toast.error(`Please Enter a valid email address`);
 
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/users/signup-otp`,
+      const res = await axios.patch(
+        `${process.env.REACT_APP_BACKEND_URL}/forgot-password-otp`,
         {
           email: forgotPasswordData?.email,
-          contact: forgotPasswordData?.contact,
         }
       );
 
@@ -52,10 +48,10 @@ const ForgotPassword = () => {
       }
       toast.success("OTP Sent successfully");
     } catch (error) {
-      toast.error(error?.response?.data?.error || "Failed to login");
+      toast.error(error?.response?.data?.error || "Failed to send OTP.");
     }
   };
-  // const { cart } = useSelector((state) => state.cart);
+
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("Something went wrong!");
 
@@ -65,15 +61,22 @@ const ForgotPassword = () => {
     if (auth) navigate("/");
   }, []);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
+  const handleSubmit = () => {
     if (!validateEmail(forgotPasswordData.email)) {
       return toast.error("Please enter valid email address.");
     }
 
+    if (forgotPasswordData?.emailOTP?.length !== 6)
+      return toast.error("Please enter a valid OTP.");
+
+    if (forgotPasswordData?.password?.length < 8)
+      return toast.error("Password should have atleast 8 digits.");
+
+    if (forgotPasswordData?.password !== forgotPasswordData?.confirmPassword)
+      return toast.error("Password and Confirm Password should be same.");
+
     axios
-      .post(
+      .patch(
         `${process.env.REACT_APP_BACKEND_URL}/forgot-password`,
         forgotPasswordData
       )
@@ -84,9 +87,12 @@ const ForgotPassword = () => {
               ? "admin"
               : res.data.role === 2
               ? "business"
-              : res.data.role === 3
-              ? "mod"
-              : "employee";
+              : "";
+
+          if (user_role === "") {
+            toast.dismiss();
+            return toast.error("Admin and Seller login allowed only");
+          }
 
           dispatch(
             login({
@@ -98,12 +104,7 @@ const ForgotPassword = () => {
             })
           );
 
-          user_role === "admin"
-            ? navigate("/")
-            : user_role === "business"
-            ? navigate("/")
-            : navigate("/forgot-password");
-          // getCart();
+          navigate("/");
         }
       })
       .catch((err) => {
@@ -112,6 +113,22 @@ const ForgotPassword = () => {
         }
       });
   };
+
+  useEffect(() => {
+    let timer;
+    if (isCounting) {
+      timer = setInterval(() => {
+        setCountdown((prevCountdown) => {
+          if (prevCountdown === 1) {
+            setIsCounting(false);
+            clearInterval(timer);
+          }
+          return prevCountdown - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isCounting]);
 
   return (
     <div className="flex justify-center items-center">
@@ -208,7 +225,8 @@ const ForgotPassword = () => {
             <button
               type="submit"
               className="primary-btn"
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 if (isOTPSended) {
                   handleSubmit();
                 } else {
@@ -222,7 +240,7 @@ const ForgotPassword = () => {
 
           <div className="flex flex-col gap-3">
             {isOTPSended && (
-              <button
+              <Link
                 className="text-neutral hover:text-neutral/70 font-semibold"
                 style={{ border: "none", backgroundColor: "white" }}
                 onClick={() => {
@@ -231,7 +249,7 @@ const ForgotPassword = () => {
                 disabled={isCounting}
               >
                 Resend OTP {isCounting && `(${countdown}s)`}
-              </button>
+              </Link>
             )}
             <Link
               to={"/register"}

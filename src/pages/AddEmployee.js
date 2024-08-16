@@ -85,11 +85,11 @@ const AddEmployee = ({ role }) => {
           Add {role === "admin" ? "Moderator" : "Employee"}
         </h2>
         <h4 className="text-md text-start">
-          {role === "admin" ? "Users" : "Employees"} &gt; Add{" "}
-          {role === "admin" ? "Moderator" : "Employee"}
+          {/* {role === "admin" ? "Users" : "Employees"} &gt; Add{" "} */}
+          {/* {role === "admin" ? "Moderator" : "Employee"} */}
         </h4>
       </div>
-      <div className="flex gap-10 max-lg:flex-col items-center bg-white max-md:pb-28">
+      <div className="flex gap-10 max-lg:flex-col items-center bg-white">
         <div className="bg-base-100 card w-[98%] lg:w-[50%] rounded-md shadow-xl mx-auto">
           <div className="bg-base-100 card card-body rounded-md shadow-xl">
             <FormField

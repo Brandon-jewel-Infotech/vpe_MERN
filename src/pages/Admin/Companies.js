@@ -92,12 +92,12 @@ const Companies = () => {
       {/*
       <AddSubCompany company={selectedCompany} /> */}
       <PrimaryLayout>
-        <div className="card bg-white max-w-full max-md:pb-28">
+        <div className="card bg-white max-w-full">
           <div className="card-body p-0 2xl:mx-auto">
             <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3 justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-start">Company List</h2>
-                <p className="text-sm">Companies {">"} Company List</p>
+                {/* <p className="text-sm">Companies {">"} Company List</p> */}
               </div>
               <Link
                 className="primary-btn font-semibold"

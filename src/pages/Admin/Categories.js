@@ -155,7 +155,7 @@ const Categories = () => {
             <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3 justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-start">Category List</h2>
-                <p className="text-sm">Categories {">"} Category List</p>
+                {/* <p className="text-sm">Categories {">"} Category List</p> */}
               </div>
               <button
                 className="primary-btn font-semibold"

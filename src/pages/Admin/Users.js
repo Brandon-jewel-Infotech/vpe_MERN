@@ -96,12 +96,12 @@ const Users = () => {
       {/* <AddUser />
       <AddSubUser user={selectedUser} /> */}
       <PrimaryLayout>
-        <div className="card bg-white max-w-full max-md:pb-28">
+        <div className="card bg-white max-w-full">
           <div className="card-body p-0 2xl:mx-auto">
             <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3 justify-between items-center">
               <div>
                 <h2 className="text-lg font-bold text-start">User List</h2>
-                <p className="text-sm">Users {">"} User List</p>
+                {/* <p className="text-sm">Users {">"} User List</p> */}
               </div>
               {/* <div className="flex justify-between flex-wrap items-center"> */}
               <div className=" flex items-center gap-4 flex-wrap sm:justify-between max-sm:w-full ms-auto my-5">

@@ -79,9 +79,9 @@ const Announcements = () => {
             )}
             {!loadingData &&
               (announcements?.length ? (
-                <div className="mt-3 overflow-x-auto min-h-96 flex flex-col gap-5 max-md:pb-28">
+                <div className="mt-3 overflow-x-auto min-h-96 flex flex-col gap-5">
                   {announcements?.map((announcement) => (
-                    <div className="card bg-base-200 text-primary-content shadow-md">
+                    <div className="card bg-base-200 text-primary-content shadow-md rounded-tl-none">
                       <div className="card-body">
                         <div className="flex max-sm:flex-col justify-between items-center w-full">
                           <h2 className="card-title capitalize ">
@@ -89,7 +89,13 @@ const Announcements = () => {
                           </h2>
                           <span>{formatDate(announcement?.updatedAt)}</span>
                         </div>
-                        <pre className="text-start overflow-auto">
+                        <pre
+                          className="text-start overflow-auto"
+                          style={{
+                            fontFamily:
+                              '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+                          }}
+                        >
                           {announcement?.content}
                         </pre>
                         <div className="card-actions justify-end">

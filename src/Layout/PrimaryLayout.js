@@ -14,6 +14,7 @@ import { GiCardboardBox } from "react-icons/gi";
 import { AiOutlineUserAdd } from "react-icons/ai";
 import { RiMedalLine } from "react-icons/ri";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const PrimaryLayout = ({ children }) => {
   const { role } = useSelector((state) => state.user);
@@ -113,9 +114,43 @@ const PrimaryLayout = ({ children }) => {
       <div className="flex justify-between">
         <Sidebar sidebarItems={navItems} />
         <div
-          className={`flex-1 text-center flex flex-col p-5 sm:px-14 sm:py-6 bg-white overflow-x-auto `}
+          className={`flex-1 text-center flex flex-col bg-white overflow-x-auto `}
         >
-          {children}
+          <div className="p-5 sm:px-14 sm:py-6">
+            {children}
+            <footer className="footer footer-center p-4 md:hidden mt-5 mb-24">
+              <aside>
+                <p>
+                  Made by{" "}
+                  <Link
+                    to={"https://brandon.co.in/"}
+                    target="_blank"
+                    className="underline"
+                  >
+                    {" "}
+                    Brandon Infotech
+                  </Link>{" "}
+                  © 2018
+                </p>
+              </aside>
+            </footer>
+          </div>
+          <footer className="footer footer-center bg-neutral text-white p-4 max-md:hidden">
+            <aside>
+              <p>
+                Made by{" "}
+                <Link
+                  to={"https://brandon.co.in/"}
+                  target="_blank"
+                  className="underline"
+                >
+                  {" "}
+                  Brandon Infotech
+                </Link>{" "}
+                © 2018
+              </p>
+            </aside>
+          </footer>
         </div>
       </div>
       <BottomNav navItems={navItems} />

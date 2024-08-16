@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PrimaryLayout from "../../Layout/PrimaryLayout";
 import MarketPlaceItem from "../../components/MarketPlaceItem";
 import axios from "axios";
@@ -6,18 +6,21 @@ import FallbackText from "../../components/FallbackText";
 import Loading from "../../components/Loading";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
+import FormField from "../../components/FormField";
+import debounce from "../../utils/debounce";
 
 const MarketPlace = () => {
   const { tok } = useSelector((state) => state.user);
   const [products, setProducts] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
+  const [keyword, setKeyword] = useState("");
 
-  const getProducts = async () => {
+  const getProducts = async (keyword) => {
     setLoadingData(true);
     try {
       const { data } = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/seller/all`,
-        {},
+        { keyword },
         { headers: { Authorization: tok } }
       );
 
@@ -28,9 +31,23 @@ const MarketPlace = () => {
     setLoadingData(false);
   };
 
+  const debouncedGetProducts = useCallback(
+    debounce((nextValue) => {
+      getProducts(nextValue);
+    }, 300),
+    []
+  );
+
   useEffect(() => {
-    getProducts();
-  }, []);
+    if (keyword) {
+      debouncedGetProducts(keyword);
+    } else {
+      getProducts();
+    }
+
+    return () => {};
+  }, [keyword, debouncedGetProducts]);
+
   return (
     <PrimaryLayout>
       <div className="card bg-white ">
@@ -39,16 +56,17 @@ const MarketPlace = () => {
             <div>
               <h2 className="text-xl font-bold text-start mb-3">MarketPlace</h2>
             </div>
-
-            {/* <button
-              className="primary-btn font-semibold"
-              onClick={() => {
-                // navigate("/add-employee");
+            <FormField
+              name={"keyword"}
+              placeholder={"Type to search..."}
+              value={keyword}
+              className={"max-w-52 ms-auto"}
+              inputHandler={(e) => {
+                setKeyword(e.target.value);
               }}
-            >
-              <GoPlus size={20} /> Add Newasd
-            </button> */}
+            />
           </div>
+
           {/* Side bar */}
           {/* <div className="lg:flex flex-col gap-4 hidden">
           <div className="mr-4 bg-base-200 p-4  flex  rounded-sm">
@@ -164,7 +182,7 @@ const MarketPlace = () => {
           )}
           {!loadingData &&
             (products?.length ? (
-              <div className="flex flex-wrap gap-6 mt-4 justify-center lg:justify-start max-md:pb-28">
+              <div className="flex flex-wrap gap-6 mt-4 justify-center lg:justify-start">
                 {products?.map((product, ind) => (
                   <MarketPlaceItem key={product.id} product={product} />
                 ))}

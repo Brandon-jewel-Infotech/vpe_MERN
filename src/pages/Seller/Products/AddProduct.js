@@ -155,9 +155,9 @@ const AddProduct = () => {
     <PrimaryLayout>
       <div className="flex flex-col mb-6 text-start">
         <h2 className="text-xl font-bold ">Add Product Details</h2>
-        <h4 className="text-md ">Products &gt; Product Details</h4>
+        {/* <h4 className="text-md ">Products &gt; Product Details</h4> */}
       </div>
-      <div className="flex gap-10 max-lg:flex-col bg-white max-md:pb-28">
+      <div className="flex gap-10 max-lg:flex-col bg-white">
         <div className="w-[98%] lg:w-[50%] h-full">
           <div className="bg-base-100 card card-body  shadow-xl rounded-md">
             <FormField
@@ -316,7 +316,7 @@ const AddProduct = () => {
                 <label className="form-control w-full ">
                   <div className="label">
                     <span className="label-text font-semibold">
-                      Employee Rewards
+                      Employee Reward
                     </span>
                   </div>
                   <select
@@ -325,7 +325,7 @@ const AddProduct = () => {
                       setEmployeeReward(e.target.value);
                     }}
                   >
-                    <option disabled selected>
+                    <option selected value={undefined}>
                       Pick one
                     </option>
                     {rewards?.map((reward, index) => (

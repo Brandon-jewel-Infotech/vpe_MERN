@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import Loading from "../../../components/Loading";
 import FallbackText from "../../../components/FallbackText";
 import { GiCardboardBox } from "react-icons/gi";
+import truncateString from "../../../utils/stringTruncate";
 
 const ProductList = () => {
   const { tok } = useSelector((state) => state.user);
@@ -49,12 +50,12 @@ const ProductList = () => {
 
   return (
     <PrimaryLayout>
-      <div className="card bg-white max-w-full max-md:pb-28">
+      <div className="card bg-white max-w-full">
         <div className="card-body p-0 2xl:mx-auto">
           <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-3 justify-between items-center">
             <div>
               <h2 className="text-xl font-bold text-start">Product List</h2>
-              <p className="text-md">Products &gt; Product List</p>
+              {/* <p className="text-md">Products &gt; Product List</p> */}
             </div>
             <Link className="primary-btn font-semibold" to={"/add-product"}>
               <GoPlus size={20} /> Add New
@@ -90,7 +91,7 @@ const ProductList = () => {
                     {products?.map((item) => (
                       <tr key={item.id}>
                         <td>{item.id}</td>
-                        <td>{item.name}</td>
+                        <td>{truncateString(item.name)}</td>
                         <td>
                           <img
                             className="w-[200px] rounded object-contain"
@@ -103,7 +104,9 @@ const ProductList = () => {
                         <td>{item.price_b2b}</td>
                         <td>{item.price_b2c}</td>
                         <td
-                          dangerouslySetInnerHTML={{ __html: item.description }}
+                          dangerouslySetInnerHTML={{
+                            __html: truncateString(item.description),
+                          }}
                         ></td>
                         <td>{item.category.name}</td>
                         <td>{item.subcategory.name}</td>

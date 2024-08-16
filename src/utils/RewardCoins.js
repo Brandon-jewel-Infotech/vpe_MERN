@@ -1,6 +1,7 @@
 const getRewardCoins = (reward, items, amount) => {
   let rewardCoins = reward?.coins?.split(",");
   let rewardConditions = reward?.conditions?.split(",");
+  // console.log(amount);
 
   if (reward?.status == 1) {
     return rewardCoins[0] * items;

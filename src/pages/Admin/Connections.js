@@ -71,7 +71,7 @@ const Connections = () => {
         getConnections={getConnections}
       />
       <PrimaryLayout>
-        <div className="card bg-white max-w-full max-md:pb-28">
+        <div className="card bg-white max-w-full">
           <div className="card-body p-0 2xl:mx-auto">
             <div className="flex justify-between items-center max-sm:flex-col text-start max-sm:text-center">
               <div className=" ">
@@ -90,7 +90,7 @@ const Connections = () => {
                       })`}
                   </span>
                 </h2>
-                <p className="text-sm">Connections {">"} Connection List</p>
+                {/* <p className="text-sm">Connections {">"} Connection List</p> */}
               </div>
 
               <form

@@ -10,6 +10,7 @@ import Loading from "../../../components/Loading";
 import FallbackText from "../../../components/FallbackText";
 import { TiDocumentText } from "react-icons/ti";
 import getRewardCoins from "../../../utils/RewardCoins";
+import currencyFormatter from "../../../utils/currencyFormatter";
 
 const OrderRequests = () => {
   const dispatch = useDispatch();
@@ -59,10 +60,10 @@ const OrderRequests = () => {
       <PrimaryLayout>
         <div className="text-start">
           <h2 className="text-lg font-bold ">Order Requests</h2>
-          <p className="text-sm">Requests {">"} Order Requests</p>
+          {/* <p className="text-sm">Requests {">"} Order Requests</p> */}
         </div>
         <div className="card bg-white flex-1 w-full">
-          <div className="card-body p-0 py-2 max-md:pb-28">
+          <div className="card-body p-0 py-2">
             {loadingData && (
               <div className="w-40 h-40 mx-auto">
                 <Loading />
@@ -101,7 +102,7 @@ const OrderRequests = () => {
                             <td>{order?.createdBy?.name}</td>
                             <td>{order?.createdBy?.role}</td>
                             <td>{order.formattedDate}</td>
-                            <td>₹ {order?.orderTotal}</td>
+                            <td>₹ {currencyFormatter(order?.orderTotal)}</td>
                             <td>
                               <button
                                 className="primary-btn"
@@ -196,6 +197,7 @@ export const OrderDetailModal = ({
                 stage: res?.data?.stage,
                 qty: res?.data?.qty,
                 prices: res?.data?.prices,
+                rewarded_coins: res?.data?.rewarded_coins,
               };
               setSelectedOrder((currOrder) => {
                 const orderItems = currOrder.orderItems;
@@ -237,6 +239,12 @@ export const OrderDetailModal = ({
             Customer Type:{" "}
             <span className="font-normal">{orderDetails?.createdBy?.role}</span>
           </h3>
+          {orderDetails?.note && (
+            <h3 className="my-2">
+              Additional Note:{" "}
+              <span className="font-normal">{orderDetails?.note}</span>
+            </h3>
+          )}
           <div>
             <h3 className="my-2 font-semibold">Order Items: </h3>
             <div className="overflow-x-auto max-h-50vh overflow-auto">
@@ -267,14 +275,18 @@ export const OrderDetailModal = ({
                                 className={"max-w-24"}
                                 inputHandler={(e) => {
                                   if (
-                                    e.target.value > 0 ||
+                                    e.target.value > 0 &&
                                     e.target.value <= item.qty
                                   ) {
                                     setUpdatedQty(e.target.value);
                                     setUpdatedRewardCoins(
                                       getRewardCoins(
                                         item?.reward,
-                                        e.target.value
+                                        e.target.value,
+                                        editItemId === item.id
+                                          ? (item.price / item.qty) *
+                                              e.target.value
+                                          : item?.price
                                       )
                                     );
                                   }
@@ -301,9 +313,11 @@ export const OrderDetailModal = ({
                         </td>
                         <td>
                           ₹{" "}
-                          {editItemId === item.id
-                            ? (item.price / item.qty) * updatedQty
-                            : item?.price}
+                          {currencyFormatter(
+                            editItemId === item.id
+                              ? (item.price / item.qty) * updatedQty
+                              : item?.price
+                          )}
                         </td>
                         <td>
                           {editItemId === item.id
@@ -394,7 +408,9 @@ export const OrderDetailModal = ({
           <div>
             <h3 className="text-lg my-2 font-semibold">
               Order Total:{" "}
-              <span className="font-normal">₹ {orderDetails?.orderTotal}</span>
+              <span className="font-normal">
+                ₹ {currencyFormatter(orderDetails?.orderTotal)}
+              </span>
             </h3>
             <h3 className="text-lg my-2 font-semibold">
               Total Reward Coins:{" "}

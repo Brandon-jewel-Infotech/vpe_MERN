@@ -47,7 +47,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/logout" element={<Logout />} />
             <Route path="/register" element={<Register />} />
-            {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
+            <Route path="/forgot-password" element={<ForgotPassword />} />
           </>
         ) : (
           userRoutes.map((route, index) => (

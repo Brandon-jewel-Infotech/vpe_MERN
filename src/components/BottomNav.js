@@ -66,7 +66,7 @@ const BottomNav = ({ navItems }) => {
       <Drawer
         isVisible={isVisible}
         onClose={onClose}
-        className={`${isVisible ? "" : "hidden"}`}
+        className={`md:hidden ${isVisible ? "" : "hidden"}`}
       >
         <div className="grid grid-cols-3 divide-y divide-gray-300">
           {navItems?.map(({ title, Icon, url, links }, index) =>

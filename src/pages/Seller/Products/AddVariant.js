@@ -98,7 +98,7 @@ const AddVariant = () => {
     <PrimaryLayout>
       <div className="text-start flex flex-col mb-6">
         <h2 className="text-xl font-bold text-start">Add Variant Details</h2>
-        <p className="text-md">Products &gt; Add Variant</p>
+        {/* <p className="text-md">Products &gt; Add Variant</p> */}
       </div>
       <div className="bg-base-100 card w-[98%] lg:w-[50%] rounded-md shadow-xl mx-auto max-md:mb-28 ">
         <div className="card-body">

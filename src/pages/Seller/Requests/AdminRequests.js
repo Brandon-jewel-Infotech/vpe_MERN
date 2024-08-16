@@ -49,7 +49,7 @@ const AdminRequests = () => {
     <PrimaryLayout>
       <div className="text-start">
         <h2 className="text-lg font-bold ">Admin Requests</h2>
-        <p className="text-sm">Requests {">"} Admin Requests</p>
+        {/* <p className="text-sm">Requests {">"} Admin Requests</p> */}
       </div>
       <div className="card bg-white max-w-full">
         <div className="card-body p-0 2xl:mx-auto">
@@ -60,7 +60,7 @@ const AdminRequests = () => {
           )}
           {!loadingData &&
             (requests?.length ? (
-              <div className="mt-3 overflow-x-auto max-md:pb-28">
+              <div className="mt-3 overflow-x-auto">
                 <table className="table table-zebra table-auto w-full">
                   <thead className="bg-neutral text-center text-white">
                     <tr>
