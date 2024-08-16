@@ -1,5 +1,6 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../utils/database");
+const UserModel = require("./userModel");
 
 const RewardsModel = sequelize.define("rewards", {
   id: {
@@ -30,6 +31,15 @@ const RewardsModel = sequelize.define("rewards", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  created_by: {
+    type: Sequelize.INTEGER,
+    references: {
+      model: "users",
+      key: "id",
+    },
+  },
 });
+
+RewardsModel.belongsTo(UserModel, { foreignKey: "created_by", as: "user" });
 
 module.exports = RewardsModel;

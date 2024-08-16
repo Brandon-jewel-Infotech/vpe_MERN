@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
+const { randomInt } = require("crypto");
 
 const sequelize = require("../utils/database");
 
@@ -11,10 +12,32 @@ const BankDetail = require("../models/bankDetailsModel");
 const Request = require("../models/requestModel");
 const Employee = require("../models/employeesModel");
 const { Op } = require("sequelize");
-const AddressModel = require("../models/addressDetailsModel");
 const CartModel = require("../models/cartModel");
 const NotificationsModel = require("../models/notificationsModel");
 const OrderListModel = require("../models/orderListModel");
+const sendEmail = require("../utils/sendEmail");
+const path = require("path");
+
+const temporaryUserData = {};
+
+function cleanupExpiredTemporaryUserData() {
+  const currentTime = Date.now();
+  for (const email in temporaryUserData) {
+    if (temporaryUserData.hasOwnProperty(email)) {
+      if (temporaryUserData[email?.toLowerCase()].expiryTime <= currentTime) {
+        delete temporaryUserData[email?.toLowerCase()];
+      }
+    }
+  }
+  console.log("Temporary User Data Cleared Successfully");
+}
+
+setInterval(cleanupExpiredTemporaryUserData, 60 * 60 * 1000);
+
+function generateOTP() {
+  const OTP = randomInt(100000, 999999);
+  return OTP;
+}
 
 async function generateUniqueCode() {
   let code;
@@ -47,15 +70,15 @@ exports.signup = async (req, res) => {
     password,
     contact,
     gstin,
-    addressline1,
-    addressline2,
+    addressLine1,
+    addressLine2,
     city,
     state,
     zip,
     gmaplink,
     upi,
     category,
-    holdername,
+    accountHolderName,
     accountNumber,
     bankAddress,
     bankName,
@@ -81,7 +104,7 @@ exports.signup = async (req, res) => {
       categoryId: category,
     });
 
-    const fileName = "public/uploads/" + req.file.fileName;
+    const fileName = `/public/aadhar/${path.basename(req.file.path)}`;
 
     if (!req.file) {
       return res
@@ -90,8 +113,8 @@ exports.signup = async (req, res) => {
     }
 
     await AddressDetail.create({
-      address_line_1: addressline1,
-      address_line_2: addressline2,
+      address_line_1: addressLine1,
+      address_line_2: addressLine2,
       city: city,
       state: state,
       zip: zip,
@@ -101,7 +124,7 @@ exports.signup = async (req, res) => {
     });
 
     await BankDetail.create({
-      holder_name: holdername,
+      holder_name: accountHolderName,
       account_number: accountNumber,
       ifsc_code: ifsc,
       bank_name: bankName,
@@ -112,6 +135,25 @@ exports.signup = async (req, res) => {
 
     //Don't know why Request is created
     await Request.create({ createdBy: user.id });
+
+    const notificationPromises = [];
+    const usersToNotify = await User.findAll({
+      where: {
+        role: { [Op.in]: [1, 3] },
+      },
+    });
+
+    usersToNotify.forEach((user) => {
+      notificationPromises.push(
+        NotificationsModel.create({
+          sender: req.user.id,
+          receiver: user.id,
+          content: `A new Account Creation request has been created by user ${email}.`,
+        })
+      );
+    });
+
+    await Promise.all(notificationPromises);
 
     return res.status(200).json({ message: "Application Successful" });
   } catch (error) {
@@ -582,17 +624,14 @@ exports.updateById = async (req, res) => {
   }
 };
 
-// to delete  the connections of the seller by his id  (seller's controller) ( sequelized and tested)
 exports.deleteById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Find and delete associated address details
     await AddressDetail.destroy({
       where: { user_id: id },
     });
 
-    // Find and delete associated bank details
     await BankDetail.destroy({
       where: { user_id: id },
     });
@@ -659,5 +698,289 @@ exports.getWallet = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.getForgotPasswordOTP = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const userData = await User.findOne({
+      where: {
+        email: email?.toLowerCase(),
+      },
+    });
+
+    if (!userData) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (userData.email) {
+      const emailOTP = generateOTP();
+      await sendEmail({
+        email,
+        subject: "Verification Mail for VPE Forgot Password",
+        message: "Your VPE Account Verification OTP is: " + emailOTP,
+      });
+
+      temporaryUserData[email?.toLowerCase()] = {
+        ...temporaryUserData[email?.toLowerCase()],
+        email: email?.toLowerCase(),
+        emailOTP,
+        expiresIn: Date.now() + 5 * 60 * 1000,
+      };
+    } else {
+      return res.status(400).json({ error: "Please enter Email Address" });
+    }
+
+    res.status(201).json({ message: "OTP sent Successfully." });
+  } catch (error) {
+    console.error("Error sending Login OTP: ", error);
+    res.status(500).json({ error: "Failed to send OTP" });
+  }
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email, emailOTP = "", password } = req.body;
+    const hashedPw = await bcrypt.hash(password, 12);
+
+    let user = await User.findOne({
+      where: {
+        email: email?.toLowerCase(),
+      },
+    });
+
+    const currentTime = Date.now();
+
+    if (
+      !(
+        temporaryUserData[email?.toLowerCase()]?.emailOTP == emailOTP &&
+        temporaryUserData[email?.toLowerCase()]?.expiresIn >= currentTime
+      )
+    ) {
+      return res.status(403).json({ error: "Invalid or Expired OTP" });
+    }
+
+    user.password = hashedPw;
+
+    await user.save();
+
+    let employerId = null;
+    if (user.role === 4) {
+      const employee = await Employee.findOne({
+        where: { employeeId: user.id },
+      });
+      employerId = employee ? employee.employerId : null;
+    }
+
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        category: user.categoryId,
+        employerId,
+      },
+      process.env.SECRET_KEY
+      // { expiresIn: process.env.JWT_EXPIRE || "1d" }
+    );
+
+    delete temporaryUserData[email?.toLowerCase()];
+
+    res.status(200).json({
+      message: "LoggedIn",
+      name: user.name,
+      role: user.role,
+      contact: user.contact,
+      token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to reset password" });
+  }
+};
+
+exports.getUserDetails = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    let userDetails = await User.findOne({
+      where: { id: userId },
+      attributes: ["name", "email", "contact", "gstin", "categoryId"],
+      include: [
+        {
+          model: AddressDetail,
+          as: "address_details",
+          attributes: [
+            "address_line_1",
+            "address_line_2",
+            "city",
+            "state",
+            "zip",
+            "aadhar_pic",
+            "gmap_link",
+          ],
+        },
+        {
+          model: BankDetail,
+          as: "bank_details",
+          attributes: [
+            "holder_name",
+            "account_number",
+            "ifsc_code",
+            "bank_name",
+            "bank_address",
+            "upi",
+          ],
+        },
+      ],
+    });
+
+    if (!userDetails) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const formattedDetails = {
+      name: userDetails.name,
+      email: userDetails.email,
+      contact: userDetails.contact,
+      gstin: userDetails.gstin,
+      address_line_1: userDetails.address_details?.address_line_1 || null,
+      address_line_2: userDetails.address_details?.address_line_2 || null,
+      city: userDetails.address_details?.city || null,
+      state: userDetails.address_details?.state || null,
+      zip: userDetails.address_details?.zip || null,
+      gmap_link: userDetails.address_details?.gmap_link || null,
+      upi: userDetails.bank_details?.upi || null,
+      category: userDetails.categoryId, // Ensure this matches your actual category data if needed
+      holder_name: userDetails.bank_details?.holder_name || null,
+      account_number: userDetails.bank_details?.account_number || null,
+      bank_address: userDetails.bank_details?.bank_address || null,
+      bank_name: userDetails.bank_details?.bank_name || null,
+      ifsc_code: userDetails.bank_details?.ifsc_code || null,
+    };
+
+    return res.status(200).json(formattedDetails);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Failed to fetch Profile details." });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  const {
+    name,
+    email,
+    contact,
+    password,
+    gstin,
+    address_line_1,
+    address_line_2,
+    city,
+    state,
+    zip,
+    gmap_link,
+    upi,
+    category,
+    holder_name,
+    account_number,
+    bank_address,
+    bank_name,
+    ifsc_code,
+  } = req.body;
+
+  const t = await sequelize.transaction();
+
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId, { transaction: t });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const updateData = {
+      name,
+      email,
+      contact,
+      gstin,
+      categoryId: category,
+      ...(password && { password: await encrypt(password) }),
+    };
+
+    await user.update(updateData, { transaction: t });
+
+    if ([1, 2].includes(req.user.role)) {
+      const addressDetail = await AddressDetail.findOne({
+        where: { user_id: userId },
+        transaction: t,
+      });
+
+      if (addressDetail) {
+        await AddressDetail.update(
+          {
+            address_line_1,
+            address_line_2,
+            city,
+            state,
+            zip,
+            gmap_link,
+          },
+          { where: { user_id: userId } },
+          { transaction: t }
+        );
+      } else {
+        await AddressDetail.create({
+          address_line_1,
+          address_line_2,
+          city,
+          state,
+          zip,
+          gmap_link,
+          user_id: req.user.id,
+        });
+      }
+
+      const bankDetail = await BankDetail.findOne({
+        where: { user_id: userId },
+        transaction: t,
+      });
+
+      if (bankDetail) {
+        await BankDetail.update(
+          {
+            holder_name,
+            account_number,
+            ifsc_code,
+            bank_name,
+            bank_address,
+            upi,
+          },
+          { where: { user_id: userId } },
+          { transaction: t }
+        );
+      } else {
+        await BankDetail.create({
+          holder_name,
+          account_number,
+          ifsc_code,
+          bank_name,
+          bank_address,
+          upi,
+          user_id: req.user.id,
+        });
+      }
+    }
+
+    await t.commit();
+
+    return res
+      .status(200)
+      .json({ message: "User details updated successfully" });
+  } catch (error) {
+    await t.rollback();
+    console.log(error);
+    return res.status(500).json({ error: "Failed to update Profile." });
   }
 };

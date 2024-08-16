@@ -62,6 +62,9 @@ const OrderListModel = sequelize.define("order_list", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
+  note: {
+    type: Sequelize.STRING,
+  },
 });
 
 //Associations

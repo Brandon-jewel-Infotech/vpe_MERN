@@ -9,16 +9,11 @@ const storage = multer.diskStorage({
 
     if (file.fieldname === "file") {
       uploadPath = path.join(__dirname, "../public", "aadhar");
-
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath, { recursive: true });
-      }
     } else if (file.fieldname === "images") {
       uploadPath = path.join(__dirname, "../public", "products");
-
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath, { recursive: true });
-      }
+    }
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
     }
     return cb(null, uploadPath);
   },

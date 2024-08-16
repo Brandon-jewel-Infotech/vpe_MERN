@@ -10,6 +10,7 @@ const BankDetails = require("../models/bankDetailsModel");
 
 const fs = require("fs");
 const { Op } = require("sequelize");
+const CategoriesModel = require("../models/categoriesModel");
 
 // to create  the request to  the seller  (seller's controller) (sequelized and tested)
 exports.createRequest = async (req, res) => {
@@ -22,6 +23,12 @@ exports.createRequest = async (req, res) => {
       description,
       role,
       receiver,
+    });
+
+    await NotificationsModel.create({
+      sender: req.user.id,
+      receiver,
+      content: `A new request has been created by user ${req.user.name}.`,
     });
 
     return res
@@ -51,20 +58,53 @@ exports.fetchRequests = async (req, res) => {
           "createdAt",
           "updatedAt",
         ],
-        include: {
-          model: User,
-          attributes: ["name"],
-          where: {
-            id: sequelize.literal("`requests`.`createdBy` = `user`.`id`"),
+        include: [
+          {
+            model: User,
+            attributes: ["name", "email", "contact", "gstin", "categoryId"],
+            include: [
+              {
+                model: CategoriesModel,
+                attributes: ["name"],
+              },
+              {
+                model: AddressDetails,
+                as: "address_details",
+                attributes: [
+                  "address_line_1",
+                  "address_line_2",
+                  "city",
+                  "state",
+                  "zip",
+                  "aadhar_pic",
+                  "gmap_link",
+                ],
+              },
+              {
+                model: BankDetails,
+                as: "bank_details",
+                attributes: [
+                  "holder_name",
+                  "account_number",
+                  "ifsc_code",
+                  "bank_name",
+                  "bank_address",
+                  "upi",
+                ],
+              },
+            ],
           },
-        },
+        ],
 
-        // where: {
-        //   role: {
-        //     [sequelize.literal("NOT")]: 1, // Exclude requests with role 1
-        //   },
-        // },
         order: [["status"], ["createdAt", "DESC"]],
+      });
+
+      requests = requests?.map((request) => {
+        request = request.toJSON();
+        if (request.role != 0) {
+          request.user = { name: request.user.name };
+        }
+        return request;
       });
     } else {
       // If user role is not 1
@@ -82,9 +122,6 @@ exports.fetchRequests = async (req, res) => {
         include: {
           model: User,
           attributes: ["name"],
-          // where: {
-          //   id: sequelize.literal("`requests`.`receiver` = `user`.`id`"),
-          // },
         },
         where: {
           role: {
@@ -123,6 +160,7 @@ exports.fetchRequestsById = async (req, res) => {
       include: [
         {
           model: User,
+          required: false,
           attributes: [],
           include: [
             {
@@ -243,6 +281,12 @@ exports.updateRequest = async (req, res) => {
           }
         );
       }
+
+      await NotificationsModel.create({
+        sender: request?.receiver,
+        receiver: req.user.id,
+        content: `Request with ID ${id} has been updated.`,
+      });
     });
 
     res.json({ message: "Successful" });

@@ -39,6 +39,8 @@ router.post(
   userAuthentication,
   userController.createEmployee
 ); //tested
+router.get("/users/profile", userAuthentication, userController.getUserDetails); //tested
+router.put("/users/profile", userAuthentication, userController.updateUser); //tested
 router.post("/users/fetch", roleAuthentication(1), userController.fetchUsers); //tested
 router.get("/users/wallet", userAuthentication, userController.getWallet); //tested
 router.get("/users/:id", roleAuthentication(1), userController.searchByCode); //tested
@@ -46,6 +48,8 @@ router.put("/users", roleAuthentication(1), userController.updateById); //to upd
 router.delete("/users/:id", roleAuthentication(1), userController.deleteById); //tested
 
 router.post("/login", userController.login); //tested
+router.patch("/forgot-password-otp", userController.getForgotPasswordOTP);
+router.patch("/forgot-password", userController.forgotPassword);
 
 router.put(
   //tested

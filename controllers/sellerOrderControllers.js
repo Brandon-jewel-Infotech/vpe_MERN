@@ -158,6 +158,7 @@ exports.createOrderslist = async (req, res) => {
 
   try {
     const { id: userId, role } = req.user;
+    const { note } = req.body;
 
     const rewardAttribute =
       role === 2 ? "seller_reward_id" : "employee_reward_id";
@@ -171,8 +172,9 @@ exports.createOrderslist = async (req, res) => {
           attributes: ["id", "name", "availability", "instock", "created_by"],
           include: {
             model: RewardsModel,
-            as: "seller_reward",
+            as: role === 2 ? "seller_reward" : "employee_reward",
             attributes: ["id", "name", "coins", "conditions", "status"],
+            required: false,
             where: { id: Sequelize.col(`product.${rewardAttribute}`) },
           },
         },
@@ -196,7 +198,7 @@ exports.createOrderslist = async (req, res) => {
       const { qty, product_id, variant_id, product, variant } = cartItem;
 
       const rewarded_coins = getRewardCoins(
-        cartItem?.product?.reward,
+        cartItem?.product[role === 2 ? "seller_reward" : "employee_reward"],
         cartItem?.qty,
         cartItem?.total
       );
@@ -236,6 +238,7 @@ exports.createOrderslist = async (req, res) => {
         variant_id,
         prices: cartItem.total,
         order_group,
+        note,
       });
     }
 
@@ -440,6 +443,7 @@ exports.getMyAllOrderlists = async (req, res) => {
                 ? "Moderator"
                 : "Employee",
           },
+          note: order.note,
           id: orderId,
           createdAt: order.createdAt,
           orderItems: [],
@@ -498,19 +502,21 @@ exports.updateOrderslists = async (req, res) => {
         },
         {
           model: Product,
-          attributes: ["name"],
           as: "product",
+          attributes: ["id", "name"],
           include: [
             {
               model: RewardsModel,
               as: "seller_reward",
               attributes: ["id", "name", "coins", "conditions", "status"],
+              required: false,
               where: { id: Sequelize.col(`product.seller_reward_id`) },
             },
             {
               model: RewardsModel,
               as: "employee_reward",
               attributes: ["id", "name", "coins", "conditions", "status"],
+              required: false,
               where: { id: Sequelize.col(`product.employee_reward_id`) },
             },
           ],

@@ -17,7 +17,7 @@ const SubCategoriesModel = require("../models/subCategoriesModel");
 
 const { deleteProductImages } = require("../utils/imageCleanup");
 const EmployeeModel = require("../models/employeesModel");
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 
 //sequelized
 exports.fetchSellerCategories = async (req, res) => {
@@ -178,6 +178,7 @@ exports.getSellerProducts = async (req, res) => {
           model: Reward,
           as: "seller_reward",
           attributes: ["id", "name"],
+          required: false,
           where: { id: Sequelize.col(`seller_reward_id`) },
         },
         { model: Company, attributes: ["id", "name"] },
@@ -201,11 +202,25 @@ exports.getSellerProducts = async (req, res) => {
 exports.getAllEmployeeProducts = async (req, res) => {
   try {
     let employerId = req.user.employerId;
+    const { keyword } = req.body;
 
     let whereClause = { created_by: employerId };
 
     if (req?.params?.id) {
       whereClause.id = req.params.id;
+    } else if (keyword) {
+      whereClause[Op.or] = [
+        {
+          name: {
+            [Op.like]: `%${keyword}%`,
+          },
+        },
+        {
+          description: {
+            [Op.like]: `%${keyword}%`,
+          },
+        },
+      ];
     }
 
     const products = await ProductModel.findAll({
@@ -234,6 +249,7 @@ exports.getAllEmployeeProducts = async (req, res) => {
           model: Reward,
           as: "employee_reward",
           attributes: ["id", "coins", "conditions", "status"],
+          required: false,
           where: { id: Sequelize.col(`employee_reward_id`) },
         },
         {
@@ -433,6 +449,7 @@ exports.editProduct = async (req, res) => {
 exports.getAllProducts = async (req, res) => {
   try {
     const { role } = req.user;
+    const { keyword } = req.body;
 
     const rewardAttribute =
       role === 2 ? "seller_reward_id" : "employee_reward_id";
@@ -443,7 +460,19 @@ exports.getAllProducts = async (req, res) => {
 
     if (req?.body?.id) {
       whereClause.id = req.body.id;
-    } else {
+    } else if (keyword) {
+      whereClause[Op.or] = [
+        {
+          name: {
+            [Op.like]: `%${keyword}%`,
+          },
+        },
+        {
+          description: {
+            [Op.like]: `%${keyword}%`,
+          },
+        },
+      ];
     }
 
     const products = await Product.findAll({
@@ -470,11 +499,13 @@ exports.getAllProducts = async (req, res) => {
           model: Category,
           as: "category",
           attributes: ["id", "name"],
+          required: false,
         },
         {
           model: Reward,
           as: rewardField,
           attributes: ["id", "coins", "conditions", "status"],
+          required: false,
           where: {
             id: Sequelize.col(rewardAttribute),
           },
@@ -482,26 +513,32 @@ exports.getAllProducts = async (req, res) => {
         {
           model: Subcategory,
           as: "subcategory",
+          required: false,
           attributes: ["id", "name"],
         },
         {
           model: Company,
           as: "company",
+          required: false,
           attributes: ["id", "name"],
         },
         {
           model: User,
           as: "user",
+          required: false,
           attributes: [],
         },
         {
           model: ImageModel,
           as: "images",
+          required: false,
           attributes: ["id", "url"],
         },
       ],
       where: whereClause,
     });
+
+    // console.log(products);
 
     if (req?.body?.id) {
       const product = products[0];
@@ -518,6 +555,7 @@ exports.getAllProducts = async (req, res) => {
           {
             model: ImageModel,
             as: "images",
+            required: false,
             attributes: ["id", "url"],
           },
         ],
@@ -525,7 +563,7 @@ exports.getAllProducts = async (req, res) => {
       });
 
       const productWithVariants = {
-        ...product.get({ plain: true }),
+        ...product?.get({ plain: true }),
         variants: variants,
       };
 

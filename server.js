@@ -38,7 +38,7 @@ app.use(cors());
 
 const port = process.env.PORT || 5500;
 
-app.use("/public/uploads", express.static("public/uploads"));
+app.use("/public/aadhar", express.static("public/aadhar"));
 app.use("/public/products", express.static("public/products"));
 app.use(router);
 app.use("/seller", sellerRouter);

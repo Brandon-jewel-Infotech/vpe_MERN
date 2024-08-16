@@ -45,5 +45,9 @@ const AddressModel = sequelize.define("address_details", {
 });
 
 AddressModel.belongsTo(UserModel, { foreignKey: "user_id" });
+UserModel.hasOne(AddressModel, {
+  as: "address_details",
+  foreignKey: "user_id",
+});
 
 module.exports = AddressModel;

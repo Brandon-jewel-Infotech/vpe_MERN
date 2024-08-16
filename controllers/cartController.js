@@ -35,6 +35,7 @@ exports.getCart = async (req, res) => {
               model: RewardsModel,
               as: rewardField,
               attributes: ["id", "name", "coins", "conditions", "status"],
+              required: false,
               where: { id: Sequelize.col(`product.${rewardAttribute}`) },
             },
           ],

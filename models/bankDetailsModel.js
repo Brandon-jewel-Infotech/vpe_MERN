@@ -39,5 +39,9 @@ const BankDetailsModel = sequelize.define("bank_details", {
 
 //Associations
 BankDetailsModel.belongsTo(UserModel, { foreignKey: "user_id" });
+UserModel.hasOne(BankDetailsModel, {
+  as: "bank_details",
+  foreignKey: "user_id",
+});
 
 module.exports = BankDetailsModel;

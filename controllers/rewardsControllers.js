@@ -2,6 +2,7 @@ const Reward = require("../models/rewardsModel");
 
 exports.createReward = async (req, res) => {
   const { name, coins, status, conditions = "" } = req?.body;
+  const { userId } = req?.user;
 
   try {
     const newReward = await Reward.create({
@@ -9,6 +10,7 @@ exports.createReward = async (req, res) => {
       coins,
       status,
       conditions,
+      created_by: userId,
     });
 
     res.status(201).json({ message: "Successfully Added", result: newReward });
@@ -19,12 +21,12 @@ exports.createReward = async (req, res) => {
 };
 
 exports.getReward = async (req, res) => {
-  const { id } = req?.body;
+  const { userId } = req?.user;
 
   try {
     const rewards = await Reward.findAll({
       attributes: ["name", "coins", "stage", "status", "conditions", "id"],
-      where: {},
+      where: { created_by: userId },
     });
 
     res.json({ results: rewards, message: "Successfully retrieved rewards" });
@@ -36,6 +38,7 @@ exports.getReward = async (req, res) => {
 
 exports.updateReward = async (req, res) => {
   const { id, name, coins, status, conditions } = req?.body;
+  const { id: userId } = req?.user;
 
   try {
     const [updatedRowsCount] = await Reward.update(
@@ -48,6 +51,7 @@ exports.updateReward = async (req, res) => {
       {
         where: {
           id,
+          created_by: userId,
         },
       }
     );
@@ -65,11 +69,13 @@ exports.updateReward = async (req, res) => {
 
 exports.deleteReward = async (req, res) => {
   const { id } = req?.body;
+  const { userId } = req?.user;
 
   try {
     const deletedRowsCount = await Reward.destroy({
       where: {
         id,
+        created_by: userId,
       },
     });
 
