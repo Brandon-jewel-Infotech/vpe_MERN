@@ -114,11 +114,11 @@ const PrimaryLayout = ({ children }) => {
       <div className="flex justify-between">
         <Sidebar sidebarItems={navItems} />
         <div
-          className={`flex-1 text-center flex flex-col bg-white overflow-x-auto `}
+          className={`flex-1 text-center flex flex-col bg-white overflow-x-auto pb-20`}
         >
           <div className="p-5 sm:px-14 sm:py-6">
             {children}
-            <footer className="footer footer-center p-4 md:hidden mt-5 mb-24">
+            <footer className="footer footer-center p-4 md:hidden mt-5 ">
               <aside>
                 <p>
                   Made by{" "}
@@ -135,7 +135,7 @@ const PrimaryLayout = ({ children }) => {
               </aside>
             </footer>
           </div>
-          <footer className="footer footer-center bg-neutral text-white p-4 max-md:hidden">
+          <footer className="footer footer-center bg-neutral text-white p-4 max-md:hidden fixed bottom-0">
             <aside>
               <p>
                 Made by{" "}
