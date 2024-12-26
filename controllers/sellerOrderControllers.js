@@ -188,7 +188,7 @@ exports.createOrderslist = async (req, res) => {
     });
 
     if (cartItems.length === 0) {
-      return res.status(400).json({ message: "No items in the cart" });
+      return res.status(400).json({ error: "No items in the cart" });
     }
 
     const order_group = await getLastOrderGroupAndIncrement();

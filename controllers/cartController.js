@@ -178,7 +178,7 @@ exports.updateCartItemQuantity = async (req, res) => {
     }
 
     if (qty < 0) {
-      return res.status(400).json({ message: "Quantity cannot be negative." });
+      return res.status(400).json({ error: "Quantity cannot be negative." });
     }
 
     // if (cartItem?.qty < qty) {

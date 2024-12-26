@@ -100,7 +100,7 @@ router.post(
         reward_id,
       } = req?.body;
       // console.log(req.user);
-      console.log(reward_id);
+      // console.log(reward_id);
       const instock = req?.body?.instock ? 0 : 1;
       const sql =
         "INSERT INTO `products` ( `name`, `image`, `price_b2b`, `price_b2c`, `category_id`, `subcategory_id`, `company_id`, `availability`, `description` ,`instock`, `created_by`,`reward_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?);";
@@ -149,7 +149,7 @@ router.post(
       req.files.map((data) => {
         urls += data.path + ",";
       });
-      console.log(urls);
+      // console.log(urls);
       const { name, price, price_b2b, prod_id, desc } = req?.body;
       // console.log(req.user);
       const instock = req?.body?.instock ? 0 : 1;

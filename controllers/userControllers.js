@@ -85,86 +85,103 @@ exports.signup = async (req, res) => {
     ifsc,
   } = req.body;
 
+  const t = await sequelize.transaction();
+
   try {
     const hashed = await encrypt(password);
-    // console.log("hashed" + hashed);
     const code = await generateUniqueCode();
     const role = req.body.role ? req.body.role : 2;
     const status = req.body.status ? req.body.status : 1;
 
-    const user = await User.create({
-      name: name,
-      email: email,
-      contact: contact,
-      password: hashed,
-      role: role,
-      code: code,
-      status: status,
-      gstin: gstin,
-      categoryId: category,
-    });
+    const user = await User.create(
+      {
+        name: name,
+        email: email,
+        contact: contact,
+        password: hashed,
+        role: role,
+        code: code,
+        status: status,
+        gstin: gstin,
+        categoryId: category,
+      },
+      { transaction: t }
+    );
+
+    if (!req.file) {
+      await t.rollback();
+      return res
+        .status(400)
+        .json({ error: "Something went wrong with image upload" });
+    }
 
     const fileName = `/public/aadhar/${path.basename(req.file.path)}`;
 
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ message: "Something went wrong with image upload" });
-    }
-
-    await AddressDetail.create({
-      address_line_1: addressLine1,
-      address_line_2: addressLine2,
-      city: city,
-      state: state,
-      zip: zip,
-      aadhar_pic: fileName,
-      gmap_link: gmaplink,
-      user_id: user.id,
-    });
-
-    await BankDetail.create({
-      holder_name: accountHolderName,
-      account_number: accountNumber,
-      ifsc_code: ifsc,
-      bank_name: bankName,
-      bank_address: bankAddress,
-      upi: upi,
-      user_id: user.id,
-    });
-
-    //Don't know why Request is created
-    await Request.create({ createdBy: user.id });
-
-    const notificationPromises = [];
-    const usersToNotify = await User.findAll({
-      where: {
-        role: { [Op.in]: [1, 3] },
+    await AddressDetail.create(
+      {
+        address_line_1: addressLine1,
+        address_line_2: addressLine2,
+        city: city,
+        state: state,
+        zip: zip,
+        aadhar_pic: fileName,
+        gmap_link: gmaplink,
+        user_id: user.id,
       },
-    });
+      { transaction: t }
+    );
 
-    usersToNotify.forEach((user) => {
-      notificationPromises.push(
-        NotificationsModel.create({
+    await BankDetail.create(
+      {
+        holder_name: accountHolderName,
+        account_number: accountNumber,
+        ifsc_code: ifsc,
+        bank_name: bankName,
+        bank_address: bankAddress,
+        upi: upi,
+        user_id: user.id,
+      },
+      { transaction: t }
+    );
+
+    await Request.create({ createdBy: user.id }, { transaction: t });
+
+    const usersToNotify = await User.findAll(
+      {
+        where: {
+          role: { [Op.in]: [1, 3] },
+        },
+      },
+      { transaction: t }
+    );
+
+    const notificationPromises = usersToNotify.map((user) =>
+      NotificationsModel.create(
+        {
           sender: req.user.id,
           receiver: user.id,
           content: `A new Account Creation request has been created by user ${email}.`,
-        })
-      );
-    });
+        },
+        { transaction: t }
+      )
+    );
 
     await Promise.all(notificationPromises);
 
+    await t.commit();
+
     return res.status(200).json({ message: "Application Successful" });
   } catch (error) {
+    await t.rollback();
+    console.log(error);
     if (
       error?.errors?.length > 0 &&
       error?.errors?.some((e) => e.type.includes("unique violation"))
     )
       return res
         .status(400)
-        .json({ message: "Email address already register." });
-    return res.status(400).json({ message: "Error encountered." });
+        .json({ error: "Email address already registered." });
+    return res.status(400).json({ error: "Error encountered." });
   }
 };
 
