@@ -40,7 +40,6 @@ exports.getCoinslists = async (req, res) => {
       ],
     });
 
-    console.log(result);
     res.json(result);
   } catch (error) {
     console.error(error);

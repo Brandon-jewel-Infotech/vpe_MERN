@@ -10,6 +10,7 @@ function authAll(role) {
 
     try {
       const decoded = jwt.verify(token, process.env.SECRET_KEY);
+
       if (decoded.role !== role) {
         return res.status(403).send("Forbidden.");
       }

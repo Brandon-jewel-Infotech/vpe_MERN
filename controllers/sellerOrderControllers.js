@@ -564,7 +564,7 @@ exports.updateOrderslists = async (req, res) => {
       orderlist.save();
 
       await NotificationsModel.create(
-        { content, sender: req.user.userId, reciever: orderlist?.createdBy },
+        { content, sender: req.user.userId, receiver: orderlist?.createdBy },
         { transaction: t }
       );
 
@@ -625,7 +625,7 @@ exports.updateCreatedOrderslists = async (req, res) => {
         } cancelled by ${req.user.name}`;
       }
       await Notification.create(
-        { content, sender: req.user.id, reciever: orderlist?.receiver },
+        { content, sender: req.user.id, receiver: orderlist?.receiver },
         { transaction: t }
       );
 

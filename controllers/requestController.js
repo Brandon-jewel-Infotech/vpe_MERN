@@ -9,12 +9,13 @@ const AddressDetails = require("../models/addressDetailsModel");
 const BankDetails = require("../models/bankDetailsModel");
 
 const fs = require("fs");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const CategoriesModel = require("../models/categoriesModel");
+const NotificationsModel = require("../models/notificationsModel");
 
 // to create  the request to  the seller  (seller's controller) (sequelized and tested)
 exports.createRequest = async (req, res) => {
-  const { description, receiver, role } = req?.body;
+  let { description, receiver, role } = req?.body;
 
   try {
     // Create a new request using Sequelize model
@@ -25,9 +26,14 @@ exports.createRequest = async (req, res) => {
       receiver,
     });
 
+    if (!receiver) {
+      let adminDetails = await User.findOne({ where: { role: 1 } });
+      receiver = adminDetails?.id;
+    }
+
     await NotificationsModel.create({
       sender: req.user.id,
-      receiver,
+      receiver: receiver,
       content: `A new request has been created by user ${req.user.name}.`,
     });
 
@@ -283,7 +289,7 @@ exports.updateRequest = async (req, res) => {
       }
 
       await NotificationsModel.create({
-        sender: request?.receiver,
+        sender: req.user.id,
         receiver: req.user.id,
         content: `Request with ID ${id} has been updated.`,
       });

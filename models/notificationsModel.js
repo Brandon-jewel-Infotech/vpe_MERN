@@ -16,7 +16,7 @@ const NotificationsModel = sequelize.define("notifications", {
       key: "id",
     },
   },
-  reciever: {
+  receiver: {
     type: Sequelize.INTEGER,
     references: {
       model: UserModel,

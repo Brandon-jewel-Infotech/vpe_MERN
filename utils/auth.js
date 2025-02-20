@@ -15,7 +15,6 @@ function auth(role) {
       req.user = decoded;
       next();
     } catch (ex) {
-      console.log(ex);
       res.status(401).json({ message: "Session expired" });
     }
   };

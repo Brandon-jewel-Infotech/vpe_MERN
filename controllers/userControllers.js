@@ -155,11 +155,11 @@ exports.signup = async (req, res) => {
       { transaction: t }
     );
 
-    const notificationPromises = usersToNotify.map((user) =>
+    const notificationPromises = usersToNotify.map((us1) =>
       NotificationsModel.create(
         {
-          sender: req.user.id,
-          receiver: user.id,
+          sender: user.id,
+          receiver: us1.id,
           content: `A new Account Creation request has been created by user ${email}.`,
         },
         { transaction: t }
@@ -173,7 +173,7 @@ exports.signup = async (req, res) => {
     return res.status(200).json({ message: "Application Successful" });
   } catch (error) {
     await t.rollback();
-    console.log(error);
+
     if (
       error?.errors?.length > 0 &&
       error?.errors?.some((e) => e.type.includes("unique violation"))
@@ -519,13 +519,17 @@ exports.fetchUsers = async (req, res) => {
   try {
     const role = req?.body?.role ? req.body.role : 2;
     let users;
+    const whereObj = { role };
+
+    if (req?.user?.role !== 1) {
+      whereObj.status = 3;
+    }
+
+    console.log(whereObj);
 
     if (role === 4) {
       users = await User.findAll({
-        where: {
-          role,
-          status: 3,
-        },
+        where: whereObj,
         include: [
           {
             model: Employee,
@@ -553,10 +557,7 @@ exports.fetchUsers = async (req, res) => {
       });
     } else {
       users = await User.findAll({
-        where: {
-          role,
-          status: 3,
-        },
+        where: whereObj,
         order: [["name"]],
         attributes: [
           "id",

@@ -38,7 +38,7 @@ exports.getReward = async (req, res) => {
 
 exports.updateReward = async (req, res) => {
   const { id, name, coins, status, conditions } = req?.body;
-  const { id: userId } = req?.user;
+  const { userId } = req?.user;
 
   try {
     const [updatedRowsCount] = await Reward.update(

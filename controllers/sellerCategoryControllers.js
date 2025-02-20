@@ -63,6 +63,7 @@ exports.addProduct = async (req, res) => {
       if (files && files.length > 0) {
         files.forEach((file) => fs.unlinkSync(file.path));
       }
+
       return res
         .status(400)
         .json({ error: "Please fill all required fields for product" });
@@ -98,6 +99,7 @@ exports.addProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating product:", error);
+
     res.status(500).json({
       error: "Error creating product",
     });
@@ -365,7 +367,7 @@ exports.getSellerVariants = async (req, res) => {
           ],
           include: [
             { model: User, as: "user", attributes: ["id"] },
-            { model: Image, attributes: ["id", "url"], as: "images" },
+            { model: ImageModel, attributes: ["id", "url"], as: "images" },
           ],
         },
       ],
@@ -547,6 +549,7 @@ exports.getAllProducts = async (req, res) => {
           "id",
           "name",
           "price_b2b",
+          "price_b2c",
           "product_id",
           "description",
           "qty",

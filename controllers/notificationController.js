@@ -3,12 +3,12 @@ const Notification = require("../models/notificationsModel");
 exports.createNotification = async (req, res) => {
   // tested
   try {
-    const { content, reciever } = req?.body;
+    const { content, receiver } = req?.body;
 
     const newNotification = await Notification.create({
       content,
       sender: req.user.id,
-      reciever,
+      receiver,
     });
 
     res.json({ message: "Successfully Added", result: newNotification });
@@ -22,7 +22,7 @@ exports.getNotification = async (req, res) => {
   //tested
   try {
     const notifications = await Notification.findAll({
-      where: { reciever: req.user.id },
+      where: { receiver: req.user.id },
       order: [["createdAt", "DESC"]],
     });
 
@@ -38,7 +38,7 @@ exports.deleteNotification = async (req, res) => {
   const { id } = req.params;
   const { id: userId } = req.user;
 
-  let whereClause = { reciever: userId };
+  let whereClause = { receiver: userId };
 
   if (id) {
     whereClause.id = id;

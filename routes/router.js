@@ -26,6 +26,32 @@ const {
 router.get("/", (req, res) => {
   res.send("Working");
 });
+router.get("/zip-details/:zipCode", async (req, res) => {
+  try {
+    const { zipCode } = req.params;
+
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${zipCode}&key=${process.env.GOOGLE_API_KEY}`
+    );
+
+    const data = await response.json();
+
+    let [city, state, country] =
+      data?.results[0]?.formatted_address?.split(",");
+
+    state = state?.split(" ")[1];
+
+    res.status(200).json({
+      city: city.trim(),
+      state: state.trim(),
+      country: country.trim(),
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Failed to get ZIP Details." });
+  }
+});
+
 router.post("/users", aadharSaver.single("file"), userController.signup); //tested
 router.delete(
   //tested
@@ -53,7 +79,7 @@ router.patch("/forgot-password", userController.forgotPassword);
 
 router.put(
   //tested
-  "/requests/update/:id",
+  "/users/fetch/:id",
   roleAuthentication(1),
   requestController.updateRequest
 );
@@ -75,7 +101,7 @@ router.post(
   userController.getConnections
 );
 
-router.post("/analytics/", roleAuthentication(1), userController.analytics);
+// router.post("/analytics/", roleAuthentication(1), userController.analytics);
 
 // Category routes (all tested)
 router.post(
