@@ -81,7 +81,10 @@ const Announcements = () => {
               (announcements?.length ? (
                 <div className="mt-3 overflow-x-auto min-h-96 flex flex-col gap-5">
                   {announcements?.map((announcement) => (
-                    <div className="card bg-base-200 text-primary-content shadow-md rounded-tl-none">
+                    <div
+                      className="card bg-base-200 text-primary-content shadow-md rounded-tl-none"
+                      key={announcement?.id}
+                    >
                       <div className="card-body">
                         <div className="flex max-sm:flex-col justify-between items-center w-full">
                           <h2 className="card-title capitalize ">

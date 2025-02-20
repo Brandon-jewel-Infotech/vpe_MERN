@@ -44,6 +44,20 @@ const Register = () => {
   const [ifscCode, setIfscCode] = useState();
   const [upiId, setUpiId] = useState();
 
+  useEffect(() => {
+    if (pincode?.length === 6) {
+      axios
+        .get(`${process.env.REACT_APP_BACKEND_URL}/zip-details/${pincode}`)
+        .then((res) => {
+          console.log(res);
+          setCity(res.data.city);
+          setState(res.data.state);
+          setCountry(res.data.country);
+        })
+        .catch((err) => console.error(err));
+    }
+  }, [pincode]);
+
   const getCategories = () => {
     axios
       .post(`${process.env.REACT_APP_BACKEND_URL}/category`, {
@@ -130,8 +144,7 @@ const Register = () => {
           !city ||
           !state ||
           !country ||
-          !pincode ||
-          !googleMapLink
+          !pincode
         ) {
           setShowAlert(true);
           setAlertMessage("Please fill all the fields!");
@@ -484,33 +497,38 @@ const Register = () => {
               </div>
               <div className="flex sm:gap-5 max-sm:flex-wrap">
                 <FormField
+                  title="Pincode"
+                  required={true}
+                  type={"number"}
+                  value={pincode}
+                  inputHandler={(e) => {
+                    setPincode(e.target.value);
+                  }}
+                />
+                <FormField
                   title="City"
+                  value={city}
                   required={true}
                   inputHandler={(e) => {
                     setCity(e.target.value);
                   }}
                 />
+              </div>
+              <div className="flex sm:gap-5 max-sm:flex-wrap">
                 <FormField
                   title="State"
+                  value={state}
                   required={true}
                   inputHandler={(e) => {
                     setState(e.target.value);
                   }}
                 />
-              </div>
-              <div className="flex sm:gap-5 max-sm:flex-wrap">
                 <FormField
                   title="Country"
                   required={true}
+                  value={country}
                   inputHandler={(e) => {
                     setCountry(e.target.value);
-                  }}
-                />
-                <FormField
-                  title="Pincode"
-                  required={true}
-                  inputHandler={(e) => {
-                    setPincode(e.target.value);
                   }}
                 />
               </div>
@@ -529,7 +547,6 @@ const Register = () => {
                 </label>
                 <FormField
                   title="Google maps link"
-                  required={true}
                   inputHandler={(e) => {
                     setGoogleMapLink(e.target.value);
                   }}

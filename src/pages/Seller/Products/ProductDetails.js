@@ -49,7 +49,6 @@ const ProductDetails = () => {
 
       setRewardCoins(data?.seller_reward?.coins?.split(","));
       setRewardConditions(data?.seller_reward?.conditions?.split(","));
-      console.log(data);
       setProduct(data);
     } catch (error) {
       // console.warn(error);
@@ -223,7 +222,7 @@ const ProductDetails = () => {
                           <div className="skeleton h-4 w-full"></div>
                         </div>
                       ) : (
-                        <div className="lg:w-1/2 text-start flex flex-col gap-3">
+                        <div className="lg:w-1/2 text-start flex flex-col gap-3 mt-6 max-md:mt-24 md:mt-36 lg:mt-0">
                           <h1 className="font-semibold text-2xl capitalize">
                             {product?.name}
                           </h1>

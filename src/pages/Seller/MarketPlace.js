@@ -56,15 +56,17 @@ const MarketPlace = () => {
             <div>
               <h2 className="text-xl font-bold text-start mb-3">MarketPlace</h2>
             </div>
-            <FormField
-              name={"keyword"}
-              placeholder={"Type to search..."}
-              value={keyword}
-              className={"max-w-52 ms-auto"}
-              inputHandler={(e) => {
-                setKeyword(e.target.value);
-              }}
-            />
+            <div>
+              <FormField
+                name={"keyword"}
+                placeholder={"Type to search..."}
+                value={keyword}
+                className={"max-w-52 ms-auto"}
+                inputHandler={(e) => {
+                  setKeyword(e.target.value);
+                }}
+              />
+            </div>
           </div>
 
           {/* Side bar */}

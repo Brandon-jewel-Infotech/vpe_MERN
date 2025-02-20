@@ -118,7 +118,7 @@ const PrimaryLayout = ({ children }) => {
         >
           <div className="p-5 sm:px-14 sm:py-6">
             {children}
-            <footer className="footer footer-center p-4 md:hidden mt-5 ">
+            <footer className="footer footer-center p-4 md:hidden mt-5 z-10">
               <aside>
                 <p>
                   Made by{" "}
@@ -135,7 +135,7 @@ const PrimaryLayout = ({ children }) => {
               </aside>
             </footer>
           </div>
-          <footer className="footer footer-center bg-neutral text-white p-4 max-md:hidden fixed bottom-0">
+          <footer className="footer footer-center bg-neutral text-white p-4 max-md:hidden fixed bottom-0 z-10">
             <aside>
               <p>
                 Made by{" "}

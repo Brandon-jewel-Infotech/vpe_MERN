@@ -58,7 +58,6 @@ const Requests = () => {
                 {/* <p className="text-sm">Requests {">"} Request List</p> */}
               </div>
             </div>
-            {console.log(requests)}
             {loadingData && (
               <div className="w-40 h-40 m-auto">
                 <Loading />
@@ -267,8 +266,6 @@ const UpdateRequest = ({ request, setRequests }) => {
     });
     setImgError(false);
   }, [request]);
-
-  console.log(request);
 
   const inputHandler = (e) => {
     setUpdatedRequest((currDetails) => {

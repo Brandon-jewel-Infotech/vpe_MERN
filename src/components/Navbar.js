@@ -101,6 +101,24 @@ const Navbar = () => {
 
       <div className="flex-none">
         <ul className="menu menu-horizontal">
+          {role === "business" && (
+            <li className="dropdown dropdown-hover dropdown-end">
+              <div tabIndex={0} role="button" className="indicator">
+                <span className="indicator-item badge badge-neutral top-2 right-4">
+                  {wallet}
+                </span>
+                <FaWallet size={25} />
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-44"
+              >
+                <li>
+                  <Link to={"/redeem-wallet"}>Redeem wallet</Link>
+                </li>
+              </ul>
+            </li>
+          )}
           <li className="dropdown dropdown-hover dropdown-end ">
             <div tabIndex={0} role="button" className="indicator">
               <span className="indicator-item badge badge-neutral top-2 right-4">
@@ -110,13 +128,13 @@ const Navbar = () => {
             </div>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-56 sm:w-80 h-96 overflow-y-scroll list-item relative"
+              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box min-w-52 sm:w-80 h-96 overflow-y-scroll list-item relative"
             >
               <div className="flex justify-between items-center p-2">
                 <h3 className="text-xl">Notifications</h3>
                 {notifications?.length > 0 && (
                   <button
-                    className="primary-btn"
+                    className="primary-btn ml-2"
                     onClick={() => removeNotification()}
                   >
                     Clear All
@@ -149,24 +167,7 @@ const Navbar = () => {
               )}
             </ul>
           </li>
-          {role === "business" && (
-            <li className="dropdown dropdown-hover dropdown-end">
-              <div tabIndex={0} role="button" className="indicator">
-                <span className="indicator-item badge badge-neutral top-2 right-4">
-                  {wallet}
-                </span>
-                <FaWallet size={25} />
-              </div>
-              <ul
-                tabIndex={0}
-                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
-              >
-                <li>
-                  <Link to={"/redeem-wallet"}>Redeem wallet</Link>
-                </li>
-              </ul>
-            </li>
-          )}
+
           <li>
             <Link to={"/update-profile"}>
               <FaCircleUser size={25} />

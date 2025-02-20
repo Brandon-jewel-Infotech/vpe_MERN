@@ -652,6 +652,7 @@ const EditProduct = () => {
                                 item?.qty
                               )}
                             </td>
+                            {console.log(item)}
                             <td>
                               <div className="flex gap-3">
                                 {editVariantId === item.id ? (

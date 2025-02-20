@@ -46,7 +46,6 @@ const UpdateProfile = () => {
         !profileDetails?.address_line_1 ||
         !profileDetails?.city ||
         !profileDetails?.zip ||
-        !profileDetails?.gmap_link ||
         !profileDetails?.holder_name ||
         !profileDetails?.account_number ||
         !profileDetails?.ifsc_code ||
@@ -205,7 +204,7 @@ const UpdateProfile = () => {
             />
             <FormField
               title="Google Map Link"
-              required={true}
+              // required={true}
               value={profileDetails?.gmap_link}
               name={"gmap_link"}
               inputHandler={inputHandler}

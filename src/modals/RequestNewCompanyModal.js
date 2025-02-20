@@ -22,7 +22,7 @@ const RequestNewCompanyModal = () => {
         return toast.error("Please enter a valid contact number");
       } else if (companyWhatsappNumber?.length !== 10) {
         return toast.error("Please enter a valid whatsapp number");
-      } else if (validateEmail(companyEmail)) {
+      } else if (!validateEmail(companyEmail)) {
         return toast.error("Please enter a valid email address");
       }
       let message = `I want to request a new company  : 

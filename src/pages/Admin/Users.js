@@ -206,7 +206,6 @@ const Users = () => {
                                 >
                                   {user.status == 3 ? "Suspend" : "Un-Suspend"}
                                 </button>
-
                                 {(selectedRole == 1 || selectedRole == 2) && (
                                   <Link
                                     to={`/connections/?code=${user?.code}`}
